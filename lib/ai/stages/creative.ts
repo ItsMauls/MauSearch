@@ -30,7 +30,10 @@ export const creativeStage: StageConfig<CreativeInput, CreativeStage> = {
   id: "creative",
   role: "Creative Desk - Creative Director",
   temperature: 0.8,
-  maxOutputTokens: 5000,
+  // Highest cap of any stage: up to 6 opportunities each carrying angle,
+  // proofRequired, seoTitles, plus a mandatory kill list. 5000 was clipping
+  // the response mid-array on fuller runs, producing invalid JSON.
+  maxOutputTokens: 8000,
   schema: CreativeStage,
   fixture: fixture as CreativeStage,
   system: `
