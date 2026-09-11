@@ -2,7 +2,8 @@
 
 import { StageId, STAGE_IDS } from "@/lib/schema";
 import { RunView } from "@/lib/view";
-import { cx, ProgressBar, useElapsedSeconds } from "@/components/ui";
+import { cx } from "@/components/ui";
+import { ProgressBar, useElapsedSeconds } from "./progress";
 
 /**
  * The waiting state is the product story, so the rail says which desk is

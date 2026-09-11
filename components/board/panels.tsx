@@ -4,8 +4,9 @@ import { useRef } from "react";
 import { Intent } from "@/lib/schema";
 import { RunView } from "@/lib/view";
 import { SCORE_FORMULA } from "@/lib/pipeline/score";
-import { Badge, Card, cx, DeskNote, ProgressBar, SectionHeader, ShareBar, useElapsedSeconds } from "@/components/ui";
+import { Badge, Card, cx, DeskNote, SectionHeader, ShareBar } from "@/components/ui";
 import { Provenance } from "@/components/provenance";
+import { ProgressBar, useElapsedSeconds } from "./progress";
 
 /** Scrolls to and briefly highlights the Opportunity Card(s) for a cluster —
  *  the shared destination for Demand Read / Topic Clusters / Audience & Fit
