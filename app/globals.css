@@ -67,6 +67,54 @@ body {
   animation: mau-rise 0.35s ease-out both;
 }
 
+/* How It Works illustrations: one small continuous animation per action, not just an entrance. */
+@keyframes mau-sweep {
+  0% { transform: translateX(-4px); opacity: 0; }
+  25% { opacity: 1; }
+  100% { transform: translateX(90px); opacity: 0; }
+}
+.animate-sweep { animation: mau-sweep 2.2s ease-in-out infinite; }
+
+@keyframes mau-scan {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(34px); }
+}
+.animate-scan { animation: mau-scan 2s ease-in-out infinite; }
+
+@keyframes mau-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.animate-bob { animation: mau-bob 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+
+@keyframes mau-grow {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.75); }
+}
+.animate-grow { animation: mau-grow 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom; }
+
+@keyframes mau-fall {
+  0% { transform: translateY(-14px); opacity: 0.3; }
+  60% { opacity: 1; }
+  100% { transform: translateY(14px); opacity: 0; }
+}
+.animate-fall { animation: mau-fall 1.8s ease-in infinite; }
+
+@keyframes mau-flow {
+  to { stroke-dashoffset: -12; }
+}
+.animate-flow { stroke-dasharray: 3 3; animation: mau-flow 0.9s linear infinite; }
+
+@keyframes mau-draw {
+  0%, 15% { stroke-dashoffset: 20; opacity: 0; }
+  40% { opacity: 1; }
+  70%, 100% { stroke-dashoffset: 0; opacity: 1; }
+}
+.animate-draw { stroke-dasharray: 20; animation: mau-draw 1.8s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
-  .animate-working, .animate-land { animation: none; }
+  .animate-working, .animate-land,
+  .animate-sweep, .animate-scan, .animate-bob, .animate-grow, .animate-fall, .animate-flow, .animate-draw {
+    animation: none;
+  }
 }
