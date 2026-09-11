@@ -24,8 +24,7 @@
       "proofRequired": [
         "A real package table with real numbers, not a 'starting from' teaser",
         "Itemised add-on costs: extra hours, custom backdrop, additional prints, out-of-area surcharge",
-        "A worked example totalling a specific 300-guest wedding",
-        "Screenshot or photo evidence of a past event matching each package tier"
+        "A worked example totalling a specific 300-guest wedding"
       ],
       "signals": { "intentValue": 95, "differentiation": 88, "effort": 55 },
       "seoTitles": [
@@ -165,14 +164,6 @@
     {
       "idea": "\"Sejarah Photobooth: Dari 1925 ke Photobooth 360\"",
       "whyKilled": "Not one query in the harvest asks for it. This is the article agencies write when they have a word count to fill and no strategy to follow."
-    },
-    {
-      "idea": "A page targeting \"photobooth aeon jakarta garden city\" and the other branded venue queries",
-      "whyKilled": "Navigational intent for a brand we do not own. The searcher wants that specific operator; we would rank badly, and if we ranked we would annoy the person who arrived."
-    },
-    {
-      "idea": "\"Cara Membuat Photobooth Sendiri di Rumah\"",
-      "whyKilled": "Actively harmful. It ranks for the one informational query in the set by teaching our own customer not to hire us."
     },
     {
       "idea": "A generic \"Sewa Photobooth Jakarta\" service page competing head-on with the head term",

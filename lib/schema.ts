@@ -217,10 +217,10 @@ export const Opportunity = z.object({
     whyNotGeneric: z.string(),
   }),
   targetKeyword: z.string(),
-  supportingKeywords: z.array(z.string()).max(8),
+  supportingKeywords: z.array(z.string()).max(5),
   audience: z.string(),
   promise: z.string(),
-  proofRequired: z.array(z.string()).max(5),
+  proofRequired: z.array(z.string()).max(3),
   /**
    * AI judgment on three dimensions only. The fourth input to the ranking
    * (demandSignal) comes from real Suggest data, and the model never sees or
@@ -231,15 +231,15 @@ export const Opportunity = z.object({
     differentiation: z.number().min(0).max(100),
     effort: z.number().min(0).max(100),
   }),
-  seoTitles: z.array(z.object({ title: z.string(), rationale: z.string() })).min(2).max(4),
+  seoTitles: z.array(z.object({ title: z.string(), rationale: z.string() })).min(2).max(3),
   riskIfIgnored: z.string(),
 });
 export type Opportunity = z.infer<typeof Opportunity>;
 
 export const CreativeStage = z.object({
-  opportunities: z.array(Opportunity).min(3).max(6),
+  opportunities: z.array(Opportunity).min(3).max(4),
   /** Agencies earn their fee by saying no. This is what the desk rejected. */
-  killList: z.array(z.object({ idea: z.string(), whyKilled: z.string() })).min(2).max(5),
+  killList: z.array(z.object({ idea: z.string(), whyKilled: z.string() })).min(2).max(3),
   directorNote: z.string(),
 });
 export type CreativeStage = z.infer<typeof CreativeStage>;

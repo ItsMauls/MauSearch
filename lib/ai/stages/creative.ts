@@ -34,10 +34,11 @@ export const creativeStage: StageConfig<CreativeInput, CreativeStage> = {
   // out: a bigger max_tokens request runs measurably slower on the free
   // reasoning tier even when the actual JSON is far shorter, and hidden
   // chain-of-thought scales with it too. runStage already doubles this on
-  // a truncated response (up to 32k), so start modest - the full 3-6
-  // opportunity list fits well under this in practice - and let the retry
-  // path pay for the rare wordier run instead of every run paying upfront.
-  maxOutputTokens: 8000,
+  // a truncated response (up to 32k), so start modest - the (now shorter)
+  // 3-4 opportunity list fits well under this in practice - and let the
+  // retry path pay for the rare wordier run instead of every run paying
+  // upfront.
+  maxOutputTokens: 6000,
   schema: CreativeStage,
   fixture: fixture as CreativeStage,
   system: `
@@ -83,7 +84,7 @@ Return this JSON shape:
     "promise": "<the payoff the reader gets>",
     "proofRequired": ["<concrete evidence the piece must contain>"],
     "signals": { "intentValue": <0-100>, "differentiation": <0-100>, "effort": <0-100> },
-    "seoTitles": [{ "title": "<publishable title>", "rationale": "<why this one>" }],
+    "seoTitles": [{ "title": "<publishable title>", "rationale": "<one short sentence>" }],
     "riskIfIgnored": "<what we lose by not doing this>"
   }],
   "killList": [{ "idea": "<the rejected idea>", "whyKilled": "<the real reason>" }],
@@ -92,11 +93,12 @@ Return this JSON shape:
                     'differentiation', 'funnel', 'SERP', or agency-speak>"
 }
 
-Hard constraints:
-- 3 to 6 opportunities, ids opp_1, opp_2, ... in order.
-- 2 to 5 kill list entries. Never return an empty kill list.
+Hard constraints (keep every field terse - one clear sentence beats three):
+- 3 to 4 opportunities, ids opp_1, opp_2, ... in order.
+- 2 to 3 kill list entries. Never return an empty kill list.
 - clusterId must match a cluster id given below; targetKeyword must be an exact query.
-- 2 to 4 seoTitles each, written in the SERP language stated above.
+- 2 to 3 seoTitles each, written in the SERP language stated above.
+- proofRequired and supportingKeywords: at most 3 items each. Pick the strongest, not every option.
 `.trim(),
   user: ({ intake, intent, clusters, planning, keywords }) =>
     [
@@ -110,17 +112,17 @@ Hard constraints:
       ...clusters.clusters.map(
         (c) =>
           `- ${c.id} "${c.name}" [${c.dominantIntent}, ${c.funnelStage}]: ${c.theme}\n` +
-          `  queries: ${c.members.slice(0, 8).join(", ")}`
+          `  queries: ${c.members.slice(0, 5).join(", ")}`
       ),
-      `COVERAGE GAPS: ${clusters.coverageGaps.join("; ")}`,
+      `COVERAGE GAPS: ${clusters.coverageGaps.slice(0, 4).join("; ")}`,
       ``,
       `PLANNING DESK`,
       ...planning.audiences.map(
-        (a) => `- ${a.persona} (${a.role}): ${a.jobToBeDone}\n  objections: ${a.objections.join("; ")}`
+        (a) => `- ${a.persona} (${a.role}): ${a.jobToBeDone}\n  objections: ${a.objections.slice(0, 2).join("; ")}`
       ),
       `Goals: ${planning.contentGoals.primary} / success = ${planning.contentGoals.successMetric}`,
       `Build order: ${planning.portfolioAdvice}`,
       ``,
-      `TOP QUERIES BY SUGGEST RANK: ${keywords.slice(0, 12).map((k) => `"${k.keyword}"`).join(", ")}`,
+      `TOP QUERIES BY SUGGEST RANK: ${keywords.slice(0, 8).map((k) => `"${k.keyword}"`).join(", ")}`,
     ].join("\n"),
 };

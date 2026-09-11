@@ -9,7 +9,7 @@ import { getRun, updateRun } from "@/lib/db";
 import { RunRow } from "@/lib/db/schema";
 import { applyKeywordIntents, toRunView } from "@/lib/view";
 
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 /**
  * POST /api/runs/[id]/stages - advances one desk.

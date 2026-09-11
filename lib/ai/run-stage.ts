@@ -102,17 +102,18 @@ async function complete(
 // requesting an unreasonable response size.
 const TOKEN_CEILING = 32_000;
 
-// Every route calling runStage caps at maxDuration=300s. Left unchecked, three
-// sequential model calls (a truncation retry plus a schema-correction retry)
-// can add up to more than that, and the platform kills the function outright
-// with an opaque 504 - no error is recorded, no partial run state is saved.
-// Stopping ourselves comfortably inside that ceiling means a slow run still
-// gets a real StageError response instead of a platform timeout.
+// Every route calling runStage caps at maxDuration=60s (Vercel Hobby's real
+// ceiling - the routes used to declare 300, which Hobby cannot honor, so a
+// slow free-tier call was getting hard-killed by the platform before our own
+// catch block ever ran: no StageError recorded, no partial state saved, and a
+// reload found the stage still "pending" as if nothing had happened). Stopping
+// ourselves well inside the real ceiling means a slow run always gets a real,
+// persisted StageError instead of a silent platform timeout.
 //
 // No per-attempt cap by design: a free-tier call is meant to run to
 // completion in one pass rather than get cut loose mid-response, so each
 // attempt gets whatever is left of the stage's own deadline.
-const STAGE_DEADLINE_MS = 280_000;
+const STAGE_DEADLINE_MS = 48_000;
 
 /**
  * Runs one stage: prompt -> model -> JSON -> schema. Two failure modes get one
