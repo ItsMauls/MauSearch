@@ -47,8 +47,16 @@ function formatMinSec(totalSeconds: number): string {
 }
 
 /** "0:07 elapsed - usually 10-25s, up to a couple of minutes on the free tier" */
-function WorkingTimer({ eta, freeTierModel }: { eta: [number, number]; freeTierModel: boolean }) {
-  const elapsed = useElapsedSeconds();
+function WorkingTimer({
+  since,
+  eta,
+  freeTierModel,
+}: {
+  since?: number | null;
+  eta: [number, number];
+  freeTierModel: boolean;
+}) {
+  const elapsed = useElapsedSeconds(since ?? undefined);
   return (
     <p className="text-[10px] text-faint">
       {formatMinSec(elapsed)} elapsed — usually {formatMinSec(eta[0])}–{formatMinSec(eta[1])}
@@ -109,7 +117,7 @@ export function StageRail({
               {state === "working" && (
                 <div>
                   <p className="text-[11px] text-brand animate-working">{meta.working}</p>
-                  <WorkingTimer key={workingSince ?? id} eta={meta.etaSeconds} freeTierModel={freeTierModel} />
+                  <WorkingTimer since={workingSince} eta={meta.etaSeconds} freeTierModel={freeTierModel} />
                 </div>
               )}
               {state === "pending" && <p className="text-[11px] text-faint">Queued</p>}
@@ -152,9 +160,9 @@ function Dot({ state }: { state: "done" | "pending" | "failed" | "working" | "wa
 }
 
 /** Shaped like the panel that is coming, so the layout does not jump. */
-export function PanelSkeleton({ stage }: { stage: StageId }) {
+export function PanelSkeleton({ stage, since }: { stage: StageId; since?: number | null }) {
   const meta = STAGE_META[stage];
-  const elapsed = useElapsedSeconds();
+  const elapsed = useElapsedSeconds(since ?? undefined);
   return (
     <div className="rounded-xl border border-line bg-surface p-5">
       <div className="flex items-center gap-2">

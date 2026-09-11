@@ -2,14 +2,18 @@
 
 import { useEffect, useState } from "react";
 
-/** Counts seconds since mount. Callers remount this by conditionally
- *  rendering it (or keying it), so the clock restarts each time generation starts. */
-export function useElapsedSeconds(): number {
-  const [elapsed, setElapsed] = useState(0);
+/** Counts seconds since `since` (default: mount time), computed from the
+ *  wall clock rather than a tick count - so a page reload mid-stage, given
+ *  the real start timestamp, resumes the count instead of restarting at 0. */
+export function useElapsedSeconds(since?: number): number {
+  const start = since ?? Date.now();
+  const [elapsed, setElapsed] = useState(() => Math.floor((Date.now() - start) / 1000));
   useEffect(() => {
-    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
+    const tick = () => setElapsed(Math.floor((Date.now() - start) / 1000));
+    tick();
+    const id = setInterval(tick, 1000);
     return () => clearInterval(id);
-  }, []);
+  }, [start]);
   return elapsed;
 }
 

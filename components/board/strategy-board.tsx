@@ -41,8 +41,16 @@ export function StrategyBoard({
   }, [briefError]);
 
   const advance = useCallback(async (runId: string, stage: StageId): Promise<RunView | null> => {
+    // Persisted so a reload mid-stage resumes the elapsed count from the real
+    // start time instead of restarting at 0 - the stage itself keeps running
+    // server-side regardless of what the client does.
+    const startKey = `mausearch:stage-start:${runId}:${stage}`;
+    const stored = Number(window.localStorage.getItem(startKey));
+    const startedAt = stored || Date.now();
+    if (!stored) window.localStorage.setItem(startKey, String(startedAt));
+
     setWorking(stage);
-    setWorkingSince(Date.now());
+    setWorkingSince(startedAt);
     try {
       const response = await fetch(`/api/runs/${runId}/stages`, {
         method: "POST",
@@ -57,19 +65,27 @@ export function StrategyBoard({
     } catch {
       return null;
     } finally {
+      window.localStorage.removeItem(startKey);
       setWorking(null);
       setWorkingSince(null);
     }
   }, []);
 
-  /** Walks the remaining stages in order, stopping at the first failure. */
+  /**
+   * Walks the remaining stages in order, stopping at the first failure.
+   *
+   * Free-tier calls occasionally miss the stage deadline from queue latency
+   * alone, not a real problem with the request - one automatic retry clears
+   * most of those without the user ever seeing the error banner.
+   */
   const drive = useCallback(
     async (from: RunView) => {
       let current = from;
       for (const stage of STAGE_IDS) {
         if (current.stages[stage] === "done") continue;
         if (current.stages[stage] === "failed") return; // wait for an explicit retry
-        const next = await advance(current.id, stage);
+        let next = await advance(current.id, stage);
+        if (!next) next = await advance(current.id, stage);
         if (!next) return;
         current = next;
       }
@@ -170,7 +186,7 @@ export function StrategyBoard({
             />
           )}
 
-          {working && <PanelSkeleton stage={working} />}
+          {working && <PanelSkeleton stage={working} since={workingSince} />}
 
           {!working && nextPending && run.stages[nextPending] === "failed" && (
             <Banner tone="danger" title={`The ${nextPending} desk could not complete`}>
