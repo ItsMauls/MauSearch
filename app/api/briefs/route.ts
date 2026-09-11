@@ -44,22 +44,22 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ brief: toBriefView(existing), reused: true });
   }
 
-  const view = toRunView(run);
-  const opportunity = view.opportunities.find((o) => o.id === opportunityId);
-  if (!opportunity) {
-    return NextResponse.json({ error: "Opportunity not found in this run" }, { status: 404 });
-  }
-
-  const intake = {
-    keyword: run.keyword,
-    normalized: run.normalizedKeyword,
-    market: run.market,
-    language: run.language,
-    country: run.market,
-    lens: run.lens,
-  };
-
   try {
+    const view = toRunView(run);
+    const opportunity = view.opportunities.find((o) => o.id === opportunityId);
+    if (!opportunity) {
+      return NextResponse.json({ error: "Opportunity not found in this run" }, { status: 404 });
+    }
+
+    const intake = {
+      keyword: run.keyword,
+      normalized: run.normalizedKeyword,
+      market: run.market,
+      language: run.language,
+      country: run.market,
+      lens: run.lens,
+    };
+
     const payload = await runStage(briefStage, {
       intake,
       opportunity,

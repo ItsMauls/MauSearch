@@ -30,7 +30,15 @@ export function StrategyBoard({
   const [workingSince, setWorkingSince] = useState<number | null>(null);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [briefError, setBriefError] = useState<string | null>(null);
+  const briefErrorRef = useRef<HTMLDivElement>(null);
   const driven = useRef(false);
+
+  // The banner renders above the Angle Room, which can be well below the
+  // fold by the time a brief finishes generating - without this, a failure
+  // shows up off-screen and reads as "nothing happened".
+  useEffect(() => {
+    if (briefError) briefErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [briefError]);
 
   const advance = useCallback(async (runId: string, stage: StageId): Promise<RunView | null> => {
     setWorking(stage);
@@ -138,7 +146,11 @@ export function StrategyBoard({
         </div>
 
         <div className="min-w-0 space-y-6">
-          {briefError && <Banner tone="danger" title="Brief generation failed">{briefError}</Banner>}
+          {briefError && (
+            <div ref={briefErrorRef}>
+              <Banner tone="danger" title="Brief generation failed">{briefError}</Banner>
+            </div>
+          )}
 
           {run.stages.intent === "done" && <DemandReadPanel run={run} />}
           {run.stages.clusters === "done" && <ClustersPanel run={run} />}
