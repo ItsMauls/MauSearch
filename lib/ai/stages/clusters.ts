@@ -18,6 +18,7 @@ export const clustersStage: StageConfig<ClustersInput, ClustersStage> = {
   id: "clusters",
   role: "Search Desk - SEO Strategist",
   temperature: 0.3,
+  maxOutputTokens: 2500,
   schema: ClustersStage,
   fixture: fixture as ClustersStage,
   system: `

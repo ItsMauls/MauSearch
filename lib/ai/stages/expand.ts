@@ -23,6 +23,7 @@ export const expandStage: StageConfig<{ intake: NormalizedIntake }, ExpandStage>
   id: "expand",
   role: "Search Desk - fallback expansion",
   temperature: 0.5,
+  maxOutputTokens: 1200,
   schema: ExpandStage,
   fixture: fixture as ExpandStage,
   system: `

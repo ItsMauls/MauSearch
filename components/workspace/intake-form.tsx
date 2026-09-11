@@ -21,7 +21,7 @@ const SAMPLES: { keyword: string; market: MarketCode; lens: Lens; note: string }
  * model call server-side, then hands off to the board, which drives the
  * remaining desks one request at a time.
  */
-export function IntakeForm() {
+export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
   const router = useRouter();
   const [keyword, setKeyword] = useState("");
   const [market, setMarket] = useState<MarketCode>("ID");
@@ -141,7 +141,7 @@ export function IntakeForm() {
         </button>
 
         {busy ? (
-          <IntakeProgress />
+          <IntakeProgress freeTierModel={freeTierModel} />
         ) : (
           <div className="border-t border-line pt-4">
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-faint">
@@ -184,18 +184,26 @@ const INTAKE_STEPS = [
   "Search Desk is classifying intent",
 ];
 
-function IntakeProgress() {
+function IntakeProgress({ freeTierModel }: { freeTierModel: boolean }) {
   return (
-    <ol className="space-y-1.5 border-t border-line pt-4">
-      {INTAKE_STEPS.map((step, index) => (
-        <li key={step} className="flex items-center gap-2 text-xs text-muted">
-          <span
-            className="h-1.5 w-1.5 rounded-full bg-brand animate-working"
-            style={{ animationDelay: `${index * 180}ms` }}
-          />
-          {step}
-        </li>
-      ))}
-    </ol>
+    <div className="border-t border-line pt-4">
+      <ol className="space-y-1.5">
+        {INTAKE_STEPS.map((step, index) => (
+          <li key={step} className="flex items-center gap-2 text-xs text-muted">
+            <span
+              className="h-1.5 w-1.5 rounded-full bg-brand animate-working"
+              style={{ animationDelay: `${index * 180}ms` }}
+            />
+            {step}
+          </li>
+        ))}
+      </ol>
+      {freeTierModel && (
+        <p className="mt-2 text-[11px] text-faint">
+          Running on a free-tier model, which queues behind paid traffic — this can take up to
+          a couple of minutes rather than seconds.
+        </p>
+      )}
+    </div>
   );
 }

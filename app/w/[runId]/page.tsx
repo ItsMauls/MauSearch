@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { getRun } from "@/lib/db";
 import { toRunView } from "@/lib/view";
 import { MARKETS, MarketCode, LENSES, Lens } from "@/lib/schema";
+import { isFreeTierModel } from "@/lib/ai/client";
 import { PageHeader } from "@/components/shell";
 import { Badge } from "@/components/ui";
 import { StrategyBoard } from "@/components/board/strategy-board";
@@ -56,7 +57,7 @@ export default async function StrategyBoardPage({
           </span>
         }
       />
-      <StrategyBoard initialRun={run} />
+      <StrategyBoard initialRun={run} freeTierModel={isFreeTierModel()} />
     </>
   );
 }

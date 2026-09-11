@@ -59,10 +59,12 @@ export function StageRail({
   run,
   working,
   onRetry,
+  freeTierModel,
 }: {
   run: RunView;
   working: StageId | null;
   onRetry?: (stage: StageId) => void;
+  freeTierModel: boolean;
 }) {
   return (
     <ol className="space-y-3">
@@ -79,7 +81,14 @@ export function StageRail({
                 <span className="ml-1.5 text-[10px] font-normal text-faint">{meta.role}</span>
               </p>
               {state === "working" && (
-                <p className="text-[11px] text-brand animate-working">{meta.working}</p>
+                <div>
+                  <p className="text-[11px] text-brand animate-working">{meta.working}</p>
+                  {freeTierModel && (
+                    <p className="text-[10px] text-faint">
+                      Free-tier model — can take up to a couple of minutes
+                    </p>
+                  )}
+                </div>
               )}
               {state === "pending" && <p className="text-[11px] text-faint">Queued</p>}
               {state === "failed" && (

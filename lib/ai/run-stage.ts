@@ -24,6 +24,9 @@ export type StageConfig<TInput, TOutput> = {
   fixture: TOutput;
   /** Classification stages can take the cheaper route. */
   fast?: boolean;
+  /** Output token ceiling. Without one, some providers default to the whole
+   *  context window, which a low-credit account can't afford to request. */
+  maxOutputTokens: number;
 };
 
 export class StageError extends Error {
@@ -71,8 +74,13 @@ async function complete(
   const response = await aiClient().chat.completions.create({
     model: config.fast ? FAST_MODEL : MODEL,
     temperature: config.temperature,
+    max_tokens: config.maxOutputTokens,
     response_format: { type: "json_object" },
     messages,
+    // Reasoning models (several free-tier Nemotron variants) otherwise spend the
+    // whole token budget on hidden chain-of-thought and never reach the JSON.
+    // OpenRouter-specific; harmless no-op on routers that ignore unknown fields.
+    ...({ reasoning: { enabled: false } } as Record<string, unknown>),
   });
   return response.choices[0]?.message?.content ?? "";
 }

@@ -27,6 +27,7 @@ export const briefStage: StageConfig<BriefInput, BriefStage> = {
   id: "brief",
   role: "Editorial Desk - Content Lead",
   temperature: 0.4,
+  maxOutputTokens: 4000,
   schema: BriefStage,
   fixture: fixture as BriefStage,
   system: `

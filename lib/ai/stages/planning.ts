@@ -19,6 +19,7 @@ export const planningStage: StageConfig<PlanningInput, PlanningStage> = {
   id: "planning",
   role: "Planning Desk - Content Strategist",
   temperature: 0.3,
+  maxOutputTokens: 2500,
   schema: PlanningStage,
   fixture: fixture as PlanningStage,
   system: `

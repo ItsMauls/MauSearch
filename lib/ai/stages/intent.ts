@@ -18,6 +18,7 @@ export const intentStage: StageConfig<IntentInput, IntentStage> = {
   id: "intent",
   role: "Search Desk - SEO Strategist",
   temperature: 0.1,
+  maxOutputTokens: 3000,
   fast: true,
   schema: IntentStage,
   fixture: fixture as IntentStage,

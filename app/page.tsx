@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { listBriefs, listRuns } from "@/lib/db";
 import { toRunView } from "@/lib/view";
-import { hasLiveModel } from "@/lib/ai/client";
+import { hasLiveModel, isFreeTierModel } from "@/lib/ai/client";
 import { IntakeForm } from "@/components/workspace/intake-form";
 import { PageHeader } from "@/components/shell";
 import { Badge, Banner, Card, EmptyState, Metric, SectionHeader } from "@/components/ui";
@@ -41,7 +41,7 @@ export default async function WorkspaceHome() {
         )}
 
         <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
-          <IntakeForm />
+          <IntakeForm freeTierModel={isFreeTierModel()} />
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">

@@ -17,7 +17,13 @@ import { PanelSkeleton, StageRail } from "./stage-rail";
  * of the partial-parse machinery - and every stage is persisted server-side the
  * moment it lands, which is what makes a mid-run reload harmless.
  */
-export function StrategyBoard({ initialRun }: { initialRun: RunView }) {
+export function StrategyBoard({
+  initialRun,
+  freeTierModel,
+}: {
+  initialRun: RunView;
+  freeTierModel: boolean;
+}) {
   const router = useRouter();
   const [run, setRun] = useState(initialRun);
   const [working, setWorking] = useState<StageId | null>(null);
@@ -118,7 +124,7 @@ export function StrategyBoard({ initialRun }: { initialRun: RunView }) {
             <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-faint">
               Desk pipeline
             </p>
-            <StageRail run={run} working={working} onRetry={retry} />
+            <StageRail run={run} working={working} onRetry={retry} freeTierModel={freeTierModel} />
           </Card>
         </div>
 

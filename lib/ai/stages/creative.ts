@@ -30,6 +30,7 @@ export const creativeStage: StageConfig<CreativeInput, CreativeStage> = {
   id: "creative",
   role: "Creative Desk - Creative Director",
   temperature: 0.8,
+  maxOutputTokens: 3500,
   schema: CreativeStage,
   fixture: fixture as CreativeStage,
   system: `
