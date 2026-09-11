@@ -8,7 +8,7 @@ import { findRecentRun, insertRun, newId } from "@/lib/db";
 import { RunRow } from "@/lib/db/schema";
 import { applyKeywordIntents, toRunView } from "@/lib/view";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 /**
  * POST /api/runs - stages 0 through 4.

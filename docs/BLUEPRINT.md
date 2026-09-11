@@ -215,7 +215,7 @@ lib/            schema.ts · markdown.ts · db/{schema,index}.ts
 
 ## 18. Backend / API architecture
 
-Route Handlers, `maxDuration = 60`, **at most one LLM call per request** — deliberately avoids streaming infrastructure while keeping every request far inside the serverless timeout.
+Route Handlers, `maxDuration = 300` (Vercel's Fluid Compute budget), **at most one LLM call per request** — deliberately avoids streaming infrastructure while keeping every request far inside the serverless timeout, with room for a free-tier model's queue latency.
 
 | Route | Method | Does |
 |---|---|---|

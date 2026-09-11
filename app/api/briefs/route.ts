@@ -6,7 +6,7 @@ import { findBriefForOpportunity, getRun, insertBrief, newId, updateRun } from "
 import { BriefRow } from "@/lib/db/schema";
 import { toBriefView, toRunView } from "@/lib/view";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 const BriefRequest = z.object({
   runId: z.string().min(1),
