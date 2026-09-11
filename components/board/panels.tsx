@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Intent } from "@/lib/schema";
 import { RunView } from "@/lib/view";
 import { SCORE_FORMULA } from "@/lib/pipeline/score";
@@ -445,9 +445,11 @@ export function AngleRoom({
   generatingId?: string | null;
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
   const scrollByPage = (direction: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: direction * scrollRef.current.clientWidth * 0.95, behavior: "smooth" });
   };
+  const handleScroll = () => setCanScrollLeft((scrollRef.current?.scrollLeft ?? 0) > 4);
 
   if (run.opportunities.length === 0) return null;
 
@@ -473,7 +475,8 @@ export function AngleRoom({
       <div className="group/carousel relative">
         <div
           ref={scrollRef}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth p-5 pt-2"
+          onScroll={handleScroll}
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth py-5 pr-5 pl-7 pt-2"
         >
           {run.opportunities.map((opportunity, index) => (
             <div
@@ -493,22 +496,24 @@ export function AngleRoom({
           ))}
         </div>
 
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex w-16 items-center bg-linear-to-r from-surface to-transparent pl-2 opacity-0 transition-opacity group-hover/carousel:opacity-100">
-          <button
-            type="button"
-            onClick={() => scrollByPage(-1)}
-            aria-label="Previous opportunities"
-            className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full border border-line bg-surface text-sm text-muted shadow-sm transition-colors hover:border-brand hover:text-brand"
-          >
-            ‹
-          </button>
-        </div>
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-16 items-center justify-end bg-linear-to-l from-surface to-transparent pr-2 opacity-0 transition-opacity group-hover/carousel:opacity-100">
+        {canScrollLeft && (
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center bg-linear-to-r from-transparent to-transparent pl-2 opacity-0 transition-all group-hover/carousel:from-brand-soft group-hover/carousel:opacity-100">
+            <button
+              type="button"
+              onClick={() => scrollByPage(-1)}
+              aria-label="Previous opportunities"
+              className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-xl text-muted shadow-sm transition-colors hover:border-brand hover:text-brand"
+            >
+              ‹
+            </button>
+          </div>
+        )}
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-20 items-center justify-end bg-linear-to-l from-transparent to-transparent pr-2 opacity-0 transition-all group-hover/carousel:from-brand-soft group-hover/carousel:opacity-100">
           <button
             type="button"
             onClick={() => scrollByPage(1)}
             aria-label="Next opportunities"
-            className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full border border-line bg-surface text-sm text-muted shadow-sm transition-colors hover:border-brand hover:text-brand"
+            className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-xl text-muted shadow-sm transition-colors hover:border-brand hover:text-brand"
           >
             ›
           </button>
