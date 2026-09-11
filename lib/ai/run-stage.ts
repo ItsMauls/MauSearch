@@ -79,8 +79,10 @@ async function complete(
     messages,
     // Reasoning models (several free-tier Nemotron variants) otherwise spend the
     // whole token budget on hidden chain-of-thought and never reach the JSON.
+    // `enabled` alone is sometimes ignored by models that can't fully turn
+    // reasoning off; `exclude` + a max_tokens cap bounds it either way.
     // OpenRouter-specific; harmless no-op on routers that ignore unknown fields.
-    ...({ reasoning: { enabled: false } } as Record<string, unknown>),
+    ...({ reasoning: { enabled: false, exclude: true, max_tokens: 1 } } as Record<string, unknown>),
   });
   return response.choices?.[0]?.message?.content ?? "";
 }

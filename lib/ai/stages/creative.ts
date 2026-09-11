@@ -31,9 +31,13 @@ export const creativeStage: StageConfig<CreativeInput, CreativeStage> = {
   role: "Creative Desk - Creative Director",
   temperature: 0.8,
   // Highest cap of any stage: up to 6 opportunities each carrying angle,
-  // proofRequired, seoTitles, plus a mandatory kill list. 5000 was clipping
-  // the response mid-array on fuller runs, producing invalid JSON.
-  maxOutputTokens: 8000,
+  // proofRequired, seoTitles, plus a mandatory kill list. On the free
+  // reasoning model, hidden chain-of-thought counts against this same
+  // budget - if reasoning alone burns past it, message.content comes back
+  // empty ("no JSON object in model response") even before truncation
+  // shows up as broken JSON. Sized generously so reasoning + the full
+  // opportunity list both fit.
+  maxOutputTokens: 16000,
   schema: CreativeStage,
   fixture: fixture as CreativeStage,
   system: `
