@@ -1,0 +1,203 @@
+{
+  "workingTitle": "The Published Price List Nobody Else Will Publish",
+  "slug": "harga-sewa-photobooth-jakarta",
+  "contentType": "Transparent pricing page with package table and total estimator",
+  "wordCount": { "min": 1400, "max": 1800 },
+  "objective": {
+    "businessGoal": "Convert price-stage searchers into enquiries that arrive already naming a package and a region, cutting the pre-qualification conversation entirely.",
+    "readerOutcome": "Leaves knowing what their specific event will cost, including the add-ons that normally surface only at the end.",
+    "primaryCTA": "Kirim detail acara untuk kunci harga paket (WhatsApp form with package pre-filled)",
+    "conversionPath": "Organic search -> package table -> add-on calculator -> pre-filled enquiry naming the package, date and region"
+  },
+  "editorialDirective": {
+    "mandatedHook": "Setiap vendor photobooth di Jakarta menyuruh Anda chat dulu untuk tanya harga. Kami tulis angkanya di halaman ini. - Open with this. Do not soften it into a welcome paragraph; the entire commercial argument of this page is that we said the number out loud while the rest of the market would not.",
+    "toneAndVoice": [
+      "Direct and unembarrassed about money",
+      "Practitioner, not marketer - like a vendor who has done 200 events explaining the invoice",
+      "Confident enough to state what is NOT included",
+      "Indonesian, conversational formal (Anda), no corporate stiffness"
+    ],
+    "mustAvoid": [
+      "'Mulai dari' pricing with no ceiling - this is the exact behaviour the page is attacking",
+      "'Hubungi kami untuk penawaran terbaik' anywhere above the final CTA",
+      "Generic openers about how photobooths make events memorable",
+      "Stock photography - every image must be from a real event we ran",
+      "Burying the total; the worked example must appear before the fold on mobile"
+    ],
+    "differentiationRule": "Every claim about price must resolve to a number on the page. If a section cannot produce a figure, it does not belong on this page."
+  },
+  "metadata": {
+    "h1": "Harga Sewa Photobooth Jakarta: Daftar Harga Lengkap & Transparan",
+    "metaTitle": "Harga Sewa Photobooth Jakarta 2025 - Daftar Harga Transparan",
+    "metaDescription": "Daftar harga sewa photobooth Jakarta lengkap: paket, durasi, dan biaya tambahan. Termasuk contoh total untuk pernikahan 300 tamu, tanpa perlu chat dulu."
+  },
+  "outline": [
+    {
+      "h2": "Harga Sewa Photobooth Jakarta: Angkanya Langsung",
+      "purpose": "Deliver the promise in the first screen. Every competing page delays this; delaying it here destroys the page's only advantage.",
+      "estWords": 220,
+      "talkingPoints": [
+        "Open with the mandated hook, verbatim in spirit",
+        "Lead immediately with the package table - no preamble paragraph",
+        "State plainly that these are 2025 prices and when they were last updated",
+        "One sentence on why we publish them while others do not"
+      ],
+      "h3s": [],
+      "mandatoryAsset": "Package table: 3 tiers with hours, print count, operator count, backdrop type and a real total price"
+    },
+    {
+      "h2": "Apa yang Termasuk dan Apa yang Tidak",
+      "purpose": "Defuse the add-on objection before the reader starts mentally adding a hidden-cost buffer.",
+      "estWords": 280,
+      "talkingPoints": [
+        "Line-by-line: what every package includes as standard",
+        "An explicit NOT-included list - this builds more trust than the included list",
+        "Explain why the excluded items are excluded rather than just listing them"
+      ],
+      "h3s": ["Termasuk di semua paket", "Tidak termasuk (dan alasannya)"],
+      "mandatoryAsset": "Two-column included / not-included comparison"
+    },
+    {
+      "h2": "Biaya Tambahan: Daftar Lengkap dengan Angka",
+      "purpose": "Convert the industry's most common hidden cost into a trust signal by publishing it.",
+      "estWords": 320,
+      "talkingPoints": [
+        "Extra hour rate, extra print rate, custom backdrop cost - each as a real figure",
+        "Out-of-area surcharge with explicit region boundaries, not 'tergantung lokasi'",
+        "Weekend and peak-season adjustments if they exist - say so rather than hiding them",
+        "State whether custom backdrop cost is one-off or per-event; this is a known point of confusion"
+      ],
+      "h3s": ["Perpanjangan durasi", "Backdrop custom", "Biaya transport per wilayah"],
+      "mandatoryAsset": "Add-on price table with per-region transport rows"
+    },
+    {
+      "h2": "Contoh Total: Pernikahan 300 Tamu di Jakarta Selatan",
+      "purpose": "Make the arithmetic concrete so the reader can map it onto their own event without doing the work.",
+      "estWords": 300,
+      "talkingPoints": [
+        "Walk the full invoice line by line to a single final number",
+        "Use a realistic scenario: 5 hours, 2 operators, custom backdrop, unlimited print",
+        "Show one variation - what changes if the same event moves to Jakarta Utara",
+        "Name the venue type and guest count so the reader can self-identify"
+      ],
+      "h3s": [],
+      "mandatoryAsset": "Worked invoice breakdown ending in one bolded total"
+    },
+    {
+      "h2": "Paket Mana yang Cocok untuk Acara Anda",
+      "purpose": "Route the reader to a tier so their enquiry arrives pre-qualified.",
+      "estWords": 260,
+      "talkingPoints": [
+        "Recommend by guest count and event duration, not by budget",
+        "Reference booth throughput: past roughly 150 guests, format choice affects queue length",
+        "Internal link to the format comparison guide for readers still undecided",
+        "Be willing to recommend the cheaper tier where it genuinely fits - this is the credibility moment"
+      ],
+      "h3s": ["Di bawah 150 tamu", "150-300 tamu", "Di atas 300 tamu"],
+      "mandatoryAsset": null
+    },
+    {
+      "h2": "Cara Kunci Tanggal dan Harga",
+      "purpose": "Convert, with the price already agreed so the conversation starts past the negotiation.",
+      "estWords": 180,
+      "talkingPoints": [
+        "Deposit amount and what it secures, stated as a figure",
+        "Cancellation and reschedule policy in plain language",
+        "How far ahead to book for peak wedding months",
+        "CTA with the chosen package pre-filled"
+      ],
+      "h3s": [],
+      "mandatoryAsset": "Enquiry form with package pre-selected from the table above"
+    }
+  ],
+  "faq": [
+    {
+      "question": "Berapa harga sewa photobooth di Jakarta?",
+      "answerDirection": "Answer with the actual range across the three tiers in the first sentence, then link to the table. Never answer this with 'tergantung kebutuhan'."
+    },
+    {
+      "question": "Apakah ada biaya tambahan untuk Jakarta Utara atau Jakarta Timur?",
+      "answerDirection": "Give the transport figure per region directly and point to the boundary map."
+    },
+    {
+      "question": "Berapa lama durasi sewa photobooth standar?",
+      "answerDirection": "State the standard hours and clarify explicitly that setup and teardown are outside the billed duration."
+    },
+    {
+      "question": "Apakah harga photobooth wedding berbeda dari acara biasa?",
+      "answerDirection": "Answer honestly. If wedding pricing differs, say by how much and why; if not, say so plainly - both answers build trust here."
+    },
+    {
+      "question": "Berapa DP untuk booking photobooth?",
+      "answerDirection": "Give the deposit figure or percentage and what it locks in."
+    }
+  ],
+  "entitiesToCover": [
+    "photobooth 360",
+    "photobooth analog",
+    "unlimited print",
+    "backdrop custom",
+    "durasi sewa",
+    "operator on site",
+    "Jakarta Selatan",
+    "Jakarta Utara",
+    "Jakarta Barat",
+    "biaya transport",
+    "DP booking",
+    "gedung pernikahan"
+  ],
+  "internalLinks": [
+    {
+      "anchor": "photobooth 360 vs analog vs standard",
+      "targetType": "Booth format comparison guide",
+      "placement": "Inside 'Paket Mana yang Cocok', where the reader is choosing a format"
+    },
+    {
+      "anchor": "area layanan Jakarta Barat",
+      "targetType": "Regional coverage page",
+      "placement": "Inside the transport cost table, on each region row"
+    },
+    {
+      "anchor": "checklist logistik photobooth wedding",
+      "targetType": "Wedding logistics checklist",
+      "placement": "In the wedding FAQ answer"
+    }
+  ],
+  "assetsNeeded": [
+    {
+      "type": "Package price table",
+      "description": "Three tiers with hours, prints, operators, backdrop and a real total - the page's core asset"
+    },
+    {
+      "type": "Add-on and transport table",
+      "description": "Per-item add-on rates plus a transport row for each of the five Jakarta regions"
+    },
+    {
+      "type": "Event photography",
+      "description": "One real photo per package tier from an actual event, no stock imagery"
+    },
+    {
+      "type": "Coverage boundary map",
+      "description": "Simple map graphic showing which regions fall inside standard rates"
+    }
+  ],
+  "writerChecklist": [
+    "The opening states the price-transparency position before anything else",
+    "Every package tier resolves to a real total, with no 'mulai dari' anywhere on the page",
+    "The not-included list is present and specific",
+    "Transport surcharge is given per region as a number, not as 'tergantung lokasi'",
+    "The worked 300-guest example reaches one bolded final figure",
+    "Prices carry a visible last-updated date",
+    "All photography is from real events we ran",
+    "Every FAQ answer contains a number or a clear yes/no in its first sentence",
+    "All three internal links are placed at the decision moment, not dumped in a footer"
+  ],
+  "eeatSignals": [
+    "Real event photography with venue names and dates",
+    "A named operator or owner credited on the page",
+    "Last-updated date on the pricing table",
+    "Specific venue knowledge referenced in the regional transport section",
+    "Willingness to recommend a cheaper tier where it genuinely fits"
+  ],
+  "editorNote": "If this page ends up with a single 'hubungi kami untuk penawaran' above the final CTA, it has failed and we have published the same page as everyone else. The number is the product here. Everything else on the page exists to make the number believable."
+}

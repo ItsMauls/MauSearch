@@ -1,0 +1,579 @@
+{
+ "keywords": [
+  {
+   "keyword": "photobooth jakarta",
+   "rank": 0,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta"
+   ],
+   "demandSignal": 100,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth jakarta barat",
+   "rank": 1,
+   "coverage": 2,
+   "seeds": [
+    "photobooth jakarta",
+    "photobooth jakarta b"
+   ],
+   "demandSignal": 100,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth jakarta murah",
+   "rank": 2,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta"
+   ],
+   "demandSignal": 94,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "murah"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth jakarta timur",
+   "rank": 3,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta"
+   ],
+   "demandSignal": 91,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth jakarta pusat",
+   "rank": 4,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta"
+   ],
+   "demandSignal": 88,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "harga sewa photobooth jakarta",
+   "rank": 6,
+   "coverage": 2,
+   "seeds": [
+    "harga photobooth jakarta",
+    "sewa photobooth jakarta"
+   ],
+   "demandSignal": 87,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa",
+    "harga"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth aeon jakarta garden city",
+   "rank": 6,
+   "coverage": 2,
+   "seeds": [
+    "photobooth jakarta a",
+    "photobooth jakarta c"
+   ],
+   "demandSignal": 87,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "harga photobooth jakarta",
+   "rank": 5,
+   "coverage": 1,
+   "seeds": [
+    "harga photobooth jakarta"
+   ],
+   "demandSignal": 85,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "harga"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth custom jakarta",
+   "rank": 5,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta c"
+   ],
+   "demandSignal": 85,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth jakarta utara",
+   "rank": 5,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta"
+   ],
+   "demandSignal": 85,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobox jakarta aquarium",
+   "rank": 5,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta a"
+   ],
+   "demandSignal": 85,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "sewa photobooth jakarta",
+   "rank": 5,
+   "coverage": 1,
+   "seeds": [
+    "sewa photobooth jakarta"
+   ],
+   "demandSignal": 85,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth analog jakarta",
+   "rank": 6,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta a"
+   ],
+   "demandSignal": 82,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth jakarta selatan",
+   "rank": 6,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta"
+   ],
+   "demandSignal": 82,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth terdekat jakarta barat",
+   "rank": 6,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta b"
+   ],
+   "demandSignal": 82,
+   "ruleIntent": "local",
+   "ruleMatches": [
+    "terdekat"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "sewa photobooth jakarta murah",
+   "rank": 6,
+   "coverage": 1,
+   "seeds": [
+    "sewa photobooth jakarta"
+   ],
+   "demandSignal": 82,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa",
+    "murah"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "backdrop photobooth jakarta",
+   "rank": 7,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta b"
+   ],
+   "demandSignal": 79,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "cafe + photobooth jakarta",
+   "rank": 7,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta c"
+   ],
+   "demandSignal": 79,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "harga photobooth wedding jakarta",
+   "rank": 7,
+   "coverage": 1,
+   "seeds": [
+    "harga photobooth jakarta"
+   ],
+   "demandSignal": 79,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "harga"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth di jakarta",
+   "rank": 7,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta a"
+   ],
+   "demandSignal": 79,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth jakarta.starlight",
+   "rank": 7,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta"
+   ],
+   "demandSignal": 79,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "sewa photobooth jakarta selatan",
+   "rank": 7,
+   "coverage": 1,
+   "seeds": [
+    "sewa photobooth jakarta"
+   ],
+   "demandSignal": 79,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "buat photobooth jakarta",
+   "rank": 8,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta b"
+   ],
+   "demandSignal": 76,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "harga photobooth kwangya jakarta",
+   "rank": 8,
+   "coverage": 1,
+   "seeds": [
+    "harga photobooth jakarta"
+   ],
+   "demandSignal": 76,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "harga"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth di mall ciputra jakarta",
+   "rank": 8,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta c"
+   ],
+   "demandSignal": 76,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth jakarta premium outlet",
+   "rank": 8,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta"
+   ],
+   "demandSignal": 76,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "sewa photobooth jakarta timur",
+   "rank": 8,
+   "coverage": 1,
+   "seeds": [
+    "sewa photobooth jakarta"
+   ],
+   "demandSignal": 76,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "sewa photobooth di jakarta",
+   "rank": 10,
+   "coverage": 2,
+   "seeds": [
+    "sewa photobooth jakarta",
+    "photobooth jakarta a"
+   ],
+   "demandSignal": 75,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "best photobooth jakarta",
+   "rank": 9,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta b"
+   ],
+   "demandSignal": 73,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "cafe photobooth jakarta timur",
+   "rank": 9,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta c"
+   ],
+   "demandSignal": 73,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "harga sewa photobooth 360 jakarta",
+   "rank": 9,
+   "coverage": 1,
+   "seeds": [
+    "harga photobooth jakarta"
+   ],
+   "demandSignal": 73,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa",
+    "harga"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth aesthetic jakarta",
+   "rank": 9,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta a"
+   ],
+   "demandSignal": 73,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth jakarta kota",
+   "rank": 9,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta"
+   ],
+   "demandSignal": 73,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "sewa photobooth 360 jakarta",
+   "rank": 10,
+   "coverage": 1,
+   "seeds": [
+    "sewa photobooth jakarta"
+   ],
+   "demandSignal": 70,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "photobooth high angle jakarta",
+   "rank": 11,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta a"
+   ],
+   "demandSignal": 67,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "sewa printer photobooth jakarta",
+   "rank": 11,
+   "coverage": 1,
+   "seeds": [
+    "sewa photobooth jakarta"
+   ],
+   "demandSignal": 67,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "vendor photobooth di jakarta",
+   "rank": 12,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta a"
+   ],
+   "demandSignal": 64,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "atedoz photobooth jakarta",
+   "rank": 13,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta a"
+   ],
+   "demandSignal": 61,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "sewa photobooth wedding jakarta",
+   "rank": 13,
+   "coverage": 1,
+   "seeds": [
+    "sewa photobooth jakarta"
+   ],
+   "demandSignal": 61,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "asana photobooth jakarta",
+   "rank": 14,
+   "coverage": 1,
+   "seeds": [
+    "photobooth jakarta a"
+   ],
+   "demandSignal": 58,
+   "ruleIntent": null,
+   "ruleMatches": [],
+   "aiIntent": null,
+   "source": "google_suggest"
+  },
+  {
+   "keyword": "sewa backdrop photobooth jakarta",
+   "rank": 14,
+   "coverage": 1,
+   "seeds": [
+    "sewa photobooth jakarta"
+   ],
+   "demandSignal": 58,
+   "ruleIntent": "transactional",
+   "ruleMatches": [
+    "sewa"
+   ],
+   "aiIntent": null,
+   "source": "google_suggest"
+  }
+ ],
+ "status": "partial",
+ "seedsAttempted": 10,
+ "seedsSucceeded": 6
+}

@@ -1,0 +1,97 @@
+{
+  "primary": "transactional",
+  "mix": [
+    {
+      "type": "transactional",
+      "share": 38,
+      "evidence": "The rental-and-price spine dominates the harvest: \"sewa photobooth jakarta\", \"harga sewa photobooth jakarta\", \"photobooth jakarta murah\" and \"harga photobooth wedding jakarta\" all sit in the top half by Suggest rank."
+    },
+    {
+      "type": "local",
+      "share": 24,
+      "evidence": "All five Jakarta administrative regions autocomplete independently (barat, timur, pusat, utara, selatan) plus \"photobooth terdekat jakarta barat\" and \"photobooth jakarta kota\"."
+    },
+    {
+      "type": "navigational",
+      "share": 19,
+      "evidence": "A large branded-venue tail: \"photobooth aeon jakarta garden city\", \"photobooth jakarta.starlight\", \"atedoz photobooth jakarta\", \"photobooth di mall ciputra jakarta\"."
+    },
+    {
+      "type": "commercial",
+      "share": 17,
+      "evidence": "Style and vendor comparison before booking: \"best photobooth jakarta\", \"vendor photobooth di jakarta\", \"photobooth analog jakarta\", \"photobooth aesthetic jakarta\"."
+    },
+    {
+      "type": "informational",
+      "share": 2,
+      "evidence": "Almost nothing. Only \"buat photobooth jakarta\" reads as a how-to, and even that is ambiguous between DIY and commissioning a custom build."
+    }
+  ],
+  "serpArchetype": "Local pack over vendor listicles - a map pack of Jakarta rental vendors, then aggregator and directory pages, with almost no editorial content ranking",
+  "expectedSerpFeatures": [
+    "Local pack",
+    "Google Business Profile panels",
+    "Image pack",
+    "People Also Ask",
+    "Sitelinks on vendor brands"
+  ],
+  "ruleDisagreements": [
+    {
+      "keyword": "harga photobooth kwangya jakarta",
+      "ruleSaid": "transactional",
+      "modelSays": "navigational",
+      "why": "\"Kwangya\" is a specific branded booth concept, not a product category. The searcher already knows which booth they want and is looking for that operator - price is incidental to finding the brand."
+    },
+    {
+      "keyword": "sewa printer photobooth jakarta",
+      "ruleSaid": "transactional",
+      "modelSays": "commercial",
+      "why": "This is a photobooth operator sourcing their own equipment, not an end customer booking a booth. Same modifier, completely different audience - do not let it pull the consumer-facing pages off target."
+    }
+  ],
+  "keywordIntents": [
+    { "keyword": "photobooth jakarta", "intent": "local" },
+    { "keyword": "photobooth jakarta barat", "intent": "local" },
+    { "keyword": "photobooth jakarta murah", "intent": "transactional" },
+    { "keyword": "photobooth jakarta timur", "intent": "local" },
+    { "keyword": "photobooth jakarta pusat", "intent": "local" },
+    { "keyword": "harga sewa photobooth jakarta", "intent": "transactional" },
+    { "keyword": "photobooth aeon jakarta garden city", "intent": "navigational" },
+    { "keyword": "harga photobooth jakarta", "intent": "transactional" },
+    { "keyword": "photobooth custom jakarta", "intent": "commercial" },
+    { "keyword": "photobooth jakarta utara", "intent": "local" },
+    { "keyword": "photobox jakarta aquarium", "intent": "navigational" },
+    { "keyword": "sewa photobooth jakarta", "intent": "transactional" },
+    { "keyword": "photobooth analog jakarta", "intent": "commercial" },
+    { "keyword": "photobooth jakarta selatan", "intent": "local" },
+    { "keyword": "photobooth terdekat jakarta barat", "intent": "local" },
+    { "keyword": "sewa photobooth jakarta murah", "intent": "transactional" },
+    { "keyword": "backdrop photobooth jakarta", "intent": "commercial" },
+    { "keyword": "cafe + photobooth jakarta", "intent": "local" },
+    { "keyword": "harga photobooth wedding jakarta", "intent": "transactional" },
+    { "keyword": "photobooth di jakarta", "intent": "local" },
+    { "keyword": "photobooth jakarta.starlight", "intent": "navigational" },
+    { "keyword": "sewa photobooth jakarta selatan", "intent": "transactional" },
+    { "keyword": "buat photobooth jakarta", "intent": "informational" },
+    { "keyword": "harga photobooth kwangya jakarta", "intent": "navigational" },
+    { "keyword": "photobooth di mall ciputra jakarta", "intent": "navigational" },
+    { "keyword": "photobooth jakarta premium outlet", "intent": "navigational" },
+    { "keyword": "sewa photobooth jakarta timur", "intent": "transactional" },
+    { "keyword": "sewa photobooth di jakarta", "intent": "transactional" },
+    { "keyword": "best photobooth jakarta", "intent": "commercial" },
+    { "keyword": "cafe photobooth jakarta timur", "intent": "local" },
+    { "keyword": "harga sewa photobooth 360 jakarta", "intent": "transactional" },
+    { "keyword": "photobooth aesthetic jakarta", "intent": "commercial" },
+    { "keyword": "photobooth jakarta kota", "intent": "local" },
+    { "keyword": "sewa photobooth 360 jakarta", "intent": "transactional" },
+    { "keyword": "photobooth high angle jakarta", "intent": "commercial" },
+    { "keyword": "sewa printer photobooth jakarta", "intent": "commercial" },
+    { "keyword": "vendor photobooth di jakarta", "intent": "commercial" },
+    { "keyword": "atedoz photobooth jakarta", "intent": "navigational" },
+    { "keyword": "sewa photobooth wedding jakarta", "intent": "transactional" },
+    { "keyword": "asana photobooth jakarta", "intent": "navigational" },
+    { "keyword": "sewa backdrop photobooth jakarta", "intent": "transactional" }
+  ],
+  "confidence": 0.86,
+  "strategistNote": "This is a booking market wearing a browsing market's clothes: 38% of the harvest is already reaching for a price or a rental, and only one query in forty-one is genuinely informational. The thing to notice is the branded tail - Aeon, Starlight, Atedoz, Kwangya - which means a meaningful share of Jakarta searchers are hunting a specific operator by name. Content that competes on generic \"photobooth jakarta\" will lose to the map pack; content that competes on price transparency and area coverage will not."
+}

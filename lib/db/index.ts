@@ -1,0 +1,147 @@
+import { randomBytes } from "node:crypto";
+import { and, desc, eq, gt } from "drizzle-orm";
+import { drizzle } from "drizzle-orm/neon-http";
+import { neon } from "@neondatabase/serverless";
+import { briefs, BriefRow, runs, RunRow } from "./schema";
+
+/**
+ * Postgres when DATABASE_URL is set, an in-process map when it is not.
+ *
+ * The fallback exists so this repo can be cloned and run with zero credentials -
+ * the same reason the AI layer ships fixtures. It is genuinely single-process
+ * and non-durable, so it is for local review only; production always has Neon.
+ */
+const DATABASE_URL = process.env.DATABASE_URL;
+export const hasDatabase = (): boolean => Boolean(DATABASE_URL);
+
+const db = DATABASE_URL ? drizzle(neon(DATABASE_URL), { schema: { runs, briefs } }) : null;
+
+/** Short, URL-safe, collision-resistant enough for shareable permalinks. */
+export const newId = (): string => randomBytes(9).toString("base64url");
+
+/**
+ * Held on globalThis, not in module scope: Next bundles route handlers and
+ * Server Components separately, so a plain module-level Map gives each bundle
+ * its own copy - a run written by the API would be invisible to the page that
+ * renders it. Also survives dev hot reloads.
+ */
+const globalMemory = globalThis as typeof globalThis & {
+  __mausearch?: { runs: Map<string, RunRow>; briefs: Map<string, BriefRow> };
+};
+const memory = (globalMemory.__mausearch ??= {
+  runs: new Map<string, RunRow>(),
+  briefs: new Map<string, BriefRow>(),
+});
+
+const byNewest = <T extends { createdAt: Date }>(rows: T[]) =>
+  [...rows].sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
+
+// --- runs -------------------------------------------------------------------
+
+export async function insertRun(row: RunRow): Promise<RunRow> {
+  if (!db) {
+    memory.runs.set(row.id, row);
+    return row;
+  }
+  await db.insert(runs).values(row);
+  return row;
+}
+
+export async function getRun(id: string): Promise<RunRow | null> {
+  if (!db) return memory.runs.get(id) ?? null;
+  const [row] = await db.select().from(runs).where(eq(runs.id, id)).limit(1);
+  return row ?? null;
+}
+
+/** Patches one stage's result (or its error) onto a run. */
+export async function updateRun(id: string, patch: Partial<RunRow>): Promise<void> {
+  if (!db) {
+    const existing = memory.runs.get(id);
+    if (existing) memory.runs.set(id, { ...existing, ...patch });
+    return;
+  }
+  await db.update(runs).set(patch).where(eq(runs.id, id));
+}
+
+export async function listRuns(limit = 12): Promise<RunRow[]> {
+  if (!db) return byNewest([...memory.runs.values()]).slice(0, limit);
+  return db.select().from(runs).orderBy(desc(runs.createdAt)).limit(limit);
+}
+
+const CACHE_WINDOW_DAYS = 7;
+
+/**
+ * An identical intake inside the cache window reuses the existing run rather
+ * than re-billing the model and re-hitting Google for the same answer.
+ */
+export async function findRecentRun(
+  normalizedKeyword: string,
+  market: string
+): Promise<RunRow | null> {
+  const cutoff = new Date(Date.now() - CACHE_WINDOW_DAYS * 86_400_000);
+  if (!db) {
+    return (
+      byNewest([...memory.runs.values()]).find(
+        (r) =>
+          r.normalizedKeyword === normalizedKeyword && r.market === market && r.createdAt > cutoff
+      ) ?? null
+    );
+  }
+  const [row] = await db
+    .select()
+    .from(runs)
+    .where(
+      and(
+        eq(runs.normalizedKeyword, normalizedKeyword),
+        eq(runs.market, market),
+        gt(runs.createdAt, cutoff)
+      )
+    )
+    .orderBy(desc(runs.createdAt))
+    .limit(1);
+  return row ?? null;
+}
+
+// --- briefs -----------------------------------------------------------------
+
+export async function insertBrief(row: BriefRow): Promise<BriefRow> {
+  if (!db) {
+    memory.briefs.set(row.id, row);
+    return row;
+  }
+  await db.insert(briefs).values(row);
+  return row;
+}
+
+export async function getBrief(id: string): Promise<BriefRow | null> {
+  if (!db) return memory.briefs.get(id) ?? null;
+  const [row] = await db.select().from(briefs).where(eq(briefs.id, id)).limit(1);
+  return row ?? null;
+}
+
+export async function listBriefs(limit = 50): Promise<BriefRow[]> {
+  if (!db) return byNewest([...memory.briefs.values()]).slice(0, limit);
+  return db.select().from(briefs).orderBy(desc(briefs.createdAt)).limit(limit);
+}
+
+export async function findBriefForOpportunity(
+  runId: string,
+  opportunityId: string
+): Promise<BriefRow | null> {
+  if (!db) {
+    return (
+      [...memory.briefs.values()].find(
+        (b) => b.runId === runId && b.opportunityId === opportunityId
+      ) ?? null
+    );
+  }
+  const [row] = await db
+    .select()
+    .from(briefs)
+    .where(and(eq(briefs.runId, runId), eq(briefs.opportunityId, opportunityId)))
+    .limit(1);
+  return row ?? null;
+}
+
+export { runs, briefs };
+export type { RunRow, BriefRow };

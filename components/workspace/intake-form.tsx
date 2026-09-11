@@ -1,0 +1,201 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { LENSES, MARKETS, Lens, MarketCode } from "@/lib/schema";
+import { Card, cx } from "@/components/ui";
+
+const SAMPLES: { keyword: string; market: MarketCode; lens: Lens; note: string }[] = [
+  { keyword: "photobooth jakarta", market: "ID", lens: "local_service", note: "Local service, Bahasa" },
+  { keyword: "jasa pembuatan website", market: "ID", lens: "b2b_demand", note: "Agency-competitive" },
+  {
+    keyword: "enterprise cloud migration roadmap",
+    market: "US",
+    lens: "b2b_demand",
+    note: "B2B, long consideration",
+  },
+];
+
+/**
+ * Stage 0 in the UI. Submitting runs the deterministic harvest plus the first
+ * model call server-side, then hands off to the board, which drives the
+ * remaining desks one request at a time.
+ */
+export function IntakeForm() {
+  const router = useRouter();
+  const [keyword, setKeyword] = useState("");
+  const [market, setMarket] = useState<MarketCode>("ID");
+  const [lens, setLens] = useState<Lens>("general");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submit(intake?: { keyword: string; market: MarketCode; lens: Lens }) {
+    const payload = intake ?? { keyword, market, lens };
+    if (payload.keyword.trim().length < 2) {
+      setError("Enter a keyword or topic to analyse.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const response = await fetch("/api/runs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error ?? "Intake failed");
+      router.push(`/w/${data.run.id}`);
+    } catch (err) {
+      setError((err as Error).message);
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Card className="overflow-hidden">
+      <div className="border-b border-line px-5 py-4">
+        <h2 className="text-[15px] font-semibold tracking-tight text-ink">New Intake</h2>
+        <p className="mt-0.5 text-xs text-muted">
+          A keyword enters as a brief. Four desks work it into a strategy.
+        </p>
+      </div>
+
+      <form
+        className="space-y-4 p-5"
+        onSubmit={(event) => {
+          event.preventDefault();
+          void submit();
+        }}
+      >
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <label className="min-w-0 flex-1">
+            <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-faint">
+              Keyword or topic
+            </span>
+            <input
+              value={keyword}
+              onChange={(event) => setKeyword(event.target.value)}
+              disabled={busy}
+              placeholder="photobooth jakarta"
+              maxLength={80}
+              className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none placeholder:text-faint focus:border-brand disabled:opacity-60"
+            />
+          </label>
+
+          <label className="sm:w-44">
+            <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-faint">
+              Market
+            </span>
+            <select
+              value={market}
+              onChange={(event) => setMarket(event.target.value as MarketCode)}
+              disabled={busy}
+              className="w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-sm text-ink outline-none focus:border-brand disabled:opacity-60"
+            >
+              {Object.entries(MARKETS).map(([code, info]) => (
+                <option key={code} value={code}>
+                  {info.label} ({info.language})
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <div>
+          <span className="mb-1.5 block text-[11px] font-medium uppercase tracking-wider text-faint">
+            Strategic lens
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {Object.entries(LENSES).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                disabled={busy}
+                onClick={() => setLens(value as Lens)}
+                className={cx(
+                  "rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors disabled:opacity-60",
+                  lens === value
+                    ? "border-brand bg-brand-soft text-brand"
+                    : "border-line bg-surface text-muted hover:border-line-strong"
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {error && (
+          <p className="rounded-lg border border-danger/20 bg-danger-soft px-3 py-2 text-sm text-danger">
+            {error}
+          </p>
+        )}
+
+        <button
+          type="submit"
+          disabled={busy}
+          className="w-full rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand/90 disabled:cursor-wait disabled:opacity-80"
+        >
+          {busy ? "Search Desk is working…" : "Analyse keyword"}
+        </button>
+
+        {busy ? (
+          <IntakeProgress />
+        ) : (
+          <div className="border-t border-line pt-4">
+            <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-faint">
+              Or start from a sample
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {SAMPLES.map((sample) => (
+                <button
+                  key={sample.keyword}
+                  type="button"
+                  onClick={() => {
+                    setKeyword(sample.keyword);
+                    setMarket(sample.market);
+                    setLens(sample.lens);
+                    void submit(sample);
+                  }}
+                  className="rounded-lg border border-line bg-canvas px-2.5 py-1.5 text-left text-xs transition-colors hover:border-brand hover:bg-brand-soft"
+                >
+                  <span className="block font-medium text-ink">{sample.keyword}</span>
+                  <span className="block text-[10px] text-faint">{sample.note}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+      </form>
+    </Card>
+  );
+}
+
+/**
+ * The wait is the product story, so it says what is actually happening rather
+ * than spinning. These are the four deterministic stages plus the first desk.
+ */
+const INTAKE_STEPS = [
+  "Normalising the intake",
+  "Harvesting Google Suggest across 10 seed expansions",
+  "Cleaning and de-duplicating the keyword universe",
+  "Matching intent rules against every query",
+  "Search Desk is classifying intent",
+];
+
+function IntakeProgress() {
+  return (
+    <ol className="space-y-1.5 border-t border-line pt-4">
+      {INTAKE_STEPS.map((step, index) => (
+        <li key={step} className="flex items-center gap-2 text-xs text-muted">
+          <span
+            className="h-1.5 w-1.5 rounded-full bg-brand animate-working"
+            style={{ animationDelay: `${index * 180}ms` }}
+          />
+          {step}
+        </li>
+      ))}
+    </ol>
+  );
+}

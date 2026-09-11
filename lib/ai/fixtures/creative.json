@@ -1,0 +1,183 @@
+{
+  "opportunities": [
+    {
+      "id": "opp_1",
+      "title": "The Published Price List Nobody Else Will Publish",
+      "clusterId": "cluster_1",
+      "funnelStage": "BOFU",
+      "format": "Transparent pricing page with package table and total estimator",
+      "angle": {
+        "framing": "Position published pricing as respect for the customer's time, and treat the industry's WhatsApp-first habit as the thing being disrupted.",
+        "hook": "Setiap vendor photobooth di Jakarta menyuruh Anda chat dulu untuk tanya harga. Kami tulis angkanya di halaman ini.",
+        "contrarianTake": "Hiding your price does not protect your margin - it just means the client compares you on the only thing left visible, which is how fast you reply to a chat.",
+        "whyNotGeneric": "A competitor cannot copy this without giving up the pricing opacity their entire sales process depends on. The angle is only available to whoever moves first, and it costs them something real to follow."
+      },
+      "targetKeyword": "harga sewa photobooth jakarta",
+      "supportingKeywords": [
+        "harga photobooth jakarta",
+        "sewa photobooth jakarta murah",
+        "photobooth jakarta murah",
+        "sewa photobooth jakarta"
+      ],
+      "audience": "Calon Pengantin, 6 Minggu Lagi",
+      "promise": "Walk away knowing what a photobooth for your event actually costs, including the add-ons that usually appear at the end.",
+      "proofRequired": [
+        "A real package table with real numbers, not a 'starting from' teaser",
+        "Itemised add-on costs: extra hours, custom backdrop, additional prints, out-of-area surcharge",
+        "A worked example totalling a specific 300-guest wedding",
+        "Screenshot or photo evidence of a past event matching each package tier"
+      ],
+      "signals": { "intentValue": 95, "differentiation": 88, "effort": 55 },
+      "seoTitles": [
+        {
+          "title": "Harga Sewa Photobooth Jakarta 2025: Daftar Harga Lengkap & Transparan",
+          "rationale": "Leads with the exact target query, then promises the one thing every competing result withholds."
+        },
+        {
+          "title": "Daftar Harga Photobooth Jakarta - Tanpa Perlu Chat Dulu",
+          "rationale": "Names the friction the searcher just experienced on every other result; strong click differentiator in a listing of identical vendor titles."
+        },
+        {
+          "title": "Sewa Photobooth Jakarta: Harga, Paket, dan Biaya Tambahan",
+          "rationale": "Covers the add-on anxiety explicitly, which is the objection that actually delays the booking."
+        }
+      ],
+      "riskIfIgnored": "The first competitor to publish real pricing takes the entire bottom of the funnel, and the advantage is permanent because it is embarrassing for the rest to follow."
+    },
+    {
+      "id": "opp_2",
+      "title": "Jakarta Is Five Markets - Coverage Hub",
+      "clusterId": "cluster_2",
+      "funnelStage": "BOFU",
+      "format": "Coverage hub with one page per Jakarta region",
+      "angle": {
+        "framing": "Treat coverage as a promise with consequences attached, not a claim in a footer.",
+        "hook": "Vendor yang bilang 'melayani seluruh Jakarta' biasanya belum pernah bongkar muat di Kelapa Gading jam 6 sore.",
+        "contrarianTake": "Claiming to serve all of Jakarta is a weaker signal than admitting which two regions you are genuinely good at - because everyone claims the former and nobody can verify it.",
+        "whyNotGeneric": "Each region page carries venue names, loading access notes and travel logistics that can only be written by someone who has actually worked there. A competitor has to do the events before they can write the page."
+      },
+      "targetKeyword": "photobooth jakarta barat",
+      "supportingKeywords": [
+        "photobooth jakarta selatan",
+        "photobooth jakarta timur",
+        "photobooth terdekat jakarta barat",
+        "photobooth jakarta pusat"
+      ],
+      "audience": "Event Organizer Jakarta",
+      "promise": "Confirm in ten seconds whether this vendor genuinely covers your area, and what it costs if you are on the edge of it.",
+      "proofRequired": [
+        "Named venues worked in each region, with dates",
+        "Explicit travel surcharge boundaries rather than a vague 'depends on location'",
+        "Loading and setup notes specific to each region's common venues"
+      ],
+      "signals": { "intentValue": 84, "differentiation": 76, "effort": 70 },
+      "seoTitles": [
+        {
+          "title": "Sewa Photobooth Jakarta Barat - Area Layanan & Venue yang Pernah Kami Tangani",
+          "rationale": "Region-exact match plus the proof element that separates it from identical vendor pages."
+        },
+        {
+          "title": "Photobooth Jakarta Barat: Cek Area Layanan, Biaya Transport, dan Jadwal",
+          "rationale": "Answers the three questions an EO asks before replying, in the order they ask them."
+        }
+      ],
+      "riskIfIgnored": "The map pack absorbs all five regional queries by default, and a single generic city page never outranks a properly segmented competitor."
+    },
+    {
+      "id": "opp_3",
+      "title": "360 vs Analog vs Standard, Judged by the Guest Queue",
+      "clusterId": "cluster_3",
+      "funnelStage": "MOFU",
+      "format": "Comparison guide with side-by-side output samples",
+      "angle": {
+        "framing": "Compare booth formats by what happens in the guest queue at 10pm, not by a spec list.",
+        "hook": "Photobooth 360 menghasilkan video paling bagus dan antrean paling panjang. Untuk 300 tamu, itu masalah.",
+        "contrarianTake": "The most impressive booth format is usually the wrong one. Throughput matters more than output quality once your guest count passes about 150.",
+        "whyNotGeneric": "The throughput argument requires real per-guest cycle times from actual events. Vendors who only own one booth type cannot write this honestly, and vendors who own all three have never had a reason to."
+      },
+      "targetKeyword": "sewa photobooth 360 jakarta",
+      "supportingKeywords": [
+        "photobooth analog jakarta",
+        "photobooth aesthetic jakarta",
+        "best photobooth jakarta",
+        "harga sewa photobooth 360 jakarta"
+      ],
+      "audience": "Calon Pengantin, 6 Minggu Lagi",
+      "promise": "Pick the booth format that fits your guest count and venue instead of the one that looked best on someone else's Instagram.",
+      "proofRequired": [
+        "Measured guests-per-hour for each format from real events",
+        "Side-by-side output samples shot at the same venue",
+        "A guest-count threshold table recommending a format per event size"
+      ],
+      "signals": { "intentValue": 78, "differentiation": 82, "effort": 45 },
+      "seoTitles": [
+        {
+          "title": "Photobooth 360 vs Analog vs Standard: Mana yang Cocok untuk Jumlah Tamu Anda?",
+          "rationale": "Reframes a format question as a guest-count question, which is the decision the reader is actually making."
+        },
+        {
+          "title": "Sewa Photobooth 360 Jakarta: Kapan Worth It, Kapan Tidak",
+          "rationale": "The 'kapan tidak' half signals honesty and earns the click in a results page full of vendors selling only upside."
+        }
+      ],
+      "riskIfIgnored": "This is the only real evaluation stage in the market, and whoever frames the comparison sets the criteria every later vendor gets judged against."
+    },
+    {
+      "id": "opp_4",
+      "title": "The Wedding Venue Logistics Checklist",
+      "clusterId": "cluster_1",
+      "funnelStage": "BOFU",
+      "format": "Downloadable checklist with venue access section",
+      "angle": {
+        "framing": "Sell certainty about the day, not the booth. Target the fear of a setup failure at the venue.",
+        "hook": "Photobooth Anda tiba jam 4. Gedung baru izinkan bongkar muat jam 5. Resepsi mulai jam 6.",
+        "contrarianTake": "The photobooth is not the risk. The venue's loading dock policy is, and no vendor asks about it until the week of the event.",
+        "whyNotGeneric": "Built from real Jakarta venue access rules. It reads as insider knowledge because it is, and it cannot be written from a desk."
+      },
+      "targetKeyword": "sewa photobooth wedding jakarta",
+      "supportingKeywords": ["harga photobooth wedding jakarta", "sewa photobooth jakarta selatan"],
+      "audience": "Event Organizer Jakarta",
+      "promise": "Know every question to ask your venue and your vendor before signing, so nothing is discovered on the day.",
+      "proofRequired": [
+        "Access and setup constraints for common Jakarta wedding venues",
+        "A timeline working backwards from reception start",
+        "A named failure case and what it cost"
+      ],
+      "signals": { "intentValue": 81, "differentiation": 74, "effort": 38 },
+      "seoTitles": [
+        {
+          "title": "Checklist Sewa Photobooth Wedding Jakarta: 11 Hal yang Ditanyakan Sebelum DP",
+          "rationale": "Specific number plus the deposit moment, which is exactly where the reader currently is."
+        },
+        {
+          "title": "Sewa Photobooth Wedding Jakarta: Panduan Logistik Venue & Waktu Setup",
+          "rationale": "Targets the logistics anxiety no competing page addresses at all."
+        }
+      ],
+      "riskIfIgnored": "Wedding queries carry the highest commercial weight in the harvest and are currently served by pages that talk only about backdrop styles."
+    }
+  ],
+  "killList": [
+    {
+      "idea": "\"10 Ide Photobooth Aesthetic untuk Pernikahan Anda\"",
+      "whyKilled": "Pinterest already owns this and serves it better. It attracts people collecting inspiration nine months before they book, which is the least valuable moment in this entire funnel, and it converts nothing."
+    },
+    {
+      "idea": "\"Sejarah Photobooth: Dari 1925 ke Photobooth 360\"",
+      "whyKilled": "Not one query in the harvest asks for it. This is the article agencies write when they have a word count to fill and no strategy to follow."
+    },
+    {
+      "idea": "A page targeting \"photobooth aeon jakarta garden city\" and the other branded venue queries",
+      "whyKilled": "Navigational intent for a brand we do not own. The searcher wants that specific operator; we would rank badly, and if we ranked we would annoy the person who arrived."
+    },
+    {
+      "idea": "\"Cara Membuat Photobooth Sendiri di Rumah\"",
+      "whyKilled": "Actively harmful. It ranks for the one informational query in the set by teaching our own customer not to hire us."
+    },
+    {
+      "idea": "A generic \"Sewa Photobooth Jakarta\" service page competing head-on with the head term",
+      "whyKilled": "The head term is a local pack, and the map beats any page we write. We reach the same customer more cheaply through the regional and pricing clusters."
+    }
+  ],
+  "directorNote": "Bet everything on the pricing page. This market has collectively decided that hiding prices is normal, which means the first vendor to publish a real number does not just rank - they become the reference point every competitor gets compared against. The regional hub is the compounding follow-up, but it only works once there is a price to attach to a region. Everything on the kill list is what a lesser agency ships when it mistakes activity for strategy."
+}

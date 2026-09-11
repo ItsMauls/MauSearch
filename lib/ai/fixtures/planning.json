@@ -1,0 +1,121 @@
+{
+  "audiences": [
+    {
+      "persona": "Calon Pengantin, 6 Minggu Lagi",
+      "role": "Bride or groom finalising vendors for a 200-400 guest Jakarta reception",
+      "jobToBeDone": "Lock a photobooth vendor who will definitely show up, fit the venue, and not blow a budget that is already committed elsewhere.",
+      "painPoints": [
+        "Every vendor hides pricing behind a WhatsApp chat, so comparing three of them takes a week",
+        "No idea whether the quoted duration covers setup and teardown or only live hours",
+        "Venue has loading restrictions nobody warned them about"
+      ],
+      "objections": [
+        "The advertised price is never the final price once backdrop and extra prints are added",
+        "Cannot tell whether this vendor has actually worked at their specific gedung",
+        "Afraid the booth will look cheap in the photos that end up on Instagram"
+      ],
+      "decisionTrigger": "Seeing a real total for a package matching their guest count and hours, from a vendor who has visibly worked that venue before."
+    },
+    {
+      "persona": "Event Organizer Jakarta",
+      "role": "EO or wedding organiser sourcing a repeatable vendor across multiple client events",
+      "jobToBeDone": "Find one photobooth partner reliable enough to recommend to clients without personally supervising every setup.",
+      "painPoints": [
+        "Vendors who cover Jakarta Selatan quietly refuse Jakarta Utara on the day",
+        "Operator quality varies event to event even with the same vendor",
+        "Needs a price list they can mark up and hand to a client in one message"
+      ],
+      "objections": [
+        "Cannot risk a no-show on a client event; reputation is the whole business",
+        "Needs proof of coverage across regions, not a claim",
+        "Wants to know operator count and backup equipment policy before recommending"
+      ],
+      "decisionTrigger": "A published coverage map plus a clear escalation and backup policy they can forward to a client verbatim."
+    },
+    {
+      "persona": "Brand Activation Manager",
+      "role": "Marketing lead running a mall or corporate activation in Jakarta",
+      "jobToBeDone": "Commission a custom-branded booth that produces shareable output and captures leads at a mall or office event.",
+      "painPoints": [
+        "Standard booth aesthetics clash with brand guidelines",
+        "Needs data capture, not just prints",
+        "Procurement demands an itemised quote"
+      ],
+      "objections": [
+        "Most consumer photobooth vendors cannot handle brand guideline compliance",
+        "Unclear whether custom backdrop cost is one-off or per-event",
+        "No evidence of prior work with comparable brands"
+      ],
+      "decisionTrigger": "A custom-build portfolio with itemised costs and a named example of a comparable brand activation."
+    }
+  ],
+  "funnelMap": [
+    {
+      "clusterId": "cluster_1",
+      "stage": "BOFU",
+      "goal": "Convert price-checking searchers directly into enquiries by being the only page that actually publishes numbers.",
+      "contentFormat": "Transparent pricing page with package table and an interactive estimate",
+      "whyThisFormat": "Every competitor forces a WhatsApp chat to reveal a price, so publishing one is both the differentiator and the conversion mechanism."
+    },
+    {
+      "clusterId": "cluster_2",
+      "stage": "BOFU",
+      "goal": "Capture region-qualified demand and remove coverage doubt before the first message.",
+      "contentFormat": "Coverage hub with a page per Jakarta region",
+      "whyThisFormat": "All five regions autocomplete independently, which means searchers self-segment by area before they ever compare vendors."
+    },
+    {
+      "clusterId": "cluster_3",
+      "stage": "MOFU",
+      "goal": "Help undecided searchers pick a booth format, and make our format the obvious fit for their event type.",
+      "contentFormat": "Comparison guide with side-by-side format breakdown and real output samples",
+      "whyThisFormat": "Format names are carrying the evaluation load here, and nobody explains them in terms of what a guest actually experiences."
+    },
+    {
+      "clusterId": "cluster_4",
+      "stage": "TOFU",
+      "goal": "Monitor only. These searchers want a named operator and will not be converted by category content.",
+      "contentFormat": "No dedicated content - track as a competitor watchlist",
+      "whyThisFormat": "Building pages against branded navigational queries we do not own wastes production slots and rarely ranks."
+    }
+  ],
+  "formatFit": [
+    {
+      "format": "Transparent pricing page",
+      "fitScore": 94,
+      "bestForClusterIds": ["cluster_1"],
+      "effort": "medium"
+    },
+    {
+      "format": "Regional coverage hub",
+      "fitScore": 87,
+      "bestForClusterIds": ["cluster_2"],
+      "effort": "medium"
+    },
+    {
+      "format": "Booth format comparison guide",
+      "fitScore": 79,
+      "bestForClusterIds": ["cluster_3"],
+      "effort": "low"
+    },
+    {
+      "format": "Wedding logistics checklist",
+      "fitScore": 72,
+      "bestForClusterIds": ["cluster_1", "cluster_3"],
+      "effort": "low"
+    },
+    {
+      "format": "Long-form blog article",
+      "fitScore": 21,
+      "bestForClusterIds": [],
+      "effort": "medium"
+    }
+  ],
+  "contentGoals": {
+    "primary": "Turn price-stage searchers into qualified enquiries without forcing a chat first",
+    "secondary": "Establish regional coverage as a defensible trust signal against single-area vendors",
+    "successMetric": "Enquiries that arrive already naming a package and a region, as a share of total enquiries"
+  },
+  "portfolioAdvice": "Build the pricing page first - it serves the largest and most commercially advanced cluster, and it is the only asset that attacks the market's shared weakness. The regional coverage hub is second because it compounds: every region page reinforces the pricing page's authority and captures demand the map pack currently absorbs. The format comparison guide is third; it is cheap and useful but it serves people who have not yet decided to spend. Cluster 4 gets nothing.",
+  "plannerNote": "The entire Jakarta photobooth market has agreed, apparently by accident, to hide its prices. That is not a moat - it is a shared vulnerability, and the first vendor to publish a real number takes the whole bottom of the funnel."
+}

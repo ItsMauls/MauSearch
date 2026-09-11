@@ -1,0 +1,104 @@
+{
+  "clusters": [
+    {
+      "id": "cluster_1",
+      "name": "Sewa, Harga & Paket",
+      "theme": "Someone who has already decided to rent a photobooth and is now trying to find out what it costs before they contact anyone.",
+      "members": [
+        "harga sewa photobooth jakarta",
+        "harga photobooth jakarta",
+        "sewa photobooth jakarta",
+        "sewa photobooth jakarta murah",
+        "photobooth jakarta murah",
+        "sewa photobooth di jakarta",
+        "harga photobooth wedding jakarta",
+        "sewa photobooth wedding jakarta",
+        "sewa photobooth jakarta selatan",
+        "sewa photobooth jakarta timur"
+      ],
+      "dominantIntent": "transactional",
+      "funnelStage": "BOFU",
+      "note": "The money cluster. Every query here is a person with an event date already in their calendar, and every one of them is currently being answered by a WhatsApp number instead of a page."
+    },
+    {
+      "id": "cluster_2",
+      "name": "Cakupan Wilayah Jakarta",
+      "theme": "Checking whether a vendor actually serves their specific part of Jakarta before wasting a conversation.",
+      "members": [
+        "photobooth jakarta barat",
+        "photobooth jakarta timur",
+        "photobooth jakarta pusat",
+        "photobooth jakarta utara",
+        "photobooth jakarta selatan",
+        "photobooth jakarta kota",
+        "photobooth terdekat jakarta barat",
+        "photobooth di jakarta"
+      ],
+      "dominantIntent": "local",
+      "funnelStage": "BOFU",
+      "note": "All five administrative regions autocomplete on their own, which means Jakarta is not one market here - it is five, and coverage is a real purchase objection."
+    },
+    {
+      "id": "cluster_3",
+      "name": "Tipe & Gaya Booth",
+      "theme": "Comparing booth formats and aesthetics to work out which one suits their event before shortlisting a vendor.",
+      "members": [
+        "photobooth custom jakarta",
+        "photobooth analog jakarta",
+        "photobooth aesthetic jakarta",
+        "photobooth high angle jakarta",
+        "sewa photobooth 360 jakarta",
+        "harga sewa photobooth 360 jakarta",
+        "backdrop photobooth jakarta",
+        "sewa backdrop photobooth jakarta",
+        "best photobooth jakarta",
+        "vendor photobooth di jakarta"
+      ],
+      "dominantIntent": "commercial",
+      "funnelStage": "MOFU",
+      "note": "The only genuine evaluation stage in the whole harvest. Format names - 360, analog, high angle - are doing the work that brand names do in other markets."
+    },
+    {
+      "id": "cluster_4",
+      "name": "Venue & Brand Spesifik",
+      "theme": "Looking for one named operator or one named venue's booth, not for a category.",
+      "members": [
+        "photobooth aeon jakarta garden city",
+        "photobox jakarta aquarium",
+        "photobooth jakarta.starlight",
+        "photobooth di mall ciputra jakarta",
+        "photobooth jakarta premium outlet",
+        "atedoz photobooth jakarta",
+        "asana photobooth jakarta",
+        "cafe + photobooth jakarta",
+        "cafe photobooth jakarta timur"
+      ],
+      "dominantIntent": "navigational",
+      "funnelStage": "TOFU",
+      "note": "Do not chase these with commercial pages - the searcher wants a specific brand. Worth watching as a competitor list, not as a content target."
+    }
+  ],
+  "entities": [
+    "Jakarta Barat",
+    "Jakarta Selatan",
+    "Jakarta Timur",
+    "Jakarta Pusat",
+    "Jakarta Utara",
+    "photobooth 360",
+    "photobooth analog",
+    "backdrop custom",
+    "unlimited print",
+    "wedding organizer",
+    "gedung pernikahan",
+    "brand activation",
+    "instant print",
+    "operator on site",
+    "durasi sewa"
+  ],
+  "coverageGaps": [
+    "Nobody publishes an actual price range - every result pushes the searcher into a WhatsApp chat before revealing a number",
+    "No page maps which vendors genuinely cover which Jakarta region, despite all five regions autocompleting separately",
+    "The difference between 360, analog and standard booths is never explained in terms of what a guest actually experiences",
+    "Wedding-specific logistics (venue access, setup time, operator count) are absent even though wedding queries carry the highest commercial weight"
+  ]
+}
