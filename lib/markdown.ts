@@ -92,7 +92,7 @@ export function briefToMarkdown(view: BriefView): string {
   push(`**Editor note:** ${b.editorNote}`);
   push(
     `*Produced by the MauSearch desk pipeline. Keyword data harvested from Google Suggest; ` +
-      `strategy inferred by Nemotron via 9router. No search volume, CPC or keyword difficulty ` +
+      `strategy inferred by Nemotron. No search volume, CPC or keyword difficulty ` +
       `figures appear in this brief because MauSearch has no source for them.*`
   );
 

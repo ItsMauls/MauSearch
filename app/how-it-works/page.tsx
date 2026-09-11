@@ -1,4 +1,4 @@
-import { MODEL } from "@/lib/ai/client";
+import { MODEL, PROVIDER_LABEL } from "@/lib/ai/client";
 import { SCORE_FORMULA } from "@/lib/pipeline/score";
 import { PageHeader } from "@/components/shell";
 import { Badge, ButtonLink, Card, SectionHeader } from "@/components/ui";
@@ -130,11 +130,16 @@ export default function HowItWorks() {
           <SectionHeader index="04" title="The engine" />
           <div className="space-y-2 p-5 text-sm text-muted">
             <p>
-              All five model stages route through <strong className="text-ink">9router</strong>,
-              an OpenAI-compatible layer, with{" "}
-              <strong className="text-ink">Nemotron</strong> (
-              <code className="font-mono text-xs">{MODEL}</code>) as the reasoning model. Swapping
-              or failing over a model is an environment change, never a code change.
+              All five model stages route through{" "}
+              <strong className="text-ink">{PROVIDER_LABEL}</strong>, an OpenAI-compatible layer,
+              with <strong className="text-ink">Nemotron</strong> (
+              <code className="font-mono text-xs">{MODEL}</code>) as the reasoning model.
+            </p>
+            <p>
+              The router is the point: 9router and OpenRouter speak the same protocol, so moving
+              between them — or failing over a model — is two environment variables and no code
+              change. Nothing in the codebase binds to a vendor beyond{" "}
+              <code className="font-mono text-xs">AI_BASE_URL</code>.
             </p>
             <p>
               Without an API key the desks return committed fixtures so the repository runs with

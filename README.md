@@ -79,7 +79,7 @@ npm install
 npm run dev          # http://localhost:3000
 ```
 
-**It runs with zero credentials.** With no `NINEROUTER_API_KEY` the desks return committed fixtures — a full `photobooth jakarta` analysis built from genuinely harvested data — so you can clone this and see the whole product before going looking for keys. Google Suggest harvesting stays live either way; it needs no key.
+**It runs with zero credentials.** With no `AI_API_KEY` the desks return committed fixtures — a full `photobooth jakarta` analysis built from genuinely harvested data — so you can clone this and see the whole product before going looking for keys. Google Suggest harvesting stays live either way; it needs no key.
 
 ```bash
 npm run check        # 32 assertions: pipeline, scoring, fixture integrity
@@ -92,11 +92,12 @@ Copy `.env.example` to `.env.local` for live runs:
 
 | Variable | Purpose |
 | --- | --- |
-| `NINEROUTER_API_KEY` | 9router key. Absent → fixtures. |
-| `NINEROUTER_BASE_URL` | 9router endpoint (OpenAI-compatible) |
-| `MAUSEARCH_MODEL` | Nemotron model id, used by all five stages |
-| `MAUSEARCH_MODEL_FAST` | Optional cheaper route for the intent stage |
-| `DATABASE_URL` | Neon Postgres. Absent → in-memory, dev only. |
+| `AI_API_KEY` | Router API key. Absent → fixtures. |
+| `AI_BASE_URL` | `https://openrouter.ai/api/v1` or `https://api.9router.com/v1` |
+| `AI_MODEL` | Nemotron model id, used by all five stages |
+| `AI_MODEL_FAST` | Optional cheaper route for the intent stage |
+| `AI_SITE_URL` | OpenRouter attribution header; ignored elsewhere |
+| `DATABASE_URL` | Neon Postgres. **Required in production** — see Known limits. |
 
 ---
 
@@ -116,7 +117,7 @@ app/
 lib/pipeline/                   The deterministic half — no model imports
   normalize · suggest · dedupe · rules · score
 lib/ai/
-  client.ts                     OpenAI SDK pointed at 9router
+  client.ts                     OpenAI SDK pointed at a router
   run-stage.ts                  One runner: prompt → JSON → zod → 1 retry
   stages/                       Five stage configs (persona, temp, schema)
   fixtures/                     Committed demo run, real harvested data
@@ -128,7 +129,7 @@ scripts/check.mts               The self-check
 
 **Frontend** — Next.js 16 App Router, React 19, TypeScript strict, Tailwind v4. Server Components read Postgres directly; one client hook drives the run. No state library, no data-fetching library, no component library — the design is custom enough that a component kit would have been overridden into unrecognisability.
 
-**AI** — 9router is OpenAI-compatible, so the official SDK pointed at a different base URL is the whole integration. Swapping models or letting 9router fail over between them is an environment change, never a code change. One generic `runStage()` runner serves all five stages; nothing else in the codebase talks to the model.
+**AI** — the model layer binds to a protocol, not a vendor. 9router and OpenRouter are both OpenAI-compatible, so the official SDK pointed at a different `AI_BASE_URL` is the entire integration — moving between routers, or swapping the model behind one, is an environment change and no code change. One generic `runStage()` runner serves all five stages; nothing else in the codebase talks to the model.
 
 **Reliability** — Every model response is zod-validated. A schema failure gets exactly one corrective retry with the validation error fed back into the prompt; a second failure marks that stage failed and records the reason. Suggest harvesting uses `Promise.allSettled`, so a rate-limited seed contributes nothing and the run continues — only a *total* outage falls back to AI expansion, and then every affected row's chip flips from `SUGGEST` to `AI` behind a banner saying so.
 
@@ -148,7 +149,7 @@ Stated rather than silently omitted, because a declared boundary is a decision a
 
 ## Known limits
 
-- The in-memory store is single-process and non-durable. It exists so the repo runs credential-free; production always has Neon.
+- The in-memory store is single-process and non-durable — it exists so the repo runs credential-free locally. **A serverless deployment needs `DATABASE_URL`**: each invocation is a fresh process, so without Postgres a created run would not be found by the request that renders it.
 - Google rate-limits aggressive parallel Suggest calls — runs typically land 6–10 of 10 seeds, which is why partial failure is designed for rather than treated as an error.
 - Fixture mode always returns the `photobooth jakarta` analysis regardless of the keyword entered. That is what "sample data" means, and the UI says so in a banner.
 
@@ -156,4 +157,4 @@ Stated rather than silently omitted, because a declared boundary is a decision a
 
 Full product blueprint: [`docs/BLUEPRINT.md`](docs/BLUEPRINT.md)
 
-Built with Next.js, Nemotron via 9router, Neon, and Google Suggest.
+Built with Next.js, Nemotron via an OpenAI-compatible router (OpenRouter or 9router), Neon, and Google Suggest.

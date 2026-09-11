@@ -33,7 +33,7 @@ export const PROVENANCE: Record<
     short: "AI",
     className: "bg-ai-soft text-ai border-ai/20",
     explain:
-      "Nemotron's judgment, routed through 9router. Reasoning over the evidence above - never a measurement.",
+      "Nemotron's judgment, routed through an OpenAI-compatible router. Reasoning over the evidence above - never a measurement.",
   },
   mauscore: {
     label: "MauScore",

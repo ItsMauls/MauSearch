@@ -35,7 +35,7 @@ export default async function WorkspaceHome() {
       <div className="mx-auto max-w-6xl space-y-6 px-6 py-6 md:px-8">
         {!hasLiveModel() && (
           <Banner title="Running on sample data">
-            No <code className="font-mono text-xs">NINEROUTER_API_KEY</code> is configured, so the
+            No <code className="font-mono text-xs">AI_API_KEY</code> is configured, so the
             desks return committed fixtures. Google Suggest harvesting is still live and real.
           </Banner>
         )}

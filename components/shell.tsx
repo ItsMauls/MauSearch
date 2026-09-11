@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { hasLiveModel } from "@/lib/ai/client";
+import { hasLiveModel, PROVIDER_LABEL } from "@/lib/ai/client";
 import { hasDatabase } from "@/lib/db";
 import { cx } from "./ui";
 
@@ -55,7 +55,7 @@ function EngineStatus() {
   return (
     <div className="rounded-lg border border-line bg-canvas p-3">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-faint">Engine</p>
-      <Row label="Model" value={live ? "Nemotron via 9router" : "Sample data"} ok={live} />
+      <Row label="Model" value={live ? `Nemotron via ${PROVIDER_LABEL}` : "Sample data"} ok={live} />
       <Row label="Storage" value={db ? "Neon Postgres" : "In-memory (dev)"} ok={db} />
       <Row label="Keywords" value="Google Suggest" ok />
     </div>
