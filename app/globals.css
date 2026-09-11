@@ -112,9 +112,18 @@ body {
 }
 .animate-draw { stroke-dasharray: 20; animation: mau-draw 1.8s ease-in-out infinite; }
 
+/** Indeterminate progress bar: brief generation has no real percentage to
+ *  show, so the bar sweeps the track rather than sitting at a fake number. */
+@keyframes mau-progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.animate-progress { animation: mau-progress 1.1s ease-in-out infinite; }
+
 @media (prefers-reduced-motion: reduce) {
   .animate-working, .animate-land,
-  .animate-sweep, .animate-scan, .animate-bob, .animate-grow, .animate-fall, .animate-flow, .animate-draw {
+  .animate-sweep, .animate-scan, .animate-bob, .animate-grow, .animate-fall, .animate-flow, .animate-draw,
+  .animate-progress {
     animation: none;
   }
 }

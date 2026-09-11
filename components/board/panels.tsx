@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Intent } from "@/lib/schema";
 import { RunView } from "@/lib/view";
 import { SCORE_FORMULA } from "@/lib/pipeline/score";
@@ -430,17 +433,21 @@ export function AngleRoom({
         }
       />
 
-      <div className="space-y-3 p-5">
+      <div className="flex items-center justify-between px-5 pt-4">
+        <p className="text-[11px] text-faint">Slide sideways to compare opportunities →</p>
+      </div>
+      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto p-5 pt-2">
         {run.opportunities.map((opportunity, index) => (
-          <OpportunityCard
-            key={opportunity.id}
-            opportunity={opportunity}
-            recommended={index === 0}
-            cluster={run.clusters.find((c) => c.id === opportunity.clusterId)?.name}
-            onGenerateBrief={onGenerateBrief}
-            generating={generatingId === opportunity.id}
-            disabled={Boolean(generatingId)}
-          />
+          <div key={opportunity.id} className="w-[88vw] max-w-sm shrink-0 snap-start sm:w-[420px]">
+            <OpportunityCard
+              opportunity={opportunity}
+              recommended={index === 0}
+              cluster={run.clusters.find((c) => c.id === opportunity.clusterId)?.name}
+              onGenerateBrief={onGenerateBrief}
+              generating={generatingId === opportunity.id}
+              disabled={Boolean(generatingId)}
+            />
+          </div>
         ))}
       </div>
 
@@ -466,6 +473,37 @@ export function AngleRoom({
 
       {run.directorNote && <DeskNote role="Director note">{run.directorNote}</DeskNote>}
     </Card>
+  );
+}
+
+/** Counts seconds while `active`, resets when it stops. */
+function useElapsedSeconds(active: boolean): number {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    if (!active) {
+      setElapsed(0);
+      return;
+    }
+    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => clearInterval(id);
+  }, [active]);
+  return elapsed;
+}
+
+/** Indeterminate bar + elapsed clock — the brief takes 15-40s and a card that
+ *  just says "writing…" for that long reads as stuck. */
+function BriefProgress({ generating }: { generating: boolean }) {
+  const elapsed = useElapsedSeconds(generating);
+  if (!generating) return null;
+  return (
+    <div className="mt-3.5">
+      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-canvas">
+        <div className="animate-progress absolute inset-y-0 left-0 w-1/3 rounded-full bg-brand" />
+      </div>
+      <p className="mt-1.5 text-[11px] text-faint">
+        {elapsed}s elapsed — Editorial Desk is writing the brief, usually 15–40s
+      </p>
+    </div>
   );
 }
 
@@ -495,8 +533,9 @@ function OpportunityCard({
   return (
     <div
       className={cx(
-        "rounded-xl border p-4",
-        recommended ? "border-brand/40 bg-brand-soft/30" : "border-line"
+        "h-full rounded-xl border p-4 transition-colors",
+        recommended ? "border-brand/40 bg-brand-soft/30" : "border-line",
+        generating && "border-brand/60"
       )}
     >
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -608,6 +647,7 @@ function OpportunityCard({
           {generating ? "Editorial Desk is writing the brief…" : "Generate production brief"}
         </button>
       )}
+      <BriefProgress generating={Boolean(generating)} />
     </div>
   );
 }
