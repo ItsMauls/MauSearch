@@ -82,7 +82,7 @@ async function complete(
     // OpenRouter-specific; harmless no-op on routers that ignore unknown fields.
     ...({ reasoning: { enabled: false } } as Record<string, unknown>),
   });
-  return response.choices[0]?.message?.content ?? "";
+  return response.choices?.[0]?.message?.content ?? "";
 }
 
 /**
