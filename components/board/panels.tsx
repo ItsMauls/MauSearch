@@ -468,47 +468,51 @@ export function AngleRoom({
         }
       />
 
-      <div className="flex items-center justify-between px-5 pt-4">
-        <p className="text-[11px] text-faint">Slide or use the arrows to compare opportunities</p>
-        <div className="flex items-center gap-1.5">
+      <p className="px-5 pt-4 text-[11px] text-faint">Slide or use the arrows to compare opportunities</p>
+
+      <div className="group/carousel relative">
+        <div
+          ref={scrollRef}
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth p-5 pt-2"
+        >
+          {run.opportunities.map((opportunity, index) => (
+            <div
+              key={opportunity.id}
+              data-cluster-id={opportunity.clusterId}
+              className="w-[85vw] shrink-0 snap-start rounded-xl sm:w-[calc(50%-0.375rem)]"
+            >
+              <OpportunityCard
+                opportunity={opportunity}
+                recommended={index === 0}
+                cluster={run.clusters.find((c) => c.id === opportunity.clusterId)?.name}
+                onGenerateBrief={onGenerateBrief}
+                generating={generatingId === opportunity.id}
+                disabled={Boolean(generatingId)}
+              />
+            </div>
+          ))}
+        </div>
+
+        <div className="pointer-events-none absolute inset-y-0 left-0 flex w-16 items-center bg-linear-to-r from-surface to-transparent pl-2 opacity-0 transition-opacity group-hover/carousel:opacity-100">
           <button
             type="button"
             onClick={() => scrollByPage(-1)}
             aria-label="Previous opportunities"
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-surface text-sm text-muted transition-colors hover:border-brand hover:text-brand"
+            className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full border border-line bg-surface text-sm text-muted shadow-sm transition-colors hover:border-brand hover:text-brand"
           >
             ‹
           </button>
+        </div>
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-16 items-center justify-end bg-linear-to-l from-surface to-transparent pr-2 opacity-0 transition-opacity group-hover/carousel:opacity-100">
           <button
             type="button"
             onClick={() => scrollByPage(1)}
             aria-label="Next opportunities"
-            className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-surface text-sm text-muted transition-colors hover:border-brand hover:text-brand"
+            className="pointer-events-auto flex h-8 w-8 items-center justify-center rounded-full border border-line bg-surface text-sm text-muted shadow-sm transition-colors hover:border-brand hover:text-brand"
           >
             ›
           </button>
         </div>
-      </div>
-      <div
-        ref={scrollRef}
-        className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth p-5 pt-2"
-      >
-        {run.opportunities.map((opportunity, index) => (
-          <div
-            key={opportunity.id}
-            data-cluster-id={opportunity.clusterId}
-            className="w-[85vw] shrink-0 snap-start rounded-xl transition-shadow sm:w-[calc(50%-0.375rem)]"
-          >
-            <OpportunityCard
-              opportunity={opportunity}
-              recommended={index === 0}
-              cluster={run.clusters.find((c) => c.id === opportunity.clusterId)?.name}
-              onGenerateBrief={onGenerateBrief}
-              generating={generatingId === opportunity.id}
-              disabled={Boolean(generatingId)}
-            />
-          </div>
-        ))}
       </div>
 
       {/* The signature detail: agencies earn their fee by saying no. */}
@@ -516,10 +520,15 @@ export function AngleRoom({
         <h3 className="text-xs font-semibold uppercase tracking-wider text-faint">
           Kill list — what this desk refused to make
         </h3>
-        <ul className="mt-2.5 space-y-2.5">
+        <ul className="mt-2.5 space-y-2">
           {run.killList.map((killed) => (
-            <li key={killed.idea} className="flex gap-2.5">
-              <span className="mt-0.5 font-mono text-xs text-danger">✕</span>
+            <li
+              key={killed.idea}
+              className="flex items-start gap-2.5 rounded-lg border border-danger/20 bg-danger-soft/10 p-3"
+            >
+              <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-danger/10 font-mono text-xs text-danger">
+                ✕
+              </span>
               <span className="min-w-0 text-xs">
                 <span className="block font-medium text-ink line-through decoration-danger/40">
                   {killed.idea}
@@ -571,7 +580,7 @@ function OpportunityCard({
   return (
     <div
       className={cx(
-        "h-full rounded-xl border p-5 transition-colors",
+        "h-full rounded-xl border bg-surface p-5 shadow-sm transition-all hover:shadow-md",
         recommended ? "border-brand/40 bg-brand-soft/30" : "border-line",
         generating && "border-brand/60"
       )}

@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { StageId, STAGE_IDS } from "@/lib/schema";
 import { RunView } from "@/lib/view";
 import { Banner, Card } from "@/components/ui";
-import { ProvenanceLegend } from "@/components/provenance";
 import { AngleRoom, AudiencePanel, ClustersPanel, DemandReadPanel } from "./panels";
 import { PanelSkeleton, StageRail } from "./stage-rail";
 
@@ -136,6 +135,10 @@ export function StrategyBoard({
 
   const nextPending = STAGE_IDS.find((id) => run.stages[id] !== "done");
 
+  const jumpToPanel = useCallback((stage: StageId) => {
+    document.getElementById(`panel-${stage}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, []);
+
   return (
     <div className="mx-auto max-w-7xl px-6 py-6 md:px-8">
       {run.suggest.isAiFallback && (
@@ -148,10 +151,6 @@ export function StrategyBoard({
         </div>
       )}
 
-      <div className="mb-5">
-        <ProvenanceLegend hideLabel />
-      </div>
-
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">
         <div className="lg:sticky lg:top-6 lg:self-start">
           <Card className="p-4">
@@ -163,6 +162,7 @@ export function StrategyBoard({
               working={working}
               workingSince={workingSince}
               onRetry={retry}
+              onJump={jumpToPanel}
               freeTierModel={freeTierModel}
             />
           </Card>
@@ -175,15 +175,29 @@ export function StrategyBoard({
             </div>
           )}
 
-          {run.stages.intent === "done" && <DemandReadPanel run={run} />}
-          {run.stages.clusters === "done" && <ClustersPanel run={run} />}
-          {run.stages.planning === "done" && <AudiencePanel run={run} />}
+          {run.stages.intent === "done" && (
+            <div id="panel-intent">
+              <DemandReadPanel run={run} />
+            </div>
+          )}
+          {run.stages.clusters === "done" && (
+            <div id="panel-clusters">
+              <ClustersPanel run={run} />
+            </div>
+          )}
+          {run.stages.planning === "done" && (
+            <div id="panel-planning">
+              <AudiencePanel run={run} />
+            </div>
+          )}
           {run.stages.creative === "done" && (
-            <AngleRoom
-              run={run}
-              onGenerateBrief={generateBrief}
-              generatingId={generatingId}
-            />
+            <div id="panel-creative">
+              <AngleRoom
+                run={run}
+                onGenerateBrief={generateBrief}
+                generatingId={generatingId}
+              />
+            </div>
           )}
 
           {working && <PanelSkeleton stage={working} since={workingSince} />}

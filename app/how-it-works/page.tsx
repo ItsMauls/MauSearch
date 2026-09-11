@@ -3,7 +3,7 @@ import { hasDatabase } from "@/lib/db";
 import { SCORE_FORMULA } from "@/lib/pipeline/score";
 import { PageHeader } from "@/components/shell";
 import { Badge, ButtonLink, Card, Info, SectionHeader } from "@/components/ui";
-import { Provenance, ProvenanceLegend } from "@/components/provenance";
+import { Provenance } from "@/components/provenance";
 import { StageIllustration } from "@/components/how-it-works-illustration";
 
 export const metadata = { title: "How It Works — MauSearch" };
@@ -115,8 +115,6 @@ export default function HowItWorks() {
       />
 
       <div className="mx-auto max-w-5xl space-y-6 px-6 py-6 md:px-8">
-        <ProvenanceLegend />
-
         <Card className="overflow-hidden">
           <SectionHeader
             index="01"

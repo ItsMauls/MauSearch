@@ -69,32 +69,3 @@ export function Provenance({
     </span>
   );
 }
-
-/** Header legend. Without it the chips are decoration; with it they are a claim. */
-export function ProvenanceLegend({ note, hideLabel }: { note?: string; hideLabel?: boolean }) {
-  return (
-    <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-line bg-surface px-3 py-2">
-      {!hideLabel && (
-        <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-          Where each value came from
-        </span>
-      )}
-      {(Object.keys(PROVENANCE) as Source[]).map((source) => (
-        <span key={source} className="flex items-center gap-1.5">
-          <Provenance source={source} full />
-          <span className="text-[11px] text-muted">{LEGEND_HINT[source]}</span>
-        </span>
-      ))}
-      <span className="text-[11px] text-faint">
-        {note ?? "No search volume, CPC, or keyword difficulty anywhere - we have no source for them."}
-      </span>
-    </div>
-  );
-}
-
-const LEGEND_HINT: Record<Source, string> = {
-  google_suggest: "measured",
-  rule: "deterministic",
-  ai: "inferred",
-  mauscore: "computed",
-};

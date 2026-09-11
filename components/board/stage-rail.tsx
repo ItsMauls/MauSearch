@@ -92,12 +92,14 @@ export function StageRail({
   working,
   workingSince,
   onRetry,
+  onJump,
   freeTierModel,
 }: {
   run: RunView;
   working: StageId | null;
   workingSince?: number | null;
   onRetry?: (stage: StageId) => void;
+  onJump?: (stage: StageId) => void;
   freeTierModel: boolean;
 }) {
   return (
@@ -106,14 +108,26 @@ export function StageRail({
       {STAGE_IDS.map((id) => {
         const meta = STAGE_META[id];
         const state = working === id ? "working" : run.stages[id];
+        const jumpable = state === "done" && onJump;
         return (
           <li key={id} className="flex items-start gap-3">
             <Dot state={state} />
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium text-ink">
-                {meta.label}
-                <span className="ml-1.5 text-[10px] font-normal text-faint">{meta.role}</span>
-              </p>
+              {jumpable ? (
+                <button
+                  type="button"
+                  onClick={() => onJump(id)}
+                  className="text-left text-xs font-medium text-ink hover:text-brand hover:underline"
+                >
+                  {meta.label}
+                  <span className="ml-1.5 text-[10px] font-normal text-faint">{meta.role}</span>
+                </button>
+              ) : (
+                <p className="text-xs font-medium text-ink">
+                  {meta.label}
+                  <span className="ml-1.5 text-[10px] font-normal text-faint">{meta.role}</span>
+                </p>
+              )}
               {state === "working" && (
                 <div>
                   <p className="text-[11px] text-brand animate-working">{meta.working}</p>

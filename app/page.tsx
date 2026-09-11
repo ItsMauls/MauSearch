@@ -5,7 +5,6 @@ import { hasLiveModel, isFreeTierModel } from "@/lib/ai/client";
 import { IntakeForm } from "@/components/workspace/intake-form";
 import { PageHeader } from "@/components/shell";
 import { Badge, Banner, Card, EmptyState, Metric, SectionHeader } from "@/components/ui";
-import { ProvenanceLegend } from "@/components/provenance";
 
 export const dynamic = "force-dynamic";
 
@@ -85,8 +84,6 @@ export default async function WorkspaceHome() {
             </Card>
           </div>
         </div>
-
-        <ProvenanceLegend hideLabel />
 
         <Card>
           <SectionHeader
