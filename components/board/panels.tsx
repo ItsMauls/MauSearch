@@ -337,7 +337,7 @@ export function AudiencePanel({ run }: { run: RunView }) {
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-faint">
               Funnel map
             </h3>
-            <div className="overflow-hidden rounded-lg border border-line">
+            <div className="max-h-[360px] overflow-y-auto rounded-lg border border-line">
               {planning.funnelMap.map((entry) => {
                 const cluster = run.clusters.find((c) => c.id === entry.clusterId);
                 return (
