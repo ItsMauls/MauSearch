@@ -134,6 +134,18 @@ export function ShareBar({ segments }: { segments: { label: string; value: numbe
   );
 }
 
+/** Plain-language helper: a "?" that reveals a jargon term's meaning on hover/tap. */
+export function Info({ children }: { children: string }) {
+  return (
+    <span
+      title={children}
+      className="ml-1 inline-flex h-4 w-4 cursor-help items-center justify-center rounded-full border border-line bg-canvas text-[10px] font-semibold text-faint align-middle"
+    >
+      ?
+    </span>
+  );
+}
+
 export function EmptyState({
   title,
   body,

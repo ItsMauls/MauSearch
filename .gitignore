@@ -51,3 +51,6 @@ CLAUDE.md
 
 # committed intentionally - the README documents it
 !.env.example
+
+.vercel
+.env*

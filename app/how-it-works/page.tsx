@@ -1,7 +1,8 @@
-import { MODEL, PROVIDER_LABEL } from "@/lib/ai/client";
+import { MODEL, PROVIDER_LABEL, hasLiveModel } from "@/lib/ai/client";
+import { hasDatabase } from "@/lib/db";
 import { SCORE_FORMULA } from "@/lib/pipeline/score";
 import { PageHeader } from "@/components/shell";
-import { Badge, ButtonLink, Card, SectionHeader } from "@/components/ui";
+import { Badge, ButtonLink, Card, Info, SectionHeader } from "@/components/ui";
 import { Provenance, ProvenanceLegend } from "@/components/provenance";
 
 export const metadata = { title: "How It Works — MauSearch" };
@@ -9,41 +10,106 @@ export const metadata = { title: "How It Works — MauSearch" };
 type Stage = {
   n: string;
   name: string;
-  kind: "deterministic" | "ai" | "storage";
-  desk: string;
+  who: string;
+  automatic: boolean;
   detail: string;
 };
 
 const STAGES: Stage[] = [
-  { n: "00", name: "Normalize input", kind: "deterministic", desk: "—", detail: "Lowercase, collapse whitespace, strip punctuation Google treats as noise, resolve market to language and country." },
-  { n: "01", name: "Harvest", kind: "deterministic", desk: "Search Desk", detail: "Google Suggest, keyless and server-side, fanned out across ~10 seed expansions in parallel. Partial failure is dropped silently; only a total outage falls back to AI expansion." },
-  { n: "02", name: "Clean & dedupe", kind: "deterministic", desk: "Search Desk", detail: "Merge duplicates keeping the best rank, count how many seeds surfaced each query, penalise ranks from modifier seeds, drop drift that shares no token with the intake." },
-  { n: "03", name: "Rule signals", kind: "deterministic", desk: "Search Desk", detail: "A bilingual intent lexicon labels the unambiguous queries in code, before any model runs. These labels are handed to the model as evidence, not as a suggestion." },
-  { n: "04", name: "Intent classification", kind: "ai", desk: "SEO Strategist", detail: "Temperature 0.1. Produces the intent mix, the SERP archetype, and a record of every query where it overruled the lexicon — with reasons." },
-  { n: "05", name: "Topic clustering", kind: "ai", desk: "SEO Strategist", detail: "Temperature 0.3. Groups queries by the job the searcher is doing, not by shared words. Queries that fit nowhere are left out." },
-  { n: "06", name: "Audience & fit", kind: "ai", desk: "Content Strategist", detail: "Temperature 0.3. Receives clusters, not raw keywords — withholding the noise keeps the output at the right altitude." },
-  { n: "07", name: "Opportunity cards", kind: "ai", desk: "Creative Director", detail: "Temperature 0.8. Scores three dimensions and produces a mandatory Kill List. It never sees or produces the ranking." },
-  { n: "08", name: "Content brief", kind: "ai", desk: "Content Lead", detail: "Temperature 0.4, on demand, for the one opportunity you select. Generating all of them would burn budget on work that gets discarded." },
-  { n: "09", name: "Validate, retry, persist", kind: "storage", desk: "—", detail: "Every stage is zod-validated. A schema failure gets exactly one corrective retry with the error fed back; a second failure marks that stage failed and leaves every completed panel on screen." },
+  {
+    n: "1",
+    name: "Clean up your keyword",
+    who: "Computer",
+    automatic: true,
+    detail: "We tidy up what you typed - fix spacing, lowercase it, figure out which country/language it's for.",
+  },
+  {
+    n: "2",
+    name: "Ask Google what people actually search",
+    who: "Google Suggest",
+    automatic: true,
+    detail: "We ask Google's autocomplete for real queries related to your keyword - the same suggestions you see typing into the search box, just gathered in bulk.",
+  },
+  {
+    n: "3",
+    name: "Remove duplicates & rank by popularity",
+    who: "Computer",
+    automatic: true,
+    detail: "Duplicate queries get merged. The more often a query shows up across our searches and the higher Google ranked it, the more weight it gets.",
+  },
+  {
+    n: "4",
+    name: "Spot obvious buying signals",
+    who: "Computer",
+    automatic: true,
+    detail: "Words like \"harga\" (price) or \"beli\" (buy) are flagged by a simple word list, before any AI gets involved - this part is just pattern matching, not guessing.",
+  },
+  {
+    n: "5",
+    name: "Work out what people want",
+    who: "AI - SEO Strategist",
+    automatic: true,
+    detail: "The AI reads every query plus the word-list hints and decides: are people mostly researching, comparing, or ready to buy? It also explains any time it disagrees with the word list.",
+  },
+  {
+    n: "6",
+    name: "Group into topics",
+    who: "AI - SEO Strategist",
+    automatic: true,
+    detail: "Related queries get bundled into a handful of topics worth writing about - grouped by what the searcher is trying to get done, not by shared words.",
+  },
+  {
+    n: "7",
+    name: "Figure out who's searching and what to publish",
+    who: "AI - Content Strategist",
+    automatic: true,
+    detail: "For each topic: who is likely searching, how close they are to a decision, and what kind of page (guide, comparison, pricing page) fits best.",
+  },
+  {
+    n: "8",
+    name: "Brainstorm content ideas - and reject the boring ones",
+    who: "AI - Creative Director",
+    automatic: true,
+    detail: "The AI pitches several content ideas with a hook and a title, scores them, and also lists ideas it deliberately rejected and why - the same way an agency creative director would.",
+  },
+  {
+    n: "9",
+    name: "Write the brief",
+    who: "AI - Content Lead",
+    automatic: false,
+    detail: "Only happens once you pick one idea. Produces a full brief a writer can start from today: outline, title, FAQs, links to include.",
+  },
+  {
+    n: "10",
+    name: "Save your work",
+    who: "Computer",
+    automatic: true,
+    detail: "Every step is checked and saved as it finishes, so if anything fails partway, you keep everything that already worked and can retry just the broken part.",
+  },
 ];
 
-const KIND_TONE = { deterministic: "neutral", ai: "accent", storage: "brand" } as const;
-
 export default function HowItWorks() {
+  const live = hasLiveModel();
+  const db = hasDatabase();
+
   return (
     <>
       <PageHeader
-        eyebrow={<Badge tone="brand">THE DESK PIPELINE</Badge>}
-        title="How MauSearch Thinks"
-        subtitle="Ten stages. Four deterministic, five discrete model calls, one persistence step. No single giant prompt anywhere."
-        actions={<ButtonLink href="/">Start an intake</ButtonLink>}
+        eyebrow={<Badge tone="brand">HOW IT WORKS</Badge>}
+        title="From a keyword to a content plan"
+        subtitle="No jargon required - here's what happens, in order, when you type in a keyword."
+        actions={<ButtonLink href="/">Try it</ButtonLink>}
       />
 
       <div className="mx-auto max-w-4xl space-y-6 px-6 py-6 md:px-8">
         <ProvenanceLegend />
 
         <Card className="overflow-hidden">
-          <SectionHeader index="01" title="The pipeline" meta="Each stage consumes only the validated output of the stages before it" />
+          <SectionHeader
+            index="01"
+            title="The 10 steps"
+            meta="Think of it as four specialists on a content agency team, each handing their work to the next"
+          />
           <ol className="divide-y divide-line">
             {STAGES.map((stage) => (
               <li key={stage.n} className="flex gap-4 px-5 py-3.5">
@@ -51,12 +117,10 @@ export default function HowItWorks() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-medium text-ink">{stage.name}</p>
-                    <Badge tone={KIND_TONE[stage.kind]}>
-                      {stage.kind === "ai" ? "Nemotron" : stage.kind}
+                    <Badge tone={stage.who === "Computer" ? "neutral" : stage.who === "Google Suggest" ? "brand" : "accent"}>
+                      {stage.who}
                     </Badge>
-                    {stage.desk !== "—" && (
-                      <span className="text-[11px] text-faint">{stage.desk}</span>
-                    )}
+                    {!stage.automatic && <Badge tone="warn">only when you pick one</Badge>}
                   </div>
                   <p className="mt-1 text-xs text-muted">{stage.detail}</p>
                 </div>
@@ -69,38 +133,39 @@ export default function HowItWorks() {
           <SectionHeader index="02" title="What we refuse to make up" />
           <div className="space-y-3 p-5 text-sm text-muted">
             <p>
-              MauSearch has no source for search volume, CPC, keyword difficulty, or competitor
-              traffic — so it does not display them. Not as an estimate, not with a disclaimer,
-              not at all. A confident fabricated number is worse than an absent one, because you
-              would plan around it.
+              We don&apos;t show search volume, CPC (cost per click), or &ldquo;keyword
+              difficulty&rdquo; scores - the numbers most keyword tools show you. We don&apos;t have
+              real access to that data, and a confident but made-up number is worse than showing
+              nothing, because you&apos;d plan around it as if it were true.
             </p>
-            <p>What it shows instead is either measured, deterministic, or labelled as judgment:</p>
+            <p>Instead, everything on screen is labelled with where it actually came from:</p>
             <ul className="space-y-2">
               <li className="flex gap-2.5">
                 <Provenance source="google_suggest" />
                 <span>
-                  <strong className="text-ink">Suggest rank</strong> — the position Google returned
-                  the query at, and <strong className="text-ink">seed coverage</strong>, how many
-                  expansions surfaced it. Both observed.
+                  <strong className="text-ink">Real data</strong> - an actual query Google
+                  suggested, and how often/high it showed up.
                 </span>
               </li>
               <li className="flex gap-2.5">
                 <Provenance source="rule" />
                 <span>
-                  Intent matched by a lexicon in code, with the matched words shown so you can
-                  check the work.
+                  <strong className="text-ink">Simple word matching</strong> - flagged by a fixed
+                  list of words in code, no AI involved, so you can check it yourself.
                 </span>
               </li>
               <li className="flex gap-2.5">
                 <Provenance source="ai" />
                 <span>
-                  Nemotron&apos;s reasoning over that evidence. Judgment, clearly marked as such.
+                  <strong className="text-ink">AI&apos;s opinion</strong> - a judgment call, clearly
+                  marked as one, not a fact.
                 </span>
               </li>
               <li className="flex gap-2.5">
                 <Provenance source="mauscore" />
                 <span>
-                  Computed here, from a formula printed on the page rather than hidden in a model.
+                  <strong className="text-ink">A calculated score</strong> - worked out from a
+                  formula we show you, not hidden inside a model.
                 </span>
               </li>
             </ul>
@@ -108,42 +173,45 @@ export default function HowItWorks() {
         </Card>
 
         <Card className="overflow-hidden">
-          <SectionHeader index="03" title="Why the model does not rank" />
+          <SectionHeader index="03" title="Why doesn't the AI just decide the ranking itself?" />
           <div className="space-y-3 p-5 text-sm text-muted">
             <p>
-              The Creative Desk scores three dimensions it genuinely judges well — intent value,
-              differentiation, and effort. It never produces the final ranking. LLMs are
-              inconsistent at arithmetic across a list, and &ldquo;why is this one first?&rdquo;
-              deserves an answer you can audit.
+              The AI is good at judging three things: how strong the buying intent is, how
+              different an idea is from what already exists, and how much work it&apos;d take. It
+              does <em>not</em> get to pick the final order - AI models are unreliable at doing
+              consistent math across a list, and &ldquo;why is this idea ranked first?&rdquo;
+              deserves an answer that&apos;s the same every time you ask.
             </p>
             <p className="rounded-lg border border-line bg-canvas p-3 font-mono text-xs text-ink">
               Opportunity Score = {SCORE_FORMULA}
             </p>
             <p>
-              Thirty percent of every ranking is grounded in real Google Suggest data, and each
-              opportunity card shows exactly which thirty.
+              Almost a third of every ranking is grounded in real Google data, and each idea
+              card shows exactly which part.
             </p>
           </div>
         </Card>
 
         <Card className="overflow-hidden">
-          <SectionHeader index="04" title="The engine" />
+          <SectionHeader index="04" title="What's actually running this" />
           <div className="space-y-2 p-5 text-sm text-muted">
             <p>
-              All five model stages route through{" "}
-              <strong className="text-ink">{PROVIDER_LABEL}</strong>, an OpenAI-compatible layer,
-              with <strong className="text-ink">Nemotron</strong> (
-              <code className="font-mono text-xs">{MODEL}</code>) as the reasoning model.
+              The &ldquo;thinking&rdquo; steps are handled by an AI model called
+              <strong className="text-ink"> Nemotron</strong>
+              <Info>A large language model - similar in kind to models like GPT or Claude, specialised for reasoning tasks.</Info>,
+              reached through a routing service called
+              <strong className="text-ink"> {PROVIDER_LABEL}</strong>
+              <Info>A middleman service that lets us swap which AI model we use without changing code - like a phone switchboard for AI models.</Info>.
+              Right now this workspace is running on{" "}
+              <strong className="text-ink">{live ? "the live AI model" : "sample data"}</strong>
+              {!live && " - add an API key to see it reason over your own keywords instead of a demo."}
             </p>
             <p>
-              The router is the point: 9router and OpenRouter speak the same protocol, so moving
-              between them — or failing over a model — is two environment variables and no code
-              change. Nothing in the codebase binds to a vendor beyond{" "}
-              <code className="font-mono text-xs">AI_BASE_URL</code>.
-            </p>
-            <p>
-              Without an API key the desks return committed fixtures so the repository runs with
-              zero credentials. Google Suggest harvesting stays live either way — it needs no key.
+              Saved runs and briefs live in{" "}
+              <strong className="text-ink">{db ? "a real database" : "temporary memory"}</strong>
+              {!db && " for this session - connect a database to keep them permanently."}. The
+              keyword search itself (step 2, Google Suggest) always uses live data either way - it
+              doesn&apos;t need an AI model or a database to work.
             </p>
           </div>
         </Card>

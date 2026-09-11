@@ -52,6 +52,8 @@ Hard constraints:
 - 2 to 6 clusters. ids are cluster_1, cluster_2, ... in order.
 - Every member must be an EXACT string from the keyword universe.
 - A keyword appears in at most one cluster.
+- "entities": at most 20 items. Pick the 20 most important if more come to mind.
+- "coverageGaps": at most 6 items.
 `.trim(),
   user: ({ intake, keywords, intent }) =>
     [

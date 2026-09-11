@@ -1,7 +1,4 @@
 import Link from "next/link";
-import { hasLiveModel, PROVIDER_LABEL } from "@/lib/ai/client";
-import { hasDatabase } from "@/lib/db";
-import { cx } from "./ui";
 
 const NAV = [
   { href: "/", label: "Workspace Home", icon: GridIcon },
@@ -36,39 +33,7 @@ export function Sidebar() {
           </Link>
         ))}
       </nav>
-
-      <div className="mt-auto space-y-2 p-3">
-        <EngineStatus />
-      </div>
     </aside>
-  );
-}
-
-/**
- * Honest about its own configuration. A reviewer running this without
- * credentials should be told what they are looking at, not left guessing why
- * every run returns the same keyword.
- */
-function EngineStatus() {
-  const live = hasLiveModel();
-  const db = hasDatabase();
-  return (
-    <div className="rounded-lg border border-line bg-canvas p-3">
-      <p className="text-[10px] font-semibold uppercase tracking-wider text-faint">Engine</p>
-      <Row label="Model" value={live ? `Nemotron via ${PROVIDER_LABEL}` : "Sample data"} ok={live} />
-      <Row label="Storage" value={db ? "Neon Postgres" : "In-memory (dev)"} ok={db} />
-      <Row label="Keywords" value="Google Suggest" ok />
-    </div>
-  );
-}
-
-function Row({ label, value, ok }: { label: string; value: string; ok: boolean }) {
-  return (
-    <p className="mt-1.5 flex items-center gap-1.5 text-[11px] text-muted">
-      <span className={cx("h-1.5 w-1.5 shrink-0 rounded-full", ok ? "bg-positive" : "bg-warn")} />
-      <span className="text-faint">{label}</span>
-      <span className="ml-auto truncate font-medium text-ink">{value}</span>
-    </p>
   );
 }
 
