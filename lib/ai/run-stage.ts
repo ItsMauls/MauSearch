@@ -110,6 +110,11 @@ const TOKEN_CEILING = 32_000;
 // gets a real StageError response instead of a platform timeout.
 const STAGE_DEADLINE_MS = 260_000;
 
+// A single attempt is capped well below the full deadline so a hung or
+// slow-queueing call (the free tier's real failure mode) can't burn the
+// entire budget on attempt one and leave nothing for a retry to work with.
+const PER_ATTEMPT_TIMEOUT_MS = 100_000;
+
 /**
  * Runs one stage: prompt -> model -> JSON -> schema. Two failure modes get one
  * retry each: a truncated response (finish_reason "length") retries with a
@@ -137,8 +142,9 @@ export async function runStage<TInput, TOutput>(
       lastError = lastError || "timed out before the model responded";
       break;
     }
+    const timeoutMs = Math.min(remaining, PER_ATTEMPT_TIMEOUT_MS);
     try {
-      const { content, truncated } = await complete(cfg, prompt, tokenBudget, remaining, correction);
+      const { content, truncated } = await complete(cfg, prompt, tokenBudget, timeoutMs, correction);
       if (truncated) {
         tokenBudget = Math.min(tokenBudget * 2, TOKEN_CEILING);
         lastError = `response was cut off at the token limit (retried at ${tokenBudget} tokens)`;
@@ -153,8 +159,11 @@ export async function runStage<TInput, TOutput>(
         .join("; ");
       correction = lastError;
     } catch (err) {
+      // A network/timeout error isn't "your previous response" the model can
+      // correct - feeding it back as a schema correction just confuses the
+      // next attempt, so retry plain instead.
       lastError = (err as Error).message;
-      correction = lastError;
+      correction = undefined;
     }
   }
 
