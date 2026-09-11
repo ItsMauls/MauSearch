@@ -27,12 +27,14 @@ export function StrategyBoard({
   const router = useRouter();
   const [run, setRun] = useState(initialRun);
   const [working, setWorking] = useState<StageId | null>(null);
+  const [workingSince, setWorkingSince] = useState<number | null>(null);
   const [generatingId, setGeneratingId] = useState<string | null>(null);
   const [briefError, setBriefError] = useState<string | null>(null);
   const driven = useRef(false);
 
   const advance = useCallback(async (runId: string, stage: StageId): Promise<RunView | null> => {
     setWorking(stage);
+    setWorkingSince(Date.now());
     try {
       const response = await fetch(`/api/runs/${runId}/stages`, {
         method: "POST",
@@ -48,6 +50,7 @@ export function StrategyBoard({
       return null;
     } finally {
       setWorking(null);
+      setWorkingSince(null);
     }
   }, []);
 
@@ -124,7 +127,13 @@ export function StrategyBoard({
             <p className="mb-3 text-[11px] font-semibold uppercase tracking-wider text-faint">
               Desk pipeline
             </p>
-            <StageRail run={run} working={working} onRetry={retry} freeTierModel={freeTierModel} />
+            <StageRail
+              run={run}
+              working={working}
+              workingSince={workingSince}
+              onRetry={retry}
+              freeTierModel={freeTierModel}
+            />
           </Card>
         </div>
 

@@ -13,6 +13,8 @@ type Stage = {
   who: string;
   automatic: boolean;
   detail: string;
+  /** What this step actually does for one real search, so the pipeline stops being abstract. */
+  example: string;
 };
 
 const STAGES: Stage[] = [
@@ -22,6 +24,7 @@ const STAGES: Stage[] = [
     who: "Computer",
     automatic: true,
     detail: "We tidy up what you typed - fix spacing, lowercase it, figure out which country/language it's for.",
+    example: "Bang Maulana types “Padel Jakarta”, picks Indonesia + Local Service. We clean it up to padel jakarta and resolve the market to Indonesian (id).",
   },
   {
     n: "2",
@@ -29,6 +32,7 @@ const STAGES: Stage[] = [
     who: "Google Suggest",
     automatic: true,
     detail: "We ask Google's autocomplete for real queries related to your keyword - the same suggestions you see typing into the search box, just gathered in bulk.",
+    example: "~10 parallel requests go out: padel jakarta, sewa padel jakarta, harga padel jakarta, padel jakarta terdekat... Google hands back real queries like sewa lapangan padel jakarta selatan and harga sewa padel per jam.",
   },
   {
     n: "3",
@@ -36,6 +40,7 @@ const STAGES: Stage[] = [
     who: "Computer",
     automatic: true,
     detail: "Duplicate queries get merged. The more often a query shows up across our searches and the higher Google ranked it, the more weight it gets.",
+    example: "sewa lapangan padel jakarta came back from 3 different searches and ranked #2 each time - it rises to the top of Bang Maulana's keyword universe.",
   },
   {
     n: "4",
@@ -43,6 +48,7 @@ const STAGES: Stage[] = [
     who: "Computer",
     automatic: true,
     detail: "Words like \"harga\" (price) or \"beli\" (buy) are flagged by a simple word list, before any AI gets involved - this part is just pattern matching, not guessing.",
+    example: "sewa lapangan padel jakarta matches “sewa” → tagged transactional. cara main padel matches “cara” → tagged informational. No AI has run yet.",
   },
   {
     n: "5",
@@ -50,6 +56,7 @@ const STAGES: Stage[] = [
     who: "AI - SEO Strategist",
     automatic: true,
     detail: "The AI reads every query plus the word-list hints and decides: are people mostly researching, comparing, or ready to buy? It also explains any time it disagrees with the word list.",
+    example: "The AI reads all of Bang Maulana's queries with their tags attached and estimates the mix: ~50% transactional (booking a court), ~30% local (nearest venue), ~20% informational (how padel works).",
   },
   {
     n: "6",
@@ -57,6 +64,7 @@ const STAGES: Stage[] = [
     who: "AI - SEO Strategist",
     automatic: true,
     detail: "Related queries get bundled into a handful of topics worth writing about - grouped by what the searcher is trying to get done, not by shared words.",
+    example: "Queries get grouped into “Court Booking & Pricing”, “Nearest Venues”, and “Learning to Play” - plus a note that nobody's query addresses court size or racket rental, a gap worth filling.",
   },
   {
     n: "7",
@@ -64,6 +72,7 @@ const STAGES: Stage[] = [
     who: "AI - Content Strategist",
     automatic: true,
     detail: "For each topic: who is likely searching, how close they are to a decision, and what kind of page (guide, comparison, pricing page) fits best.",
+    example: "Persona: “a Jakarta professional booking a court with friends after work.” “Court Booking & Pricing” gets mapped to bottom-funnel - a venue/booking landing page, not a long-form guide.",
   },
   {
     n: "8",
@@ -71,6 +80,7 @@ const STAGES: Stage[] = [
     who: "AI - Creative Director",
     automatic: true,
     detail: "The AI pitches several content ideas with a hook and a title, scores them, and also lists ideas it deliberately rejected and why - the same way an agency creative director would.",
+    example: "Pitched: “Padel Court Booking Guide: Jakarta's Best Indoor Venues.” Rejected: “What Is Padel? A Beginner's Guide” - killed because this keyword set is overwhelmingly people ready to book, not people who don't know what padel is.",
   },
   {
     n: "9",
@@ -78,6 +88,7 @@ const STAGES: Stage[] = [
     who: "AI - Content Lead",
     automatic: false,
     detail: "Only happens once you pick one idea. Produces a full brief a writer can start from today: outline, title, FAQs, links to include.",
+    example: "Bang Maulana picks the booking guide and clicks Generate Brief. Out comes an outline, meta title, FAQs like “Berapa harga sewa lapangan padel per jam di Jakarta?”, and the entities a writer must cover.",
   },
   {
     n: "10",
@@ -85,6 +96,7 @@ const STAGES: Stage[] = [
     who: "Computer",
     automatic: true,
     detail: "Every step is checked and saved as it finishes, so if anything fails partway, you keep everything that already worked and can retry just the broken part.",
+    example: "Every step above was saved to the database the moment it finished. If Bang Maulana's wifi drops right after step 6, reloading the page picks up exactly there - nothing re-runs, nothing gets billed twice.",
   },
 ];
 
@@ -111,7 +123,7 @@ export default function HowItWorks() {
             meta="Think of it as four specialists on a content agency team, each handing their work to the next"
           />
           <ol className="divide-y divide-line">
-            {STAGES.map((stage) => (
+            {STAGES.map((stage, i) => (
               <li key={stage.n} className="flex gap-4 px-5 py-3.5">
                 <span className="font-mono text-xs font-semibold text-faint">{stage.n}</span>
                 <div className="min-w-0">
@@ -123,6 +135,13 @@ export default function HowItWorks() {
                     {!stage.automatic && <Badge tone="warn">only when you pick one</Badge>}
                   </div>
                   <p className="mt-1 text-xs text-muted">{stage.detail}</p>
+                  <p
+                    className="animate-land mt-2 rounded-lg border border-line bg-canvas p-2.5 text-xs text-muted"
+                    style={{ animationDelay: `${i * 90}ms` }}
+                  >
+                    <span className="font-medium text-ink">Behind the scenes — </span>
+                    {stage.example}
+                  </p>
                 </div>
               </li>
             ))}

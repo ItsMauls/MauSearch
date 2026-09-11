@@ -1,3 +1,6 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { StageId, STAGE_IDS } from "@/lib/schema";
 import { RunView } from "@/lib/view";
 import { cx } from "@/components/ui";
@@ -9,29 +12,64 @@ import { cx } from "@/components/ui";
  */
 export const STAGE_META: Record<
   StageId,
-  { label: string; role: string; working: string }
+  { label: string; role: string; working: string; etaSeconds: [number, number] }
 > = {
   intent: {
     label: "Intent Classification",
     role: "Search Desk",
     working: "Reading what these searchers actually want, rule matches first",
+    etaSeconds: [10, 25],
   },
   clusters: {
     label: "Topic Clustering",
     role: "Search Desk",
     working: "Grouping queries by the job the searcher is doing",
+    etaSeconds: [10, 20],
   },
   planning: {
     label: "Audience & Fit",
     role: "Planning Desk",
     working: "Deriving personas and mapping each cluster to the funnel",
+    etaSeconds: [10, 20],
   },
   creative: {
     label: "Angle Room",
     role: "Creative Desk",
     working: "Finding angles worth publishing — and killing the ones that are not",
+    etaSeconds: [15, 35],
   },
 };
+
+/**
+ * Counts seconds while a stage is in flight. Keyed by `since` at the call site
+ * so a new stage starting remounts (and resets) it instead of needing an
+ * effect-driven reset.
+ */
+function useElapsedSeconds(): number {
+  const [elapsed, setElapsed] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
+    return () => clearInterval(id);
+  }, []);
+  return elapsed;
+}
+
+function formatMinSec(totalSeconds: number): string {
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+  return m > 0 ? `${m}:${s.toString().padStart(2, "0")}` : `${s}s`;
+}
+
+/** "0:07 elapsed - usually 10-25s, up to a couple of minutes on the free tier" */
+function WorkingTimer({ eta, freeTierModel }: { eta: [number, number]; freeTierModel: boolean }) {
+  const elapsed = useElapsedSeconds();
+  return (
+    <p className="text-[10px] text-faint">
+      {formatMinSec(elapsed)} elapsed — usually {formatMinSec(eta[0])}–{formatMinSec(eta[1])}
+      {freeTierModel && ", up to a couple of minutes on the free tier"}
+    </p>
+  );
+}
 
 /** The deterministic stages always precede the desks and always succeed or degrade. */
 function HarvestStep({ run }: { run: RunView }) {
@@ -58,11 +96,13 @@ function HarvestStep({ run }: { run: RunView }) {
 export function StageRail({
   run,
   working,
+  workingSince,
   onRetry,
   freeTierModel,
 }: {
   run: RunView;
   working: StageId | null;
+  workingSince?: number | null;
   onRetry?: (stage: StageId) => void;
   freeTierModel: boolean;
 }) {
@@ -83,11 +123,7 @@ export function StageRail({
               {state === "working" && (
                 <div>
                   <p className="text-[11px] text-brand animate-working">{meta.working}</p>
-                  {freeTierModel && (
-                    <p className="text-[10px] text-faint">
-                      Free-tier model — can take up to a couple of minutes
-                    </p>
-                  )}
+                  <WorkingTimer key={workingSince ?? id} eta={meta.etaSeconds} freeTierModel={freeTierModel} />
                 </div>
               )}
               {state === "pending" && <p className="text-[11px] text-faint">Queued</p>}
