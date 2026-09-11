@@ -93,7 +93,7 @@ export function StrategyBoard({
     [advance, drive, run.id]
   );
 
-  async function generateBrief(opportunityId: string) {
+  async function generateBrief(opportunityId: string, attempt = 0) {
     setGeneratingId(opportunityId);
     setBriefError(null);
     try {
@@ -106,6 +106,13 @@ export function StrategyBoard({
       if (!response.ok) throw new Error(data.error ?? "Brief generation failed");
       router.push(`/brief/${data.brief.id}`);
     } catch (err) {
+      // /api/briefs is idempotent (a repeat call returns the already-written
+      // brief), so a dropped connection after the server finished is recovered
+      // by retrying instead of shown as a hard failure.
+      if (attempt < 2) {
+        setTimeout(() => generateBrief(opportunityId, attempt + 1), 1500);
+        return;
+      }
       setBriefError((err as Error).message);
       setGeneratingId(null);
     }
@@ -114,7 +121,7 @@ export function StrategyBoard({
   const nextPending = STAGE_IDS.find((id) => run.stages[id] !== "done");
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-6 md:px-8">
+    <div className="mx-auto max-w-7xl px-6 py-6 md:px-8">
       {run.suggest.isAiFallback && (
         <div className="mb-5">
           <Banner title="Google Suggest was unavailable for this run">
@@ -126,7 +133,7 @@ export function StrategyBoard({
       )}
 
       <div className="mb-5">
-        <ProvenanceLegend />
+        <ProvenanceLegend hideLabel />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[240px_1fr]">

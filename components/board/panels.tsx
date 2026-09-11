@@ -1,11 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { Intent } from "@/lib/schema";
 import { RunView } from "@/lib/view";
 import { SCORE_FORMULA } from "@/lib/pipeline/score";
-import { Badge, Card, cx, DeskNote, SectionHeader, ShareBar } from "@/components/ui";
+import { Badge, Card, cx, DeskNote, ProgressBar, SectionHeader, ShareBar, useElapsedSeconds } from "@/components/ui";
 import { Provenance } from "@/components/provenance";
+
+/** Scrolls to and briefly highlights the Opportunity Card(s) for a cluster —
+ *  the shared destination for Demand Read / Topic Clusters / Audience & Fit
+ *  rows that reference a cluster, so clicking them reads as "show me where
+ *  this went" instead of a dead hover state. */
+function scrollToOpportunity(clusterId: string) {
+  const els = document.querySelectorAll<HTMLElement>(`[data-cluster-id="${clusterId}"]`);
+  if (els.length === 0) return;
+  els[0].scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+  els.forEach((el) => {
+    el.classList.add("ring-2", "ring-brand");
+    setTimeout(() => el.classList.remove("ring-2", "ring-brand"), 1500);
+  });
+}
 
 export const INTENT_COLOR: Record<Intent, string> = {
   transactional: "#4f46e5",
@@ -176,8 +190,14 @@ function KeywordTable({ run }: { run: RunView }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {run.keywords.map((k) => (
-              <tr key={k.keyword} className="hover:bg-canvas">
+            {run.keywords.map((k) => {
+              const cluster = run.clusters.find((c) => c.members.includes(k.keyword));
+              return (
+              <tr
+                key={k.keyword}
+                onClick={cluster ? () => scrollToOpportunity(cluster.id) : undefined}
+                className={cluster ? "cursor-pointer hover:bg-canvas" : undefined}
+              >
                 <td className="px-3 py-1.5">
                   <span className="font-medium text-ink">{k.keyword}</span>
                   {k.ruleMatches.length > 0 && (
@@ -202,7 +222,8 @@ function KeywordTable({ run }: { run: RunView }) {
                 <td className="px-2 py-1.5"><IntentTag intent={k.ruleIntent} muted /></td>
                 <td className="px-3 py-1.5"><IntentTag intent={k.aiIntent} /></td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -228,7 +249,11 @@ export function ClustersPanel({ run }: { run: RunView }) {
       />
       <div className="grid gap-3 p-5 sm:grid-cols-2">
         {run.clusters.map((cluster) => (
-          <div key={cluster.id} className="rounded-lg border border-line p-3.5">
+          <div
+            key={cluster.id}
+            onClick={() => scrollToOpportunity(cluster.id)}
+            className="cursor-pointer rounded-lg border border-line p-3.5 transition-colors hover:border-brand"
+          >
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-sm font-semibold text-ink">{cluster.name}</p>
@@ -333,15 +358,19 @@ export function AudiencePanel({ run }: { run: RunView }) {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <div className="flex flex-col">
+          <div>
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-faint">
               Funnel map
             </h3>
-            <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-line">
+            <div className="max-h-[420px] overflow-y-auto rounded-lg border border-line">
               {planning.funnelMap.map((entry) => {
                 const cluster = run.clusters.find((c) => c.id === entry.clusterId);
                 return (
-                  <div key={entry.clusterId} className="border-b border-line p-3 last:border-0">
+                  <div
+                    key={entry.clusterId}
+                    onClick={() => scrollToOpportunity(entry.clusterId)}
+                    className="cursor-pointer border-b border-line p-3 transition-colors last:border-0 hover:bg-canvas"
+                  >
                     <div className="flex flex-wrap items-center gap-2">
                       <Badge tone="brand">{entry.stage}</Badge>
                       <span className="text-xs font-medium text-ink">
@@ -361,7 +390,7 @@ export function AudiencePanel({ run }: { run: RunView }) {
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-faint">
               Format fit
             </h3>
-            <div className="space-y-2">
+            <div className="max-h-[420px] space-y-2 overflow-y-auto">
               {planning.formatFit.map((format) => (
                 <div key={format.format} className="rounded-lg border border-line p-2.5">
                   <div className="flex items-center justify-between gap-2">
@@ -381,18 +410,18 @@ export function AudiencePanel({ run }: { run: RunView }) {
                 </div>
               ))}
             </div>
-
-            <div className="mt-3 rounded-lg border border-line bg-canvas p-3">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-faint">
-                Build order
-              </p>
-              <p className="mt-1 text-xs text-muted">{planning.portfolioAdvice}</p>
-              <p className="mt-2 text-xs text-ink">
-                <span className="font-semibold">Success metric: </span>
-                {planning.contentGoals.successMetric}
-              </p>
-            </div>
           </div>
+        </div>
+
+        <div className="w-full rounded-lg border border-line bg-canvas p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-faint">
+            Build order
+          </p>
+          <p className="mt-1 text-xs text-muted">{planning.portfolioAdvice}</p>
+          <p className="mt-2 text-xs text-ink">
+            <span className="font-semibold">Success metric: </span>
+            {planning.contentGoals.successMetric}
+          </p>
         </div>
       </div>
 
@@ -464,7 +493,11 @@ export function AngleRoom({
         className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth p-5 pt-2"
       >
         {run.opportunities.map((opportunity, index) => (
-          <div key={opportunity.id} className="w-[85vw] shrink-0 snap-start sm:w-[calc(50%-0.375rem)]">
+          <div
+            key={opportunity.id}
+            data-cluster-id={opportunity.clusterId}
+            className="w-[85vw] shrink-0 snap-start rounded-xl transition-shadow sm:w-[calc(50%-0.375rem)]"
+          >
             <OpportunityCard
               opportunity={opportunity}
               recommended={index === 0}
@@ -502,30 +535,12 @@ export function AngleRoom({
   );
 }
 
-/** Counts seconds since mount. Callers remount this by conditionally
- *  rendering it, so the clock restarts each time generation starts. */
-function useElapsedSeconds(): number {
-  const [elapsed, setElapsed] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
-    return () => clearInterval(id);
-  }, []);
-  return elapsed;
-}
-
-/** Indeterminate bar + elapsed clock — the brief takes 15-40s and a card that
- *  just says "writing…" for that long reads as stuck. */
+/** The brief takes 15-40s and a card that just says "writing…" for that long
+ *  reads as stuck, so it gets the same progress bar as every other stage. */
 function BriefProgress() {
   const elapsed = useElapsedSeconds();
   return (
-    <div className="mt-4">
-      <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-canvas">
-        <div className="animate-progress absolute inset-y-0 left-0 w-1/3 rounded-full bg-brand" />
-      </div>
-      <p className="mt-1.5 text-[11px] text-faint">
-        {elapsed}s elapsed — Editorial Desk is writing the brief, usually 15–40s
-      </p>
-    </div>
+    <ProgressBar caption={`${elapsed}s elapsed — Editorial Desk is writing the brief, usually 15–40s`} />
   );
 }
 

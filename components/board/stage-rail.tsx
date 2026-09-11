@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { StageId, STAGE_IDS } from "@/lib/schema";
 import { RunView } from "@/lib/view";
-import { cx } from "@/components/ui";
+import { cx, ProgressBar, useElapsedSeconds } from "@/components/ui";
 
 /**
  * The waiting state is the product story, so the rail says which desk is
@@ -39,20 +38,6 @@ export const STAGE_META: Record<
     etaSeconds: [15, 35],
   },
 };
-
-/**
- * Counts seconds while a stage is in flight. Keyed by `since` at the call site
- * so a new stage starting remounts (and resets) it instead of needing an
- * effect-driven reset.
- */
-function useElapsedSeconds(): number {
-  const [elapsed, setElapsed] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setElapsed((e) => e + 1), 1000);
-    return () => clearInterval(id);
-  }, []);
-  return elapsed;
-}
 
 function formatMinSec(totalSeconds: number): string {
   const m = Math.floor(totalSeconds / 60);
@@ -168,6 +153,7 @@ function Dot({ state }: { state: "done" | "pending" | "failed" | "working" | "wa
 /** Shaped like the panel that is coming, so the layout does not jump. */
 export function PanelSkeleton({ stage }: { stage: StageId }) {
   const meta = STAGE_META[stage];
+  const elapsed = useElapsedSeconds();
   return (
     <div className="rounded-xl border border-line bg-surface p-5">
       <div className="flex items-center gap-2">
@@ -176,6 +162,9 @@ export function PanelSkeleton({ stage }: { stage: StageId }) {
         <span className="text-[11px] text-faint">{meta.role}</span>
       </div>
       <p className="mt-1 text-xs text-muted animate-working">{meta.working}</p>
+      <ProgressBar
+        caption={`${formatMinSec(elapsed)} elapsed — usually ${formatMinSec(meta.etaSeconds[0])}–${formatMinSec(meta.etaSeconds[1])}`}
+      />
       <div className="mt-4 space-y-2">
         <div className="h-2.5 w-full rounded bg-canvas" />
         <div className="h-2.5 w-4/5 rounded bg-canvas" />

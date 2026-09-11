@@ -71,12 +71,14 @@ export function Provenance({
 }
 
 /** Header legend. Without it the chips are decoration; with it they are a claim. */
-export function ProvenanceLegend({ note }: { note?: string }) {
+export function ProvenanceLegend({ note, hideLabel }: { note?: string; hideLabel?: boolean }) {
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-2 rounded-lg border border-line bg-surface px-3 py-2">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-        Where each value came from
-      </span>
+      {!hideLabel && (
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+          Where each value came from
+        </span>
+      )}
       {(Object.keys(PROVENANCE) as Source[]).map((source) => (
         <span key={source} className="flex items-center gap-1.5">
           <Provenance source={source} full />

@@ -86,7 +86,7 @@ export default async function WorkspaceHome() {
           </div>
         </div>
 
-        <ProvenanceLegend />
+        <ProvenanceLegend hideLabel />
 
         <Card>
           <SectionHeader
