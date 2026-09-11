@@ -103,7 +103,7 @@ export default async function WorkspaceHome() {
               {runs.map((run) => (
                 <li key={run.id}>
                   <Link
-                    href={`/w/${run.id}`}
+                    href={`/w/${run.slug ?? run.id}`}
                     className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5 transition-colors hover:bg-canvas"
                   >
                     <span className="min-w-0 flex-1">

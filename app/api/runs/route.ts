@@ -4,9 +4,10 @@ import { normalize, runHarvest } from "@/lib/pipeline";
 import { runStage, StageError } from "@/lib/ai/run-stage";
 import { intentStage } from "@/lib/ai/stages/intent";
 import { expandStage, toHarvestedKeywords } from "@/lib/ai/stages/expand";
-import { findRecentRun, insertRun, newId } from "@/lib/db";
+import { findRecentRun, getRunBySlug, insertRun, newId } from "@/lib/db";
 import { RunRow } from "@/lib/db/schema";
 import { applyKeywordIntents, toRunView } from "@/lib/view";
+import { slugify } from "@/lib/slug";
 
 export const maxDuration = 300;
 
@@ -60,8 +61,13 @@ export async function POST(request: NextRequest) {
     stageErrors = { intent: err instanceof StageError ? err.message : String(err) };
   }
 
+  const id = newId();
+  let slug = slugify(intake.keyword);
+  if (slug && (await getRunBySlug(slug))) slug = `${slug}-${id.slice(0, 6)}`;
+
   const row: RunRow = {
-    id: newId(),
+    id,
+    slug: slug || null,
     keyword: intake.keyword,
     normalizedKeyword: intake.normalized,
     market: intake.market,

@@ -19,6 +19,7 @@ export const runs = pgTable(
   "runs",
   {
     id: text("id").primaryKey(),
+    slug: text("slug"),
     keyword: text("keyword").notNull(),
     normalizedKeyword: text("normalized_keyword").notNull(),
     market: text("market").notNull(),
@@ -46,6 +47,7 @@ export const runs = pgTable(
     // Supports the "already analysed recently?" lookup that avoids re-billing
     // the model and re-hitting Google for an identical intake.
     index("runs_lookup_idx").on(table.normalizedKeyword, table.market, table.createdAt),
+    index("runs_slug_idx").on(table.slug),
   ]
 );
 

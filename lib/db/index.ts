@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import { and, desc, eq, gt } from "drizzle-orm";
+import { and, desc, eq, gt, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/neon-http";
 import { neon } from "@neondatabase/serverless";
 import { briefs, BriefRow, runs, RunRow } from "./schema";
@@ -47,9 +47,26 @@ export async function insertRun(row: RunRow): Promise<RunRow> {
   return row;
 }
 
-export async function getRun(id: string): Promise<RunRow | null> {
-  if (!db) return memory.runs.get(id) ?? null;
-  const [row] = await db.select().from(runs).where(eq(runs.id, id)).limit(1);
+/** `idOrSlug` matches either the id (old bookmarks) or the readable slug (new links). */
+export async function getRun(idOrSlug: string): Promise<RunRow | null> {
+  if (!db) {
+    return (
+      memory.runs.get(idOrSlug) ??
+      [...memory.runs.values()].find((r) => r.slug === idOrSlug) ??
+      null
+    );
+  }
+  const [row] = await db
+    .select()
+    .from(runs)
+    .where(or(eq(runs.id, idOrSlug), eq(runs.slug, idOrSlug)))
+    .limit(1);
+  return row ?? null;
+}
+
+export async function getRunBySlug(slug: string): Promise<RunRow | null> {
+  if (!db) return [...memory.runs.values()].find((r) => r.slug === slug) ?? null;
+  const [row] = await db.select().from(runs).where(eq(runs.slug, slug)).limit(1);
   return row ?? null;
 }
 
@@ -122,6 +139,22 @@ export async function getBrief(id: string): Promise<BriefRow | null> {
 export async function listBriefs(limit = 50): Promise<BriefRow[]> {
   if (!db) return byNewest([...memory.briefs.values()]).slice(0, limit);
   return db.select().from(briefs).orderBy(desc(briefs.createdAt)).limit(limit);
+}
+
+/** Briefs don't store `lens` (it's a property of the run that spawned them), so this joins it in. */
+export async function listBriefsWithLens(limit = 50): Promise<(BriefRow & { lens: string })[]> {
+  if (!db) {
+    return byNewest([...memory.briefs.values()])
+      .slice(0, limit)
+      .map((b) => ({ ...b, lens: memory.runs.get(b.runId)?.lens ?? "" }));
+  }
+  const rows = await db
+    .select({ brief: briefs, lens: runs.lens })
+    .from(briefs)
+    .leftJoin(runs, eq(briefs.runId, runs.id))
+    .orderBy(desc(briefs.createdAt))
+    .limit(limit);
+  return rows.map(({ brief, lens }) => ({ ...brief, lens: lens ?? "" }));
 }
 
 export async function findBriefForOpportunity(

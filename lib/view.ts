@@ -32,6 +32,7 @@ export type ClusterView = ClustersStage["clusters"][number] & {
 
 export type RunView = {
   id: string;
+  slug: string | null;
   keyword: string;
   normalizedKeyword: string;
   market: string;
@@ -99,6 +100,7 @@ export function toRunView(row: RunRow): RunView {
 
   return {
     id: row.id,
+    slug: row.slug,
     keyword: row.keyword,
     normalizedKeyword: row.normalizedKeyword,
     market: row.market,

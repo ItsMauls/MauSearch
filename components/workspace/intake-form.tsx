@@ -45,7 +45,7 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Intake failed");
-      router.push(`/w/${data.run.id}`);
+      router.push(`/w/${data.run.slug ?? data.run.id}`);
     } catch (err) {
       setError((err as Error).message);
       setBusy(false);

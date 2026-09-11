@@ -136,7 +136,10 @@ export function StrategyBoard({
   const nextPending = STAGE_IDS.find((id) => run.stages[id] !== "done");
 
   const jumpToPanel = useCallback((stage: StageId) => {
-    document.getElementById(`panel-${stage}`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    const el = document.getElementById(`panel-${stage}`);
+    const details = el?.querySelector("details");
+    if (details) details.open = true;
+    el?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, []);
 
   return (

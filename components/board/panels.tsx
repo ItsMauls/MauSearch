@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { ReactNode, useMemo, useRef, useState } from "react";
 import { Intent } from "@/lib/schema";
 import { RunView } from "@/lib/view";
 import { SCORE_FORMULA } from "@/lib/pipeline/score";
-import { Badge, Card, cx, DeskNote, SectionHeader, ShareBar } from "@/components/ui";
+import { Badge, cx, DeskNote, SectionHeader, ShareBar } from "@/components/ui";
 import { Provenance } from "@/components/provenance";
 import { ProgressBar, useElapsedSeconds } from "./progress";
 
@@ -15,11 +15,25 @@ import { ProgressBar, useElapsedSeconds } from "./progress";
 function scrollToOpportunity(clusterId: string) {
   const els = document.querySelectorAll<HTMLElement>(`[data-cluster-id="${clusterId}"]`);
   if (els.length === 0) return;
+  const details = els[0].closest("details");
+  if (details) details.open = true;
   els[0].scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
   els.forEach((el) => {
     el.classList.add("ring-2", "ring-brand");
     setTimeout(() => el.classList.remove("ring-2", "ring-brand"), 1500);
   });
+}
+
+/** Sits in each collapsible panel's header action slot; rotates via the `group-open:` variant on the panel's `<details>`. */
+function CollapseChevron() {
+  return (
+    <span
+      className="ml-1 shrink-0 text-faint transition-transform group-open:rotate-180"
+      aria-hidden
+    >
+      ▾
+    </span>
+  );
 }
 
 export const INTENT_COLOR: Record<Intent, string> = {
@@ -51,24 +65,31 @@ export function DemandReadPanel({ run }: { run: RunView }) {
   if (!intent) return null;
 
   return (
-    <Card className="animate-land overflow-hidden">
-      <SectionHeader
-        index="01"
-        title="Demand Read"
-        role="Search Desk — SEO Strategist"
-        meta={
-          <span className="flex flex-wrap items-center gap-2">
-            <span>{run.metrics.keywordCount} queries harvested</span>
-            <span className="text-faint">·</span>
-            <span>
-              {run.suggest.seedsSucceeded}/{run.suggest.seedsAttempted} seeds returned
+    <details open className="group animate-land overflow-hidden rounded-xl border border-line bg-surface">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        <SectionHeader
+          index="01"
+          title="Demand Read"
+          role="Search Desk — SEO Strategist"
+          meta={
+            <span className="flex flex-wrap items-center gap-2">
+              <span>{run.metrics.keywordCount} queries harvested</span>
+              <span className="text-faint">·</span>
+              <span>
+                {run.suggest.seedsSucceeded}/{run.suggest.seedsAttempted} seeds returned
+              </span>
+              <span className="text-faint">·</span>
+              <span>{run.metrics.ruleClassifiedShare}% rule-classified before any model ran</span>
             </span>
-            <span className="text-faint">·</span>
-            <span>{run.metrics.ruleClassifiedShare}% rule-classified before any model ran</span>
-          </span>
-        }
-        action={<Badge tone="accent">confidence {Math.round(intent.confidence * 100)}%</Badge>}
-      />
+          }
+          action={
+            <span className="flex items-center gap-1.5">
+              <Badge tone="accent">confidence {Math.round(intent.confidence * 100)}%</Badge>
+              <CollapseChevron />
+            </span>
+          }
+        />
+      </summary>
 
       <div className="space-y-5 p-5">
         {/* Intent mix */}
@@ -154,11 +175,66 @@ export function DemandReadPanel({ run }: { run: RunView }) {
       </div>
 
       <DeskNote role="Strategist note">{intent.strategistNote}</DeskNote>
-    </Card>
+    </details>
+  );
+}
+
+type KeywordSortKey = "keyword" | "rank" | "coverage" | "demandSignal";
+
+function SortHeader({
+  label,
+  active,
+  dir,
+  onClick,
+  className,
+  extra,
+}: {
+  label: string;
+  active: boolean;
+  dir: "asc" | "desc";
+  onClick: () => void;
+  className?: string;
+  extra?: ReactNode;
+}) {
+  return (
+    <th className={cx("font-medium text-faint", className)}>
+      <button
+        type="button"
+        onClick={onClick}
+        className={cx("flex items-center gap-1 hover:text-ink", active && "text-ink")}
+      >
+        {label}
+        {extra}
+        {active && <span className="text-[10px]">{dir === "asc" ? "▲" : "▼"}</span>}
+      </button>
+    </th>
   );
 }
 
 function KeywordTable({ run }: { run: RunView }) {
+  const [query, setQuery] = useState("");
+  const [sort, setSort] = useState<{ key: KeywordSortKey; dir: "asc" | "desc" } | null>(null);
+
+  const toggleSort = (key: KeywordSortKey) =>
+    setSort((prev) =>
+      prev?.key === key ? { key, dir: prev.dir === "asc" ? "desc" : "asc" } : { key, dir: "asc" }
+    );
+
+  const rows = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    let filtered = q ? run.keywords.filter((k) => k.keyword.toLowerCase().includes(q)) : run.keywords;
+    if (sort) {
+      const { key, dir } = sort;
+      filtered = [...filtered].sort((a, b) => {
+        const av = a[key];
+        const bv = b[key];
+        const cmp = typeof av === "string" ? av.localeCompare(bv as string) : (av as number) - (bv as number);
+        return dir === "asc" ? cmp : -cmp;
+      });
+    }
+    return filtered;
+  }, [run.keywords, query, sort]);
+
   return (
     <div>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
@@ -170,18 +246,46 @@ function KeywordTable({ run }: { run: RunView }) {
           a volume estimate.
         </span>
       </div>
+      <input
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder="Search keywords…"
+        className="mb-2 w-full rounded-lg border border-line bg-surface px-3 py-1.5 text-xs text-ink outline-none placeholder:text-faint focus:border-brand"
+      />
       <div className="max-h-[420px] overflow-auto rounded-lg border border-line">
         <table className="w-full text-left text-xs">
           <thead className="sticky top-0 z-10 bg-canvas">
             <tr className="border-b border-line">
-              <th className="px-3 py-2 font-medium text-faint">Query</th>
-              <th className="px-2 py-2 font-medium text-faint">
-                <span className="flex items-center gap-1">Rank <Provenance source="google_suggest" /></span>
-              </th>
-              <th className="px-2 py-2 font-medium text-faint">Seeds</th>
-              <th className="px-2 py-2 font-medium text-faint">
-                <span className="flex items-center gap-1">Demand <Provenance source="mauscore" /></span>
-              </th>
+              <SortHeader
+                label="Query"
+                className="px-3 py-2"
+                active={sort?.key === "keyword"}
+                dir={sort?.dir ?? "asc"}
+                onClick={() => toggleSort("keyword")}
+              />
+              <SortHeader
+                label="Rank"
+                className="px-2 py-2"
+                active={sort?.key === "rank"}
+                dir={sort?.dir ?? "asc"}
+                onClick={() => toggleSort("rank")}
+                extra={<Provenance source="google_suggest" />}
+              />
+              <SortHeader
+                label="Seeds"
+                className="px-2 py-2"
+                active={sort?.key === "coverage"}
+                dir={sort?.dir ?? "asc"}
+                onClick={() => toggleSort("coverage")}
+              />
+              <SortHeader
+                label="Demand"
+                className="px-2 py-2"
+                active={sort?.key === "demandSignal"}
+                dir={sort?.dir ?? "asc"}
+                onClick={() => toggleSort("demandSignal")}
+                extra={<Provenance source="mauscore" />}
+              />
               <th className="px-2 py-2 font-medium text-faint">
                 <span className="flex items-center gap-1">Rule <Provenance source="rule" /></span>
               </th>
@@ -191,7 +295,14 @@ function KeywordTable({ run }: { run: RunView }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {run.keywords.map((k) => {
+            {rows.length === 0 && (
+              <tr>
+                <td colSpan={6} className="px-3 py-6 text-center text-faint">
+                  No keywords match &quot;{query}&quot;
+                </td>
+              </tr>
+            )}
+            {rows.map((k) => {
               const cluster = run.clusters.find((c) => c.members.includes(k.keyword));
               return (
               <tr
@@ -240,14 +351,21 @@ export function ClustersPanel({ run }: { run: RunView }) {
   if (run.clusters.length === 0) return null;
 
   return (
-    <Card className="animate-land overflow-hidden">
-      <SectionHeader
-        index="02"
-        title="Topic Clusters"
-        role="Search Desk — SEO Strategist"
-        meta={`${run.clusters.length} clusters · demand averaged from real Suggest ranking`}
-        action={<Provenance source="mauscore" full />}
-      />
+    <details open className="group animate-land overflow-hidden rounded-xl border border-line bg-surface">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        <SectionHeader
+          index="02"
+          title="Topic Clusters"
+          role="Search Desk — SEO Strategist"
+          meta={`${run.clusters.length} clusters · demand averaged from real Suggest ranking`}
+          action={
+            <span className="flex items-center gap-1.5">
+              <Provenance source="mauscore" full />
+              <CollapseChevron />
+            </span>
+          }
+        />
+      </summary>
       <div className="grid gap-3 p-5 sm:grid-cols-2">
         {run.clusters.map((cluster) => (
           <div
@@ -308,7 +426,7 @@ export function ClustersPanel({ run }: { run: RunView }) {
           </div>
         </div>
       )}
-    </Card>
+    </details>
   );
 }
 
@@ -321,14 +439,21 @@ export function AudiencePanel({ run }: { run: RunView }) {
   if (!planning) return null;
 
   return (
-    <Card className="animate-land overflow-hidden">
-      <SectionHeader
-        index="03"
-        title="Audience & Fit"
-        role="Planning Desk — Content Strategist"
-        meta={`${planning.audiences.length} personas · ${planning.funnelMap.length} clusters mapped to the funnel`}
-        action={<Provenance source="ai" full />}
-      />
+    <details open className="group animate-land overflow-hidden rounded-xl border border-line bg-surface">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        <SectionHeader
+          index="03"
+          title="Audience & Fit"
+          role="Planning Desk — Content Strategist"
+          meta={`${planning.audiences.length} personas · ${planning.funnelMap.length} clusters mapped to the funnel`}
+          action={
+            <span className="flex items-center gap-1.5">
+              <Provenance source="ai" full />
+              <CollapseChevron />
+            </span>
+          }
+        />
+      </summary>
 
       <div className="space-y-5 p-5">
         <div className="grid gap-3 md:grid-cols-3">
@@ -427,7 +552,7 @@ export function AudiencePanel({ run }: { run: RunView }) {
       </div>
 
       <DeskNote role="Planner note">{planning.plannerNote}</DeskNote>
-    </Card>
+    </details>
   );
 }
 
@@ -454,21 +579,26 @@ export function AngleRoom({
   if (run.opportunities.length === 0) return null;
 
   return (
-    <Card className="animate-land overflow-hidden">
-      <SectionHeader
-        index="04"
-        title="Angle Room"
-        role="Creative Desk — Creative Director"
-        meta={`${run.opportunities.length} opportunities, ranked · ${run.killList.length} ideas killed`}
-        action={
-          <span
-            className="cursor-help text-[11px] text-muted"
-            title={`Opportunity Score = ${SCORE_FORMULA}`}
-          >
-            ranked by Opportunity Score ⓘ
-          </span>
-        }
-      />
+    <details open className="group animate-land overflow-hidden rounded-xl border border-line bg-surface">
+      <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
+        <SectionHeader
+          index="04"
+          title="Angle Room"
+          role="Creative Desk — Creative Director"
+          meta={`${run.opportunities.length} opportunities, ranked · ${run.killList.length} ideas killed`}
+          action={
+            <span className="flex items-center gap-1.5">
+              <span
+                className="cursor-help text-[11px] text-muted"
+                title={`Opportunity Score = ${SCORE_FORMULA}`}
+              >
+                ranked by Opportunity Score ⓘ
+              </span>
+              <CollapseChevron />
+            </span>
+          }
+        />
+      </summary>
 
       <p className="px-5 pt-4 text-[11px] text-faint">Slide or use the arrows to compare opportunities</p>
 
@@ -546,7 +676,7 @@ export function AngleRoom({
       </div>
 
       {run.directorNote && <DeskNote role="Director note">{run.directorNote}</DeskNote>}
-    </Card>
+    </details>
   );
 }
 

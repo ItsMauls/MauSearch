@@ -15,6 +15,7 @@ const { insertRun, insertBrief, newId, hasDatabase, findRecentRun } = await impo
 const { rankOpportunities } = await import("@/lib/pipeline/score");
 const { applyKeywordIntents } = await import("@/lib/view");
 const { HarvestResult } = await import("@/lib/schema");
+const { slugify } = await import("@/lib/slug");
 
 const harvest = HarvestResult.parse((await import("@/lib/ai/fixtures/harvest.json")).default);
 const intent = (await import("@/lib/ai/stages/intent")).intentStage.fixture;
@@ -34,6 +35,7 @@ if (existing) {
 const runId = newId();
 await insertRun({
   id: runId,
+  slug: slugify("photobooth jakarta"),
   keyword: "photobooth jakarta",
   normalizedKeyword: "photobooth jakarta",
   market: "ID",
