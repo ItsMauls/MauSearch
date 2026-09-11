@@ -30,14 +30,14 @@ export const creativeStage: StageConfig<CreativeInput, CreativeStage> = {
   id: "creative",
   role: "Creative Desk - Creative Director",
   temperature: 0.8,
-  // Highest cap of any stage: up to 6 opportunities each carrying angle,
-  // proofRequired, seoTitles, plus a mandatory kill list. On the free
-  // reasoning model, hidden chain-of-thought counts against this same
-  // budget - if reasoning alone burns past it, message.content comes back
-  // empty ("no JSON object in model response") even before truncation
-  // shows up as broken JSON. Sized generously so reasoning + the full
-  // opportunity list both fit.
-  maxOutputTokens: 16000,
+  // A large ceiling here was making this the one stage that reliably timed
+  // out: a bigger max_tokens request runs measurably slower on the free
+  // reasoning tier even when the actual JSON is far shorter, and hidden
+  // chain-of-thought scales with it too. runStage already doubles this on
+  // a truncated response (up to 32k), so start modest - the full 3-6
+  // opportunity list fits well under this in practice - and let the retry
+  // path pay for the rare wordier run instead of every run paying upfront.
+  maxOutputTokens: 8000,
   schema: CreativeStage,
   fixture: fixture as CreativeStage,
   system: `
