@@ -23,15 +23,10 @@ const BASE_URL = env("AI_BASE_URL") ?? "https://openrouter.ai/api/v1";
 
 /**
  * Nemotron is the reasoning model for every stage. Default is a free OpenRouter
- * tier by deliberate choice - be aware of the tradeoff: measured at ~80s for a
- * single stage under real load, against the queue-time nvidia provisions for
- * unpaid traffic, not anything this app controls. That is comfortably past a
- * typical serverless budget for four sequential stages. A paid tier such as
- * nvidia/nemotron-3-nano-30b-a3b costs roughly $0.01 for a full run and
- * responds in single-digit seconds - swap AI_MODEL (and add AI_API_KEY credit)
- * if reliability matters more than the free tier's price.
+ * tier by deliberate choice. Lightning is the fast free variant - swap AI_MODEL
+ * (and add AI_API_KEY credit) if a paid tier is preferred for reliability.
  */
-export const MODEL = env("AI_MODEL") ?? "nvidia/nemotron-3-ultra-550b-a55b:free";
+export const MODEL = env("AI_MODEL") ?? "nvidia/nemotron-3.5-lightning:free";
 
 /** Optional cheaper route for the low-temperature classification stage. */
 export const FAST_MODEL = env("AI_MODEL_FAST") ?? MODEL;
