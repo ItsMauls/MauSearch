@@ -27,7 +27,10 @@ export const briefStage: StageConfig<BriefInput, BriefStage> = {
   id: "brief",
   role: "Editorial Desk - Content Lead",
   temperature: 0.4,
-  maxOutputTokens: 4000,
+  // Up to 9 outline sections with talking points/H3s/assets, plus FAQ,
+  // entities, internal links, and a checklist - same truncation risk as
+  // the Creative Desk, sized the same way.
+  maxOutputTokens: 8000,
   schema: BriefStage,
   fixture: fixture as BriefStage,
   system: `
