@@ -114,7 +114,7 @@ export default function HowItWorks() {
         actions={<ButtonLink href="/">Try it</ButtonLink>}
       />
 
-      <div className="mx-auto max-w-4xl space-y-6 px-6 py-6 md:px-8">
+      <div className="mx-auto max-w-5xl space-y-6 px-6 py-6 md:px-8">
         <ProvenanceLegend />
 
         <Card className="overflow-hidden">
@@ -133,9 +133,11 @@ export default function HowItWorks() {
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-medium text-ink">{stage.name}</p>
-                    <Badge tone={stage.who === "Computer" ? "neutral" : stage.who === "Google Suggest" ? "brand" : "accent"}>
-                      {stage.who}
-                    </Badge>
+                    {stage.who !== "Computer" && (
+                      <Badge tone={stage.who === "Google Suggest" ? "brand" : "accent"}>
+                        {stage.who}
+                      </Badge>
+                    )}
                     {!stage.automatic && <Badge tone="warn">only when you pick one</Badge>}
                   </div>
                   <p className="mt-1 text-xs text-muted">{stage.detail}</p>
