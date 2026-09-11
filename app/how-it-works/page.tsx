@@ -4,6 +4,7 @@ import { SCORE_FORMULA } from "@/lib/pipeline/score";
 import { PageHeader } from "@/components/shell";
 import { Badge, ButtonLink, Card, Info, SectionHeader } from "@/components/ui";
 import { Provenance, ProvenanceLegend } from "@/components/provenance";
+import { StageIllustration } from "@/components/how-it-works-illustration";
 
 export const metadata = { title: "How It Works — MauSearch" };
 
@@ -124,8 +125,11 @@ export default function HowItWorks() {
           />
           <ol className="divide-y divide-line">
             {STAGES.map((stage, i) => (
-              <li key={stage.n} className="flex gap-4 px-5 py-3.5">
-                <span className="font-mono text-xs font-semibold text-faint">{stage.n}</span>
+              <li key={stage.n} className="flex flex-col gap-4 px-5 py-3.5 sm:flex-row">
+                <div className="flex gap-4">
+                  <span className="font-mono text-xs font-semibold text-faint">{stage.n}</span>
+                  <StageIllustration n={stage.n} />
+                </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="text-sm font-medium text-ink">{stage.name}</p>

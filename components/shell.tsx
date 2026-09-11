@@ -1,4 +1,8 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cx } from "@/components/ui";
 
 const NAV = [
   { href: "/", label: "Workspace Home", icon: GridIcon },
@@ -7,6 +11,8 @@ const NAV = [
 ];
 
 export function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="sticky top-0 hidden h-screen w-[240px] shrink-0 flex-col border-r border-line bg-surface md:flex">
       <Link href="/" className="flex items-center gap-2.5 px-5 py-5">
@@ -22,16 +28,26 @@ export function Sidebar() {
       </Link>
 
       <nav className="flex flex-col gap-0.5 px-3">
-        {NAV.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className="flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium text-muted transition-colors hover:bg-canvas hover:text-ink"
-          >
-            <Icon />
-            {label}
-          </Link>
-        ))}
+        {NAV.map(({ href, label, icon: Icon }) => {
+          const active =
+            href === "/" ? pathname === "/" || pathname?.startsWith("/w/") : pathname?.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              aria-current={active ? "page" : undefined}
+              className={cx(
+                "flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm font-medium transition-colors",
+                active
+                  ? "bg-brand-soft text-brand"
+                  : "text-muted hover:bg-canvas hover:text-ink"
+              )}
+            >
+              <Icon />
+              {label}
+            </Link>
+          );
+        })}
       </nav>
     </aside>
   );

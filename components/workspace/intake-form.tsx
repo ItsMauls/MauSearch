@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { LENSES, MARKETS, Lens, MarketCode } from "@/lib/schema";
 import { Card, cx } from "@/components/ui";
 
@@ -184,19 +184,60 @@ const INTAKE_STEPS = [
   "Search Desk is classifying intent",
 ];
 
+/** Roughly how long each step takes relative to the others, so the estimated bar lands close to real timing. */
+const INTAKE_STEP_WEIGHTS = [1, 3, 1, 1, 4];
+
+function useSimulatedStep(weights: number[]): number {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    if (step >= weights.length - 1) return;
+    const id = setTimeout(() => setStep((s) => s + 1), weights[step] * 900);
+    return () => clearTimeout(id);
+  }, [step, weights]);
+  return step;
+}
+
 function IntakeProgress({ freeTierModel }: { freeTierModel: boolean }) {
+  const activeIndex = useSimulatedStep(INTAKE_STEP_WEIGHTS);
+  const percent = Math.round(((activeIndex + 1) / INTAKE_STEPS.length) * 100);
+
   return (
     <div className="border-t border-line pt-4">
-      <ol className="space-y-1.5">
-        {INTAKE_STEPS.map((step, index) => (
-          <li key={step} className="flex items-center gap-2 text-xs text-muted">
-            <span
-              className="h-1.5 w-1.5 rounded-full bg-brand animate-working"
-              style={{ animationDelay: `${index * 180}ms` }}
-            />
-            {step}
-          </li>
-        ))}
+      <div className="mb-2.5 flex items-center justify-between text-[11px]">
+        <span className="font-medium text-brand">{INTAKE_STEPS[activeIndex]}…</span>
+        <span className="text-faint">
+          {activeIndex + 1}/{INTAKE_STEPS.length}
+        </span>
+      </div>
+      <div className="h-1.5 w-full overflow-hidden rounded-full bg-canvas">
+        <div
+          className="h-full rounded-full bg-brand transition-[width] duration-700 ease-out"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      <ol className="mt-3 space-y-1.5">
+        {INTAKE_STEPS.map((step, index) => {
+          const state = index < activeIndex ? "done" : index === activeIndex ? "working" : "pending";
+          return (
+            <li
+              key={step}
+              className={cx(
+                "flex items-center gap-2 text-xs transition-colors",
+                state === "pending" ? "text-faint" : state === "done" ? "text-muted" : "text-ink"
+              )}
+            >
+              <span
+                className={cx(
+                  "h-1.5 w-1.5 shrink-0 rounded-full",
+                  state === "done" && "bg-positive",
+                  state === "working" && "bg-brand animate-working",
+                  state === "pending" && "bg-line-strong"
+                )}
+              />
+              {step}
+            </li>
+          );
+        })}
       </ol>
       {freeTierModel && (
         <p className="mt-2 text-[11px] text-faint">
