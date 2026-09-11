@@ -60,9 +60,9 @@ export function aiClient(): OpenAI {
     cached = new OpenAI({
       apiKey: env("AI_API_KEY") ?? "no-key",
       baseURL: BASE_URL,
-      // Matched to the route handlers' maxDuration=300: the platform will kill
-      // the request at that ceiling regardless, so there is no benefit to the
-      // SDK giving up earlier - and the configured free model needs the room.
+      // Fallback only - runStage passes a per-call timeout sized to what's
+      // left of its own deadline, since a stage can make several sequential
+      // calls and each needs less than the whole route budget.
       timeout: 290_000,
       maxRetries: 0, // retries are handled in runStage, where we can correct the prompt
       // OpenRouter attributes traffic with these; harmless elsewhere.
