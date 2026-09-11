@@ -333,11 +333,11 @@ export function AudiencePanel({ run }: { run: RunView }) {
         </div>
 
         <div className="grid gap-4 lg:grid-cols-2">
-          <div>
+          <div className="flex flex-col">
             <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-faint">
               Funnel map
             </h3>
-            <div className="max-h-[360px] overflow-y-auto rounded-lg border border-line">
+            <div className="min-h-0 flex-1 overflow-y-auto rounded-lg border border-line">
               {planning.funnelMap.map((entry) => {
                 const cluster = run.clusters.find((c) => c.id === entry.clusterId);
                 return (
