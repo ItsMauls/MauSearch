@@ -87,7 +87,9 @@ Return this JSON shape:
     "riskIfIgnored": "<what we lose by not doing this>"
   }],
   "killList": [{ "idea": "<the rejected idea>", "whyKilled": "<the real reason>" }],
-  "directorNote": "<2-3 sentences: the single play you would bet on, and why>"
+  "directorNote": "<2-3 plain-language sentences a non-marketer would understand at a glance:
+                    the single opportunity you would bet on, and why - no jargon like
+                    'differentiation', 'funnel', 'SERP', or agency-speak>"
 }
 
 Hard constraints:

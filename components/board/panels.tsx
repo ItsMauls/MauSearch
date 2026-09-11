@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Intent } from "@/lib/schema";
 import { RunView } from "@/lib/view";
 import { SCORE_FORMULA } from "@/lib/pipeline/score";
@@ -414,6 +414,11 @@ export function AngleRoom({
   onGenerateBrief?: (opportunityId: string) => void;
   generatingId?: string | null;
 }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollByPage = (direction: 1 | -1) => {
+    scrollRef.current?.scrollBy({ left: direction * scrollRef.current.clientWidth * 0.95, behavior: "smooth" });
+  };
+
   if (run.opportunities.length === 0) return null;
 
   return (
@@ -434,11 +439,32 @@ export function AngleRoom({
       />
 
       <div className="flex items-center justify-between px-5 pt-4">
-        <p className="text-[11px] text-faint">Slide sideways to compare opportunities →</p>
+        <p className="text-[11px] text-faint">Slide or use the arrows to compare opportunities</p>
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => scrollByPage(-1)}
+            aria-label="Previous opportunities"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-surface text-sm text-muted transition-colors hover:border-brand hover:text-brand"
+          >
+            ‹
+          </button>
+          <button
+            type="button"
+            onClick={() => scrollByPage(1)}
+            aria-label="Next opportunities"
+            className="flex h-7 w-7 items-center justify-center rounded-full border border-line bg-surface text-sm text-muted transition-colors hover:border-brand hover:text-brand"
+          >
+            ›
+          </button>
+        </div>
       </div>
-      <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto p-5 pt-2">
+      <div
+        ref={scrollRef}
+        className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth p-5 pt-2"
+      >
         {run.opportunities.map((opportunity, index) => (
-          <div key={opportunity.id} className="w-[88vw] max-w-sm shrink-0 snap-start sm:w-[420px]">
+          <div key={opportunity.id} className="w-[85vw] shrink-0 snap-start sm:w-[calc(50%-0.375rem)]">
             <OpportunityCard
               opportunity={opportunity}
               recommended={index === 0}
@@ -476,27 +502,23 @@ export function AngleRoom({
   );
 }
 
-/** Counts seconds while `active`, resets when it stops. */
-function useElapsedSeconds(active: boolean): number {
+/** Counts seconds since mount. Callers remount this by conditionally
+ *  rendering it, so the clock restarts each time generation starts. */
+function useElapsedSeconds(): number {
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => {
-    if (!active) {
-      setElapsed(0);
-      return;
-    }
     const id = setInterval(() => setElapsed((e) => e + 1), 1000);
     return () => clearInterval(id);
-  }, [active]);
+  }, []);
   return elapsed;
 }
 
 /** Indeterminate bar + elapsed clock — the brief takes 15-40s and a card that
  *  just says "writing…" for that long reads as stuck. */
-function BriefProgress({ generating }: { generating: boolean }) {
-  const elapsed = useElapsedSeconds(generating);
-  if (!generating) return null;
+function BriefProgress() {
+  const elapsed = useElapsedSeconds();
   return (
-    <div className="mt-3.5">
+    <div className="mt-4">
       <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-canvas">
         <div className="animate-progress absolute inset-y-0 left-0 w-1/3 rounded-full bg-brand" />
       </div>
@@ -533,14 +555,14 @@ function OpportunityCard({
   return (
     <div
       className={cx(
-        "h-full rounded-xl border p-4 transition-colors",
+        "h-full rounded-xl border p-5 transition-colors",
         recommended ? "border-brand/40 bg-brand-soft/30" : "border-line",
         generating && "border-brand/60"
       )}
     >
-      <div className="flex flex-wrap items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="min-w-0 flex-1">
-          <div className="mb-1.5 flex flex-wrap items-center gap-1.5">
+          <div className="mb-2 flex flex-wrap items-center gap-1.5">
             <Badge tone={opportunity.priority === "P0" ? "brand" : "neutral"} mono>
               {opportunity.priority}
             </Badge>
@@ -549,14 +571,14 @@ function OpportunityCard({
             {cluster && <Badge tone="accent">{cluster}</Badge>}
             {recommended && <Badge tone="positive">Recommended</Badge>}
           </div>
-          <h3 className="text-[15px] font-semibold tracking-tight text-ink">
+          <h3 className="text-base font-semibold leading-snug tracking-tight text-ink">
             {opportunity.title}
           </h3>
-          <p className="mt-1 text-xs text-muted">{opportunity.promise}</p>
+          <p className="mt-1.5 text-sm text-muted">{opportunity.promise}</p>
         </div>
 
         <div
-          className="shrink-0 cursor-help rounded-lg border border-line bg-surface px-3 py-2 text-center"
+          className="shrink-0 cursor-help rounded-lg border border-line bg-surface px-4 py-2.5 text-center"
           title={`Opportunity Score = ${SCORE_FORMULA}`}
         >
           <span className="tabular block font-mono text-2xl font-semibold text-brand">
@@ -568,40 +590,40 @@ function OpportunityCard({
 
       {/* Score breakdown with per-input provenance: 30% of this rank is real
           Google data, and the card says exactly which 30%. */}
-      <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-4">
+      <div className="mt-4 grid grid-cols-2 gap-2.5">
         {breakdown.map((part) => (
-          <div key={part.label} className="rounded-lg border border-line bg-surface p-2">
+          <div key={part.label} className="rounded-lg border border-line bg-surface p-3">
             <div className="flex items-center justify-between gap-1">
-              <span className="text-[10px] text-faint">{part.label}</span>
+              <span className="text-[11px] text-faint">{part.label}</span>
               <Provenance source={part.source} />
             </div>
-            <div className="mt-1 flex items-baseline gap-1">
-              <span className="tabular font-mono text-sm font-semibold text-ink">{part.value}</span>
+            <div className="mt-1.5 flex items-baseline gap-1">
+              <span className="tabular font-mono text-base font-semibold text-ink">{part.value}</span>
               <span className="font-mono text-[10px] text-faint">×{part.weight}</span>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="mt-3 rounded-lg border border-line bg-surface p-3">
+      <div className="mt-4 rounded-lg border border-line bg-surface p-4">
         <p className="text-[10px] font-semibold uppercase tracking-wider text-faint">Hook</p>
-        <p className="mt-1 text-sm text-ink">{opportunity.angle.hook}</p>
-        <p className="mt-2 text-xs text-muted">
+        <p className="mt-1.5 text-sm text-ink">{opportunity.angle.hook}</p>
+        <p className="mt-3 text-xs leading-relaxed text-muted">
           <span className="font-medium text-ink">Contrarian take: </span>
           {opportunity.angle.contrarianTake}
         </p>
-        <p className="mt-1.5 text-xs text-muted">
+        <p className="mt-2 text-xs leading-relaxed text-muted">
           <span className="font-medium text-ink">Why it is not generic: </span>
           {opportunity.angle.whyNotGeneric}
         </p>
       </div>
 
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 space-y-4">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-wider text-faint">
             SEO titles
           </p>
-          <ul className="mt-1.5 space-y-1.5">
+          <ul className="mt-2 space-y-2.5">
             {opportunity.seoTitles.map((title) => (
               <li key={title.title} className="text-xs">
                 <span className="block font-medium text-ink">{title.title}</span>
@@ -617,7 +639,7 @@ function OpportunityCard({
           <p className="text-[10px] font-semibold uppercase tracking-wider text-faint">
             Proof required
           </p>
-          <ul className="mt-1.5 space-y-1">
+          <ul className="mt-2 space-y-1.5">
             {opportunity.proofRequired.map((proof) => (
               <li key={proof} className="flex gap-1.5 text-xs text-muted">
                 <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-brand" />
@@ -638,7 +660,7 @@ function OpportunityCard({
           disabled={disabled}
           onClick={() => onGenerateBrief(opportunity.id)}
           className={cx(
-            "mt-3.5 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-wait disabled:opacity-70",
+            "mt-4 w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors disabled:cursor-wait disabled:opacity-70",
             recommended
               ? "bg-brand text-white hover:bg-brand/90"
               : "border border-line bg-surface text-ink hover:border-brand hover:text-brand"
@@ -647,7 +669,7 @@ function OpportunityCard({
           {generating ? "Editorial Desk is writing the brief…" : "Generate production brief"}
         </button>
       )}
-      <BriefProgress generating={Boolean(generating)} />
+      {generating && <BriefProgress />}
     </div>
   );
 }

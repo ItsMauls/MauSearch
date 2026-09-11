@@ -80,7 +80,7 @@ const STAGES: Stage[] = [
     name: "Brainstorm content ideas - and reject the boring ones",
     who: "AI - Creative Director",
     automatic: true,
-    detail: "The AI pitches several content ideas with a hook and a title, scores them, and also lists ideas it deliberately rejected and why - the same way an agency creative director would.",
+    detail: "The AI pitches several content ideas with a hook and a title, scores them, and also lists ideas it deliberately rejected and why - the same way an agency creative director would. It closes with a plain-English \"Director's Note\": one or two sentences, no jargon, saying which single idea it would bet on and why.",
     example: "Pitched: “Padel Court Booking Guide: Jakarta's Best Indoor Venues.” Rejected: “What Is Padel? A Beginner's Guide” - killed because this keyword set is overwhelmingly people ready to book, not people who don't know what padel is.",
   },
   {

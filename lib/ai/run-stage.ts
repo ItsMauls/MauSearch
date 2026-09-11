@@ -56,8 +56,9 @@ function extractJson(raw: string): unknown {
 async function complete(
   config: StageConfig<never, unknown>,
   prompt: string,
+  maxTokens: number,
   correction?: string
-): Promise<string> {
+): Promise<{ content: string; truncated: boolean }> {
   const messages = [
     { role: "system" as const, content: config.system },
     { role: "user" as const, content: prompt },
@@ -74,7 +75,7 @@ async function complete(
   const response = await aiClient().chat.completions.create({
     model: config.fast ? FAST_MODEL : MODEL,
     temperature: config.temperature,
-    max_tokens: config.maxOutputTokens,
+    max_tokens: maxTokens,
     response_format: { type: "json_object" },
     messages,
     // Reasoning models (several free-tier Nemotron variants) otherwise spend the
@@ -84,14 +85,23 @@ async function complete(
     // OpenRouter-specific; harmless no-op on routers that ignore unknown fields.
     ...({ reasoning: { enabled: false, exclude: true, max_tokens: 1 } } as Record<string, unknown>),
   });
-  return response.choices?.[0]?.message?.content ?? "";
+  const choice = response.choices?.[0];
+  return { content: choice?.message?.content ?? "", truncated: choice?.finish_reason === "length" };
 }
 
+// However generous a stage's own ceiling is, some runs (a wordier cluster, a
+// longer angle) still won't fit it. Rather than fail outright, double the
+// budget and try again, up to a hard ceiling that keeps a runaway retry from
+// requesting an unreasonable response size.
+const TOKEN_CEILING = 32_000;
+
 /**
- * Runs one stage: prompt -> model -> JSON -> schema. A schema failure gets
- * exactly one corrective retry with the validation error fed back; a second
- * failure throws so the caller can mark just this stage failed and leave every
- * completed panel on screen.
+ * Runs one stage: prompt -> model -> JSON -> schema. Two failure modes get one
+ * retry each: a truncated response (finish_reason "length") retries with a
+ * doubled token budget and no correction text, since the fix is room, not
+ * wording; a schema failure retries once with the validation error fed back.
+ * Either way a second failure throws so the caller can mark just this stage
+ * failed and leave every completed panel on screen.
  */
 export async function runStage<TInput, TOutput>(
   config: StageConfig<TInput, TOutput>,
@@ -102,18 +112,28 @@ export async function runStage<TInput, TOutput>(
   const prompt = config.user(input);
   const cfg = config as unknown as StageConfig<never, unknown>;
   let lastError = "";
+  let correction: string | undefined;
+  let tokenBudget = config.maxOutputTokens;
 
-  for (let attempt = 0; attempt < 2; attempt++) {
+  for (let attempt = 0; attempt < 3; attempt++) {
     try {
-      const raw = await complete(cfg, prompt, attempt === 0 ? undefined : lastError);
-      const parsed = config.schema.safeParse(extractJson(raw));
+      const { content, truncated } = await complete(cfg, prompt, tokenBudget, correction);
+      if (truncated) {
+        tokenBudget = Math.min(tokenBudget * 2, TOKEN_CEILING);
+        lastError = `response was cut off at the token limit (retried at ${tokenBudget} tokens)`;
+        correction = undefined;
+        continue;
+      }
+      const parsed = config.schema.safeParse(extractJson(content));
       if (parsed.success) return parsed.data;
       lastError = parsed.error.issues
         .slice(0, 6)
         .map((i) => `${i.path.join(".") || "(root)"}: ${i.message}`)
         .join("; ");
+      correction = lastError;
     } catch (err) {
       lastError = (err as Error).message;
+      correction = lastError;
     }
   }
 
