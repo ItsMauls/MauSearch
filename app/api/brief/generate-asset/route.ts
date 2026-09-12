@@ -47,8 +47,16 @@ function columnsFor(mandatoryAsset: string): string[] {
 
 function fallbackGrid(mandatoryAsset: string, h3s: string[], talkingPoints: string[]) {
   const columns = columnsFor(mandatoryAsset);
-  const rowLabels = h3s.length > 0 ? h3s : talkingPoints.length > 0 ? talkingPoints : [""];
-  return { kind: "grid" as const, columns, rows: rowLabels.map((label) => [label, ...Array(columns.length - 1).fill("")]) };
+  const rowLabels = h3s.length > 0 ? h3s : talkingPoints.length > 0 ? talkingPoints : ["This section"];
+  const point = talkingPoints[0] ?? mandatoryAsset;
+  return {
+    kind: "grid" as const,
+    columns,
+    rows: rowLabels.map((label) => [
+      label,
+      ...Array(columns.length - 1).fill(`Draft ${columns[1]?.toLowerCase() ?? "detail"} based on: ${point}`),
+    ]),
+  };
 }
 
 async function completeJson(system: string, user: string, maxTokens: number) {
@@ -125,10 +133,11 @@ async function buildGrid(mandatoryAsset: string, h3s: string[], talkingPoints: s
       await completeJson(
         "You draft the actual content of a content brief's required production asset, shaped as a table. " +
           "Write real, useful cell content grounded ONLY in the given outline (h3 subjects and talking points) - " +
-          "summarize or rephrase what's there, never invent numbers, names, or claims that aren't in it. Leave a " +
-          'cell as an empty string only if the outline truly gives nothing to say. Return JSON only: ' +
-          '{"columns": string[] (max 4, short headers fitting the asset type), "rows": string[][] ' +
-          "(one row per h3/talking point, each row length matches columns length, cells filled with real content).",
+          "summarize or rephrase what's there, never invent numbers, names, or claims that aren't in it. Every " +
+          "cell must be filled - if the outline doesn't give enough for a fact, write a short actionable draft " +
+          "placeholder telling the writer what to fill in instead (e.g. 'Add comparison stat for X vs Y'), never " +
+          'an empty string. Return JSON only: {"columns": string[] (max 4, short headers fitting the asset type), ' +
+          '"rows": string[][] (one row per h3/talking point, each row length matches columns length).',
         `Required asset: ${mandatoryAsset}\nSection subjects (h3s): ${h3s.join("; ") || "none"}\nTalking points: ${talkingPoints.join("; ") || "none"}`,
         1500
       )

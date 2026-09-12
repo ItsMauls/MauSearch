@@ -564,10 +564,12 @@ export function AngleRoom({
   run,
   onGenerateBrief,
   generatingId,
+  generatedOpportunityIds,
 }: {
   run: RunView;
   onGenerateBrief?: (opportunityId: string) => void;
   generatingId?: string | null;
+  generatedOpportunityIds?: string[];
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -629,6 +631,7 @@ export function AngleRoom({
                   onGenerateBrief={onGenerateBrief}
                   generating={generatingId === opportunity.id}
                   disabled={Boolean(generatingId)}
+                  alreadyGenerated={generatedOpportunityIds?.includes(opportunity.id)}
                 />
               </div>
             );
@@ -714,6 +717,7 @@ function OpportunityCard({
   onGenerateBrief,
   generating,
   disabled,
+  alreadyGenerated,
 }: {
   opportunity: RunView["opportunities"][number];
   recommended: boolean;
@@ -721,6 +725,7 @@ function OpportunityCard({
   onGenerateBrief?: (id: string) => void;
   generating?: boolean;
   disabled?: boolean;
+  alreadyGenerated?: boolean;
 }) {
   const { signals } = opportunity;
   const breakdown = [
@@ -844,7 +849,11 @@ function OpportunityCard({
               : "border border-line bg-surface text-ink hover:border-brand hover:text-brand"
           )}
         >
-          {generating ? "Editorial Desk is writing the brief…" : "Generate production brief"}
+          {generating
+            ? "Editorial Desk is writing the brief…"
+            : alreadyGenerated
+              ? "Generate again"
+              : "Generate production brief"}
         </button>
       )}
       {generating && <BriefProgress />}

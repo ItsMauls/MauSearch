@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getRun } from "@/lib/db";
+import { getRun, listBriefedOpportunityIds } from "@/lib/db";
 import { toRunView } from "@/lib/view";
 import { MARKETS, MarketCode, LENSES, Lens } from "@/lib/schema";
 import { isFreeTierModel } from "@/lib/ai/client";
@@ -25,6 +25,7 @@ export default async function StrategyBoardPage({
 
   const run = toRunView(row);
   const market = MARKETS[run.market as MarketCode];
+  const generatedOpportunityIds = await listBriefedOpportunityIds(run.id);
 
   return (
     <>
@@ -57,7 +58,11 @@ export default async function StrategyBoardPage({
           </span>
         }
       />
-      <StrategyBoard initialRun={run} freeTierModel={isFreeTierModel()} />
+      <StrategyBoard
+        initialRun={run}
+        freeTierModel={isFreeTierModel()}
+        generatedOpportunityIds={generatedOpportunityIds}
+      />
     </>
   );
 }

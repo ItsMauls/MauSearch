@@ -28,6 +28,7 @@ export function AssetGenerator({
   talkingPoints: string[];
 }) {
   const [result, setResult] = useState<Result | null>(null);
+  const [stamp, setStamp] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
 
@@ -42,6 +43,9 @@ export function AssetGenerator({
       });
       if (!res.ok) throw new Error("request failed");
       setResult(await res.json());
+      // A fresh id per generation so re-downloading the same asset never
+      // overwrites the browser's previous download of it.
+      setStamp(Date.now().toString(36));
     } catch {
       setError(true);
     } finally {
@@ -49,7 +53,8 @@ export function AssetGenerator({
     }
   }
 
-  const filename = mandatoryAsset.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "asset";
+  const slug = mandatoryAsset.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "asset";
+  const filename = `${slug}-${stamp}`;
 
   return (
     <div className="mt-2.5">
@@ -89,9 +94,12 @@ export function AssetGenerator({
           <div className="overflow-x-auto">
             <table className="w-full border-collapse text-xs">
               <thead>
-                <tr className="bg-canvas">
+                <tr className="bg-ai-soft">
                   {result.columns.map((cell) => (
-                    <th key={cell} className="border-b border-line px-2.5 py-1.5 text-left font-semibold text-ink">
+                    <th
+                      key={cell}
+                      className="border-b border-ai/20 px-2.5 py-2 text-left text-[11px] font-semibold uppercase tracking-wide text-ai"
+                    >
                       {cell}
                     </th>
                   ))}
@@ -99,10 +107,10 @@ export function AssetGenerator({
               </thead>
               <tbody>
                 {result.rows.map((row, i) => (
-                  <tr key={i} className="border-b border-line last:border-0">
+                  <tr key={i} className={i % 2 === 0 ? "bg-surface" : "bg-canvas/60"}>
                     {row.map((cell, j) => (
-                      <td key={j} className="px-2.5 py-1.5 text-muted">
-                        {cell || <span className="text-faint">—</span>}
+                      <td key={j} className="border-b border-line px-2.5 py-2 align-top text-ink last:border-r-0">
+                        {cell || <span className="italic text-faint">Not specified in outline</span>}
                       </td>
                     ))}
                   </tr>

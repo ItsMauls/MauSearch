@@ -157,6 +157,15 @@ export async function listBriefsWithLens(limit = 50): Promise<(BriefRow & { lens
   return rows.map(({ brief, lens }) => ({ ...brief, lens: lens ?? "" }));
 }
 
+/** opportunityIds that already have a brief for this run, so the board can offer "Generate again" instead of "Generate". */
+export async function listBriefedOpportunityIds(runId: string): Promise<string[]> {
+  if (!db) {
+    return [...memory.briefs.values()].filter((b) => b.runId === runId).map((b) => b.opportunityId);
+  }
+  const rows = await db.select({ opportunityId: briefs.opportunityId }).from(briefs).where(eq(briefs.runId, runId));
+  return rows.map((r) => r.opportunityId);
+}
+
 export async function findBriefForOpportunity(
   runId: string,
   opportunityId: string

@@ -19,9 +19,12 @@ import { PanelSkeleton, StageRail } from "./stage-rail";
 export function StrategyBoard({
   initialRun,
   freeTierModel,
+  generatedOpportunityIds,
 }: {
   initialRun: RunView;
   freeTierModel: boolean;
+  /** Opportunities that already have a brief, so their card can say "Generate again". */
+  generatedOpportunityIds: string[];
 }) {
   const router = useRouter();
   const [run, setRun] = useState(initialRun);
@@ -199,6 +202,7 @@ export function StrategyBoard({
                 run={run}
                 onGenerateBrief={generateBrief}
                 generatingId={generatingId}
+                generatedOpportunityIds={generatedOpportunityIds}
               />
             </div>
           )}
