@@ -3,13 +3,41 @@
 import { useState } from "react";
 import { cx } from "@/components/ui";
 
+const titleCase = (s: string) =>
+  s
+    .split(/\s+/)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+
+const stripPunctuation = (s: string) => s.replace(/^[^\w]+|[^\w]+$/g, "");
+
 /**
- * Only a scaffold: talking points as rows, a blank cell for the writer to
- * fill in. No AI call - the outline already has everything this needs.
+ * Picks up on "X vs Y" phrasing (works for both "morning vs afternoon" and
+ * Indonesian "pagi hari vs siang hari") so the generated columns actually
+ * name what's being compared instead of a generic "Detail" column.
  */
-function buildRows(talkingPoints: string[]): string[][] {
-  const points = talkingPoints.length > 0 ? talkingPoints : [""];
-  return [["Talking point", "Detail"], ...points.map((point) => [point, ""])];
+function detectComparisonColumns(texts: string[]): [string, string] | null {
+  for (const text of texts) {
+    const match = text.match(/(\S+(?:\s+\S+)?)\s+vs\.?\s+(\S+(?:\s+\S+)?)/i);
+    if (!match) continue;
+    const a = stripPunctuation(match[1]);
+    const b = stripPunctuation(match[2]);
+    if (a && b) return [titleCase(a), titleCase(b)];
+  }
+  return null;
+}
+
+/**
+ * Scaffold, not real data: h3s (the section's actual itemized subjects) as
+ * rows, and a comparison pair detected from the talking points as columns
+ * when there is one. No AI call - everything here is already in the outline.
+ */
+function buildRows(h3s: string[], talkingPoints: string[]): string[][] {
+  const rowLabels = h3s.length > 0 ? h3s : talkingPoints.length > 0 ? talkingPoints : [""];
+  const comparison = detectComparisonColumns(talkingPoints);
+  const header = comparison ? ["Item", ...comparison] : ["Item", "Detail"];
+  const blankCells = comparison ? ["", ""] : [""];
+  return [header, ...rowLabels.map((label) => [label, ...blankCells])];
 }
 
 function toCsv(rows: string[][]): string {
@@ -28,14 +56,14 @@ function downloadBlob(blob: Blob, filename: string) {
 }
 
 export function TableAsset({
-  mandatoryAsset,
+  h3s,
   talkingPoints,
 }: {
-  mandatoryAsset: string;
+  h3s: string[];
   talkingPoints: string[];
 }) {
   const [open, setOpen] = useState(false);
-  const rows = buildRows(talkingPoints);
+  const rows = buildRows(h3s, talkingPoints);
 
   function downloadCsv() {
     downloadBlob(new Blob([toCsv(rows)], { type: "text/csv" }), "table.csv");
@@ -62,7 +90,7 @@ export function TableAsset({
           "rounded-md border border-brand/20 bg-brand-soft px-2.5 py-1.5 text-xs font-semibold text-brand transition-colors hover:bg-brand/10"
         )}
       >
-        {open ? "Hide table" : "Generate table"} · {mandatoryAsset}
+        {open ? "Hide table" : "Generate table"}
       </button>
 
       {open && (
