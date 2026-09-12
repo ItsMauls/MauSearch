@@ -571,6 +571,7 @@ export function AngleRoom({
 }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [hoverEdge, setHoverEdge] = useState<"left" | "right" | null>(null);
   const scrollByPage = (direction: 1 | -1) => {
     scrollRef.current?.scrollBy({ left: direction * scrollRef.current.clientWidth * 0.95, behavior: "smooth" });
   };
@@ -602,36 +603,48 @@ export function AngleRoom({
 
       <p className="px-5 pt-4 text-[11px] text-faint">Slide or use the arrows to compare opportunities</p>
 
-      <div className="group/carousel relative">
+      <div className="relative">
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth py-5 pr-8 pl-8 pt-2"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth py-5 pt-2"
         >
-          {run.opportunities.map((opportunity, index) => (
-            <div
-              key={opportunity.id}
-              data-cluster-id={opportunity.clusterId}
-              data-edge={index === 0 ? "left" : index === run.opportunities.length - 1 ? "right" : undefined}
-              className="w-[85vw] shrink-0 snap-start rounded-xl sm:w-[calc(50%-0.375rem)]"
-            >
-              <OpportunityCard
-                opportunity={opportunity}
-                recommended={index === 0}
-                cluster={run.clusters.find((c) => c.id === opportunity.clusterId)?.name}
-                onGenerateBrief={onGenerateBrief}
-                generating={generatingId === opportunity.id}
-                disabled={Boolean(generatingId)}
-              />
-            </div>
-          ))}
+          {/* Chromium drops start-side padding on a scrolling flex container once content
+              overflows, so the left gutter has to be a real spacer element instead. */}
+          <div aria-hidden className="w-5 shrink-0" />
+          {run.opportunities.map((opportunity, index) => {
+            const edge = index === 0 ? "left" : index === run.opportunities.length - 1 ? "right" : undefined;
+            return (
+              <div
+                key={opportunity.id}
+                data-cluster-id={opportunity.clusterId}
+                onMouseEnter={() => edge && setHoverEdge(edge)}
+                onMouseLeave={() => edge && setHoverEdge((current) => (current === edge ? null : current))}
+                className="w-[85vw] shrink-0 snap-start rounded-xl sm:w-[calc(50%-0.375rem)]"
+              >
+                <OpportunityCard
+                  opportunity={opportunity}
+                  recommended={index === 0}
+                  cluster={run.clusters.find((c) => c.id === opportunity.clusterId)?.name}
+                  onGenerateBrief={onGenerateBrief}
+                  generating={generatingId === opportunity.id}
+                  disabled={Boolean(generatingId)}
+                />
+              </div>
+            );
+          })}
+          <div aria-hidden className="w-5 shrink-0" />
         </div>
 
         {canScrollLeft && (
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center bg-linear-to-r from-transparent to-transparent pl-2 opacity-0 transition-all group-has-[[data-edge=left]:hover]/carousel:from-brand-soft group-has-[[data-edge=left]:hover]/carousel:opacity-100">
+          <div
+            className={`pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center bg-linear-to-r from-transparent to-transparent pl-2 opacity-0 transition-all ${hoverEdge === "left" ? "from-brand-soft opacity-100" : ""}`}
+          >
             <button
               type="button"
               onClick={() => scrollByPage(-1)}
+              onMouseEnter={() => setHoverEdge("left")}
+              onMouseLeave={() => setHoverEdge((current) => (current === "left" ? null : current))}
               aria-label="Previous opportunities"
               className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-xl text-muted shadow-sm transition-colors hover:border-brand hover:text-brand"
             >
@@ -639,10 +652,14 @@ export function AngleRoom({
             </button>
           </div>
         )}
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-20 items-center justify-end bg-linear-to-l from-transparent to-transparent pr-2 opacity-0 transition-all group-has-[[data-edge=right]:hover]/carousel:from-brand-soft group-has-[[data-edge=right]:hover]/carousel:opacity-100">
+        <div
+          className={`pointer-events-none absolute inset-y-0 right-0 flex w-20 items-center justify-end bg-linear-to-l from-transparent to-transparent pr-2 opacity-0 transition-all ${hoverEdge === "right" ? "from-brand-soft opacity-100" : ""}`}
+        >
           <button
             type="button"
             onClick={() => scrollByPage(1)}
+            onMouseEnter={() => setHoverEdge("right")}
+            onMouseLeave={() => setHoverEdge((current) => (current === "right" ? null : current))}
             aria-label="Next opportunities"
             className="pointer-events-auto flex h-11 w-11 items-center justify-center rounded-full border border-line bg-surface text-xl text-muted shadow-sm transition-colors hover:border-brand hover:text-brand"
           >
