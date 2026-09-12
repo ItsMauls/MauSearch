@@ -7,6 +7,8 @@ import { PageHeader } from "@/components/shell";
 import { Badge, Card, cx, DeskNote, SectionHeader } from "@/components/ui";
 import { Provenance } from "@/components/provenance";
 import { ExportActions } from "@/components/brief/export-actions";
+import { TableAsset } from "@/components/brief/table-asset";
+import { WriterChecklist } from "@/components/brief/writer-checklist";
 
 export const dynamic = "force-dynamic";
 
@@ -140,11 +142,18 @@ export default async function BriefPage({ params }: { params: Promise<{ briefId:
                       ))}
                     </ul>
 
-                    {section.mandatoryAsset && (
-                      <p className="mt-2.5 rounded-md border border-brand/20 bg-brand-soft px-2.5 py-1.5 text-xs text-brand">
-                        <span className="font-semibold">Required asset: </span>
-                        {section.mandatoryAsset}
-                      </p>
+                    {section.mandatoryAsset && /tabel|table/i.test(section.mandatoryAsset) ? (
+                      <TableAsset
+                        mandatoryAsset={section.mandatoryAsset}
+                        talkingPoints={section.talkingPoints}
+                      />
+                    ) : (
+                      section.mandatoryAsset && (
+                        <p className="mt-2.5 rounded-md border border-brand/20 bg-brand-soft px-2.5 py-1.5 text-xs text-brand">
+                          <span className="font-semibold">Required asset: </span>
+                          {section.mandatoryAsset}
+                        </p>
+                      )
                     )}
                   </div>
                 ))}
@@ -246,14 +255,7 @@ export default async function BriefPage({ params }: { params: Promise<{ briefId:
 
             <Card className="overflow-hidden">
               <SectionHeader title="Writer Checklist" meta={`${b.writerChecklist.length} items`} />
-              <ul className="space-y-2 p-4">
-                {b.writerChecklist.map((item) => (
-                  <li key={item} className="flex gap-2 text-xs text-muted">
-                    <span className="mt-0.5 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded border border-line-strong" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
+              <WriterChecklist items={b.writerChecklist} briefId={view.id} />
             </Card>
 
             <Card className="overflow-hidden">
