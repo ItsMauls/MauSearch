@@ -606,12 +606,13 @@ export function AngleRoom({
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth py-5 pr-5 pl-7 pt-2"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth py-5 pr-8 pl-8 pt-2"
         >
           {run.opportunities.map((opportunity, index) => (
             <div
               key={opportunity.id}
               data-cluster-id={opportunity.clusterId}
+              data-edge={index === 0 ? "left" : index === run.opportunities.length - 1 ? "right" : undefined}
               className="w-[85vw] shrink-0 snap-start rounded-xl sm:w-[calc(50%-0.375rem)]"
             >
               <OpportunityCard
@@ -627,7 +628,7 @@ export function AngleRoom({
         </div>
 
         {canScrollLeft && (
-          <div className="pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center bg-linear-to-r from-transparent to-transparent pl-2 opacity-0 transition-all group-hover/carousel:from-brand-soft group-hover/carousel:opacity-100">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center bg-linear-to-r from-transparent to-transparent pl-2 opacity-0 transition-all group-has-[[data-edge=left]:hover]/carousel:from-brand-soft group-has-[[data-edge=left]:hover]/carousel:opacity-100">
             <button
               type="button"
               onClick={() => scrollByPage(-1)}
@@ -638,7 +639,7 @@ export function AngleRoom({
             </button>
           </div>
         )}
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-20 items-center justify-end bg-linear-to-l from-transparent to-transparent pr-2 opacity-0 transition-all group-hover/carousel:from-brand-soft group-hover/carousel:opacity-100">
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-20 items-center justify-end bg-linear-to-l from-transparent to-transparent pr-2 opacity-0 transition-all group-has-[[data-edge=right]:hover]/carousel:from-brand-soft group-has-[[data-edge=right]:hover]/carousel:opacity-100">
           <button
             type="button"
             onClick={() => scrollByPage(1)}
