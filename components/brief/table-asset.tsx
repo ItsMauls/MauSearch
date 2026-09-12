@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { cx } from "@/components/ui";
+import { toCsv, downloadBlob, downloadXlsx } from "./asset-utils";
 
 const titleCase = (s: string) =>
   s
@@ -40,21 +41,6 @@ function buildRows(h3s: string[], talkingPoints: string[]): string[][] {
   return [header, ...rowLabels.map((label) => [label, ...blankCells])];
 }
 
-function toCsv(rows: string[][]): string {
-  const escape = (cell: string) =>
-    /[",\n]/.test(cell) ? `"${cell.replace(/"/g, '""')}"` : cell;
-  return rows.map((row) => row.map(escape).join(",")).join("\n");
-}
-
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
 export function TableAsset({
   h3s,
   talkingPoints,
@@ -67,18 +53,6 @@ export function TableAsset({
 
   function downloadCsv() {
     downloadBlob(new Blob([toCsv(rows)], { type: "text/csv" }), "table.csv");
-  }
-
-  async function downloadXlsx() {
-    const XLSX = await import("xlsx");
-    const sheet = XLSX.utils.aoa_to_sheet(rows);
-    const book = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(book, sheet, "Table");
-    const buffer = XLSX.write(book, { type: "array", bookType: "xlsx" });
-    downloadBlob(
-      new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }),
-      "table.xlsx"
-    );
   }
 
   return (
@@ -129,7 +103,7 @@ export function TableAsset({
             </button>
             <button
               type="button"
-              onClick={downloadXlsx}
+              onClick={() => downloadXlsx(rows, "Table", "table.xlsx")}
               className="rounded-md border border-line bg-surface px-2.5 py-1 text-[11px] font-medium text-ink hover:border-line-strong"
             >
               Download XLSX

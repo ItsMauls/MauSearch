@@ -45,6 +45,15 @@ body {
   color: var(--color-ink);
 }
 
+/* Tailwind's preflight doesn't reset button cursor - every clickable control
+   should look clickable, not just the ones someone remembered to annotate. */
+button:not(:disabled), [role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+button:disabled, [role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 /* Numeric columns should not jitter as values change. */
 .tabular {
   font-variant-numeric: tabular-nums;
