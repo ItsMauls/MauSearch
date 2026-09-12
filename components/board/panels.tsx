@@ -582,7 +582,7 @@ export function AngleRoom({
   if (run.opportunities.length === 0) return null;
 
   return (
-    <details open className="group animate-land overflow-hidden rounded-xl border border-line bg-transparent">
+    <details open className="group animate-land overflow-hidden rounded-xl border border-line bg-surface">
       <summary className="cursor-pointer list-none [&::-webkit-details-marker]:hidden">
         <SectionHeader
           index="04"
@@ -603,13 +603,13 @@ export function AngleRoom({
         />
       </summary>
 
-      <p className="px-5 pt-4 text-[11px] text-faint">Slide or use the arrows to compare opportunities</p>
+      <p className="bg-transparent px-5 pt-4 text-[11px] text-faint">Slide or use the arrows to compare opportunities</p>
 
-      <div className="relative">
+      <div className="relative bg-transparent">
         <div
           ref={scrollRef}
           onScroll={handleScroll}
-          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth py-5 pt-2"
+          className="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth bg-transparent py-5 pt-2"
         >
           {/* Chromium drops start-side padding on a scrolling flex container once content
               overflows, so the left gutter has to be a real spacer element instead. */}
@@ -641,7 +641,7 @@ export function AngleRoom({
 
         {canScrollLeft && (
           <div
-            className={`pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center bg-linear-to-r from-transparent to-transparent pl-2 opacity-0 transition-all ${hoverEdge === "left" ? "from-brand-soft opacity-100 backdrop-blur-sm" : ""}`}
+            className={`pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center bg-linear-to-r from-purple-400/10 via-purple-400/5 to-transparent pl-2 opacity-0 backdrop-blur-md transition-opacity duration-300 ${hoverEdge === "left" ? "opacity-100" : ""}`}
           >
             <button
               type="button"
@@ -656,7 +656,7 @@ export function AngleRoom({
           </div>
         )}
         <div
-          className={`pointer-events-none absolute inset-y-0 right-0 flex w-20 items-center justify-end bg-linear-to-l from-transparent to-transparent pr-2 opacity-0 transition-all ${hoverEdge === "right" ? "from-brand-soft opacity-100 backdrop-blur-sm" : ""}`}
+          className={`pointer-events-none absolute inset-y-0 right-0 flex w-20 items-center justify-end bg-linear-to-l from-purple-400/10 via-purple-400/5 to-transparent pr-2 opacity-0 backdrop-blur-md transition-opacity duration-300 ${hoverEdge === "right" ? "opacity-100" : ""}`}
         >
           <button
             type="button"
