@@ -641,7 +641,7 @@ export function AngleRoom({
 
         {canScrollLeft && (
           <div
-            className={`pointer-events-none absolute inset-y-0 left-0 flex w-20 items-center bg-linear-to-r from-purple-400/10 via-purple-400/5 to-transparent pl-2 opacity-0 backdrop-blur-md transition-opacity duration-300 ${hoverEdge === "left" ? "opacity-100" : ""}`}
+            className={`pointer-events-none absolute inset-y-0 left-0 flex w-10 items-center bg-linear-to-r from-purple-400/8 to-transparent pl-2 opacity-0 transition-opacity duration-300 ${hoverEdge === "left" ? "opacity-100" : ""}`}
           >
             <button
               type="button"
@@ -656,7 +656,7 @@ export function AngleRoom({
           </div>
         )}
         <div
-          className={`pointer-events-none absolute inset-y-0 right-0 flex w-20 items-center justify-end bg-linear-to-l from-purple-400/10 via-purple-400/5 to-transparent pr-2 opacity-0 backdrop-blur-md transition-opacity duration-300 ${hoverEdge === "right" ? "opacity-100" : ""}`}
+          className={`pointer-events-none absolute inset-y-0 right-0 flex w-10 items-center justify-end bg-linear-to-l from-purple-400/8 to-transparent pr-2 opacity-0 transition-opacity duration-300 ${hoverEdge === "right" ? "opacity-100" : ""}`}
         >
           <button
             type="button"
