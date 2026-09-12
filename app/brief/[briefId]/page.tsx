@@ -7,8 +7,7 @@ import { PageHeader } from "@/components/shell";
 import { Badge, Card, cx, DeskNote, SectionHeader } from "@/components/ui";
 import { Provenance } from "@/components/provenance";
 import { ExportActions } from "@/components/brief/export-actions";
-import { TableAsset } from "@/components/brief/table-asset";
-import { AiAssetGrid } from "@/components/brief/ai-asset-grid";
+import { AssetGenerator } from "@/components/brief/asset-generator";
 import { WriterChecklist } from "@/components/brief/writer-checklist";
 
 export const dynamic = "force-dynamic";
@@ -149,15 +148,11 @@ export default async function BriefPage({ params }: { params: Promise<{ briefId:
                           <span className="font-semibold">Required asset: </span>
                           {section.mandatoryAsset}
                         </p>
-                        {/tabel|table/i.test(section.mandatoryAsset) ? (
-                          <TableAsset h3s={section.h3s} talkingPoints={section.talkingPoints} />
-                        ) : (
-                          <AiAssetGrid
-                            mandatoryAsset={section.mandatoryAsset}
-                            h3s={section.h3s}
-                            talkingPoints={section.talkingPoints}
-                          />
-                        )}
+                        <AssetGenerator
+                          mandatoryAsset={section.mandatoryAsset}
+                          h3s={section.h3s}
+                          talkingPoints={section.talkingPoints}
+                        />
                       </>
                     )}
                   </div>
