@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /** Counts seconds since `since` (default: mount time), computed from the
  *  wall clock rather than a tick count - so a page reload mid-stage, given
  *  the real start timestamp, resumes the count instead of restarting at 0. */
 export function useElapsedSeconds(since?: number): number {
-  const start = since ?? Date.now();
+  const mountedAt = useRef(Date.now());
+  const start = since ?? mountedAt.current;
   const [elapsed, setElapsed] = useState(() => Math.floor((Date.now() - start) / 1000));
   useEffect(() => {
     const tick = () => setElapsed(Math.floor((Date.now() - start) / 1000));
