@@ -62,6 +62,21 @@ function IntentTag({ intent, muted }: { intent: Intent | null; muted?: boolean }
 
 export function DemandReadPanel({ run }: { run: RunView }) {
   const { intent } = run;
+
+  // The model's mix.evidence is a one-line sample quote, not the full set -
+  // group by each keyword's actual classification so every query behind a
+  // share shows up here, not just whichever one the model happened to cite.
+  const keywordsByIntent = useMemo(() => {
+    const map = new Map<Intent, string[]>();
+    for (const k of run.keywords) {
+      if (!k.aiIntent) continue;
+      const arr = map.get(k.aiIntent);
+      if (arr) arr.push(k.keyword);
+      else map.set(k.aiIntent, [k.keyword]);
+    }
+    return map;
+  }, [run.keywords]);
+
   if (!intent) return null;
 
   return (
@@ -119,7 +134,8 @@ export function DemandReadPanel({ run }: { run: RunView }) {
                     {m.type} <span className="tabular font-mono">{m.share}%</span>
                   </span>
                   <span className="block text-muted">
-                    {m.evidence.replace(/\s*\(rank \d+,\s*\d+ seeds?\)/gi, "")}
+                    {(keywordsByIntent.get(m.type) ?? []).join(", ") ||
+                      m.evidence.replace(/\s*\(rank \d+,\s*\d+ seeds?\)/gi, "")}
                   </span>
                 </span>
               </li>
@@ -288,18 +304,17 @@ function KeywordTable({ run }: { run: RunView }) {
                 onClick={() => toggleSort("demandSignal")}
                 extra={<Provenance source="mauscore" />}
               />
-              <th className="px-2 py-2 font-medium text-faint">
-                <span className="flex items-center gap-1">Rule <Provenance source="rule" /></span>
-              </th>
               <th className="px-3 py-2 font-medium text-faint">
-                <span className="flex items-center gap-1">Model <Provenance source="ai" /></span>
+                <span className="flex items-center gap-1">
+                  Intent <Provenance source="ai" /> <Provenance source="rule" />
+                </span>
               </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
             {rows.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-3 py-6 text-center text-faint">
+                <td colSpan={5} className="px-3 py-6 text-center text-faint">
                   No keywords match &quot;{query}&quot;
                 </td>
               </tr>
@@ -333,8 +348,14 @@ function KeywordTable({ run }: { run: RunView }) {
                     <span className="tabular font-mono text-[11px] text-ink">{k.demandSignal}</span>
                   </span>
                 </td>
-                <td className="px-2 py-1.5"><IntentTag intent={k.ruleIntent} muted /></td>
-                <td className="px-3 py-1.5"><IntentTag intent={k.aiIntent} /></td>
+                <td className="px-3 py-1.5">
+                  <span className="flex items-center gap-1.5">
+                    <IntentTag intent={k.aiIntent} />
+                    {k.ruleIntent && k.ruleIntent !== k.aiIntent && (
+                      <span className="text-[10px] text-faint">(rule: {k.ruleIntent})</span>
+                    )}
+                  </span>
+                </td>
               </tr>
               );
             })}
