@@ -15,6 +15,7 @@ import { claimDesk, driveRun, failurePatch, nextStage } from "@/lib/ai/drive";
 import { claimRun, getRun, insertRun, newId, updateRun } from "@/lib/db";
 import { RunRow } from "@/lib/db/schema";
 import { Opportunity, NormalizedIntake, STAGE_IDS } from "@/lib/schema";
+import { sectionScaffold, stripCodeFence } from "@/lib/markdown";
 
 let checks = 0;
 const ok = (label: string) => {
@@ -463,6 +464,37 @@ console.log("\npipeline driver");
     "a retry hand-off must not move the desk's true start - the elapsed timer must not reset to 0"
   );
   ok("a desk's elapsed timer survives a silent auto-retry instead of restarting at 0");
+}
+
+// --- section drafting: the two pure pieces of /api/brief/write-section ------
+console.log("\nsection draft");
+{
+  const section = {
+    h2: "Mengapa Jaminan Kerja Harus Diverifikasi",
+    purpose: "Bongkar klaim jaminan kerja",
+    estWords: 300,
+    talkingPoints: ["Klaim tanpa bukti", "Cara verifikasi"],
+    h3s: ["Apa yang diverifikasi", "Siapa yang memverifikasi"],
+    mandatoryAsset: "Tabel perbandingan",
+  };
+  const md = sectionScaffold(section);
+  assert.ok(md.startsWith(`## ${section.h2}`), "the scaffold opens with the section's own H2");
+  for (const h3 of section.h3s) assert.ok(md.includes(`### ${h3}`), `scaffold keeps H3 "${h3}"`);
+  for (const point of section.talkingPoints) assert.ok(md.includes(point), "scaffold keeps every talking point");
+  assert.ok(md.includes("> Required asset: Tabel perbandingan"), "scaffold marks the required asset");
+  ok("the no-model scaffold still hands a writer the full section shape");
+
+  // Free-tier models wrap markdown in a fence often enough that the stripper
+  // is load-bearing: leave it in and every draft opens with a stray ```.
+  assert.equal(stripCodeFence("```markdown\n## H\n\ntext\n```"), "## H\n\ntext");
+  assert.equal(stripCodeFence("```\n## H\n```"), "## H");
+  assert.equal(stripCodeFence("## H\n\nno fence here"), "## H\n\nno fence here");
+  // A fenced code block *inside* the section (a snippet the writer needs) must survive.
+  assert.equal(
+    stripCodeFence("## H\n\n```js\ncode\n```\n\ntail"),
+    "## H\n\n```js\ncode\n```\n\ntail"
+  );
+  ok("a wrapping code fence is stripped without eating a fenced block inside the draft");
 }
 
 console.log(`\n${checks} checks passed\n`);

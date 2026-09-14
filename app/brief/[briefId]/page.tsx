@@ -9,6 +9,7 @@ import { Provenance } from "@/components/provenance";
 import { ExportActions } from "@/components/brief/export-actions";
 import { AssetGenerator } from "@/components/brief/asset-generator";
 import { WriterChecklist } from "@/components/brief/writer-checklist";
+import { SectionWriter } from "@/components/brief/section-writer";
 
 export const dynamic = "force-dynamic";
 
@@ -106,18 +107,13 @@ export default async function BriefPage({ params }: { params: Promise<{ briefId:
               <SectionHeader
                 index="03"
                 title="Content Outline"
-                meta={`${b.outline.length} sections · ~${outlineWords} words planned`}
+                meta={`${b.outline.length} sections · ~${outlineWords} words planned · click a heading to draft it with AI`}
               />
               <div className="divide-y divide-line">
                 {b.outline.map((section, index) => (
                   <div key={section.h2} className="p-5">
                     <div className="flex flex-wrap items-start justify-between gap-2">
-                      <h3 className="flex min-w-0 items-baseline gap-2 text-sm font-semibold text-ink">
-                        <span className="font-mono text-[11px] text-faint">
-                          H2 · {String(index + 1).padStart(2, "0")}
-                        </span>
-                        {section.h2}
-                      </h3>
+                      <SectionWriter briefId={view.id} index={index} section={section} />
                       <Badge mono>~{section.estWords} words</Badge>
                     </div>
 

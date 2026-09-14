@@ -1,4 +1,5 @@
 import { BriefView } from "./view";
+import { BriefStage } from "./schema";
 
 /**
  * The brief as Markdown, because that is the format a writer actually pastes
@@ -97,4 +98,30 @@ export function briefToMarkdown(view: BriefView): string {
   );
 
   return lines.join("\n").replace(/\n{3,}/g, "\n\n").trim() + "\n";
+}
+
+/**
+ * What a section draft looks like with no live model: the outline itself,
+ * already in the right markdown shape, so fixture mode shows the real flow
+ * and a writer still gets something pasteable.
+ */
+export function sectionScaffold(section: BriefStage["outline"][number]): string {
+  const lines = [`## ${section.h2}`, "", `_${section.purpose}_`, ""];
+  for (const point of section.talkingPoints) lines.push(`- ${point}`);
+  const perH3 = Math.round(section.estWords / Math.max(1, section.h3s.length));
+  for (const h3 of section.h3s) {
+    lines.push("", `### ${h3}`, "", `Draft ~${perH3} words covering this sub-topic.`);
+  }
+  if (section.mandatoryAsset) {
+    lines.push("", `> Required asset: ${section.mandatoryAsset}`);
+  }
+  return lines.join("\n");
+}
+
+/** Free-tier models still fence their markdown now and then despite being told not to. */
+export function stripCodeFence(text: string): string {
+  return text
+    .replace(/^\s*```(?:markdown|md)?[ \t]*\r?\n?/, "")
+    .replace(/\r?\n?```\s*$/, "")
+    .trim();
 }
