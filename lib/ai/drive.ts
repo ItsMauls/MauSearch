@@ -49,7 +49,16 @@ const STALE_MS = 260_000;
 const MAX_STAGE_ATTEMPTS = 3;
 
 /** The first desk still owed: not done, and not parked on a failure the user
- *  has to retry explicitly. Null means there is nothing to drive. */
+ *  has to retry explicitly. Null means there is nothing to drive.
+ *
+ *  Desks are strictly sequential - each reads every desk before it (see
+ *  `advance` below) - so the first not-done desk is the only one ever in
+ *  play. A `.find` that skipped a parked desk to check the next one used to
+ *  live here; it let a stuck intent desk "hand off" to clusters, which
+ *  immediately failed its own `need()` guard and got parked with a
+ *  misleading "Retry this desk" of its own, one stage that never actually
+ *  ran. Stopping at the first incomplete desk - parked or not - is what the
+ *  one-desk-at-a-time contract actually requires. */
 export function nextStage(run: RunRow): StageId | null {
   const done: Record<StageId, boolean> = {
     intent: Boolean(run.intent),
@@ -57,7 +66,9 @@ export function nextStage(run: RunRow): StageId | null {
     planning: Boolean(run.audienceFit),
     creative: Boolean(run.angles),
   };
-  return STAGE_IDS.find((id) => !done[id] && !run.stageErrors?.[id]) ?? null;
+  const stage = STAGE_IDS.find((id) => !done[id]);
+  if (!stage || run.stageErrors?.[stage]) return null;
+  return stage;
 }
 
 /**
