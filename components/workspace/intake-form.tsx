@@ -21,9 +21,7 @@ const SAMPLES: { keyword: string; market: MarketCode; lens: Lens; note: string }
     lens: "thought_leadership",
     note: "Category authority",
   },
-  { keyword: "wedding photographer jakarta", market: "ID", lens: "local_service", note: "Local service" },
   { keyword: "how does compound interest work", market: "GB", lens: "general", note: "Broad informational" },
-  { keyword: "skincare rutin remaja", market: "ID", lens: "ecommerce", note: "Consumer, Bahasa" },
 ];
 
 const LENS_DESCRIPTIONS: Record<Lens, string> = {
