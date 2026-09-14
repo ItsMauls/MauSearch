@@ -64,11 +64,13 @@ Each stage consumes only the validated output of the stages before it. That keep
 
 The deterministic layer does real work: on a typical run around a third of harvested queries are intent-classified by lexicon before a model is ever called, and those labels are handed to the model as evidence it must either accept or explicitly overrule — the board shows every override with its reason.
 
-### Why one request per stage
+### Why one desk per invocation, driven from the server
 
-Every route handler makes **at most one model call**. Requests stay far inside the serverless timeout, panels land progressively as each desk finishes, each stage is persisted the moment it returns (so a mid-run reload loses nothing), and a failed desk gets a retry button while its neighbours stay on screen.
+Every invocation makes **at most one model call**, and the page is not what drives them. A request claims the run with an atomic compare-and-set, hands the next desk to a background worker, and answers immediately; that worker runs its desk, persists it, and hands the rest to a fresh invocation. So analysing three keywords means starting three runs and closing the tab — they finish without you.
 
-No SSE, no streaming-JSON parser — each stage returns one complete document, so a plain sequential `fetch` gives the same progressive UI with none of the machinery.
+It also makes duplicates impossible: a reload, a second tab or an impatient retry all try the same claim, and the one already working keeps it. A free-tier desk can take three minutes, which is exactly how long the old browser-driven version had to be wrong for a run to double up on paid calls and then time out.
+
+No SSE, no streaming-JSON parser, no queue service — each desk returns one complete document, and the board polls a state endpoint that doubles as the relay's hand-over.
 
 ---
 

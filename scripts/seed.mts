@@ -50,6 +50,7 @@ await insertRun({
   audienceFit: planning,
   angles,
   stageErrors: {},
+  stageAttempts: {},
   stageStartedAt: null,
   createdAt: new Date(),
 });

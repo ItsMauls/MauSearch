@@ -6,6 +6,7 @@ import {
   HarvestedKeyword,
   IntentStage,
   PlanningStage,
+  StageAttempts,
   StageErrors,
   SuggestStatus,
 } from "@/lib/schema";
@@ -40,6 +41,11 @@ export const runs = pgTable(
 
     /** Per-stage failures. One failed stage never invalidates the others. */
     stageErrors: jsonb("stage_errors").$type<StageErrors>().notNull().default({}),
+
+    // Consecutive failures per desk since it last succeeded. A desk under this
+    // count is retried silently by a fresh worker; only once it's exhausted
+    // does the failure become a stageError the user has to act on.
+    stageAttempts: jsonb("stage_attempts").$type<StageAttempts>().notNull().default({}),
 
     // Set the instant a stage's model call begins, cleared when it lands or
     // fails. Read back on the next SSR render so a reload's elapsed timer

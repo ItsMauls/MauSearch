@@ -3,20 +3,22 @@ import { IntakeInput } from "@/lib/schema";
 import { normalize, runHarvest } from "@/lib/pipeline";
 import { runStage } from "@/lib/ai/run-stage";
 import { expandStage, toHarvestedKeywords } from "@/lib/ai/stages/expand";
+import { startDrive } from "@/lib/ai/drive";
 import { findRecentRun, getRunBySlug, insertRun, newId } from "@/lib/db";
 import { RunRow } from "@/lib/db/schema";
 import { toRunView } from "@/lib/view";
 import { slugify } from "@/lib/slug";
 
-export const maxDuration = 60;
+export const maxDuration = 300;
 
 /**
  * POST /api/runs - stages 0 through 3: normalize, harvest, clean/dedupe, rule
- * signals. No model call here on purpose: the run row is persisted the moment
- * harvest finishes, and the client's redirect to /w/[id] hands the AI intent
- * stage to the board, which drives it through POST /api/runs/[id]/stages like
- * every other desk. That's what makes a reload mid-intent-call resumable
- * instead of restarting from zero.
+ * signals, then hand the four AI desks to a background worker and answer.
+ *
+ * The desks deliberately do not run inside this request. The row is persisted
+ * the moment harvest finishes and the worker takes it from there, so the answer
+ * comes back as soon as there is a board to look at - and the run finishes
+ * whether or not anyone is still looking at it.
  */
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -34,7 +36,9 @@ export async function POST(request: NextRequest) {
   // than re-billing the model and re-hitting Google for the same answer.
   const existing = await findRecentRun(intake.normalized, intake.market);
   if (existing) {
-    return NextResponse.json({ run: toRunView(existing), reused: true });
+    // It may have been left unfinished (a failed desk, a killed worker); this
+    // is where it gets picked back up.
+    return NextResponse.json({ run: toRunView(await startDrive(existing)), reused: true });
   }
 
   // Stages 1-3: real data, entirely deterministic.
@@ -50,7 +54,8 @@ export async function POST(request: NextRequest) {
   // everything derived from it is relabelled `ai` for the user.
   let keywords = harvest.keywords;
   if (harvest.status === "unavailable") {
-    const expanded = await runStage(expandStage, { intake });
+    // Small slice of this route's budget: the four desks still have to run.
+    const expanded = await runStage(expandStage, { intake }, 60_000);
     keywords = toHarvestedKeywords(expanded, intake);
   }
 
@@ -79,10 +84,11 @@ export async function POST(request: NextRequest) {
     audienceFit: null,
     angles: null,
     stageErrors: {},
+    stageAttempts: {},
     stageStartedAt: null,
     createdAt: new Date(),
   };
 
   await insertRun(row);
-  return NextResponse.json({ run: toRunView(row), reused: false }, { status: 201 });
+  return NextResponse.json({ run: toRunView(await startDrive(row)), reused: false }, { status: 201 });
 }

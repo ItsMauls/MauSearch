@@ -111,6 +111,10 @@ const TOKEN_CEILING = 32_000;
 // ceiling means a slow run still gets a real StageError response instead of
 // a platform timeout.
 //
+// This is only the default. A caller that has to leave room for its own work
+// in the same invocation - the intake route after a harvest, the desk relay -
+// passes a smaller budget of its own.
+//
 // The error text "Request timed out." is this budget running out, not a
 // platform kill - it's this file's own `timeout: timeoutMs` on the model
 // call expiring. A short deadline here doesn't protect anything; it just
@@ -126,17 +130,18 @@ const STAGE_DEADLINE_MS = 280_000;
  * doubled token budget and no correction text, since the fix is room, not
  * wording; a schema failure retries once with the validation error fed back.
  * Every attempt also respects a shared deadline so the whole stage - retries
- * included - finishes (or fails) before the route's own timeout does.
+ * included - finishes (or fails) before the caller's own budget does.
  */
 export async function runStage<TInput, TOutput>(
   config: StageConfig<TInput, TOutput>,
-  input: TInput
+  input: TInput,
+  budgetMs: number = STAGE_DEADLINE_MS
 ): Promise<TOutput> {
   if (!hasLiveModel()) return config.fixture;
 
   const prompt = config.user(input);
   const cfg = config as unknown as StageConfig<never, unknown>;
-  const deadline = Date.now() + STAGE_DEADLINE_MS;
+  const deadline = Date.now() + budgetMs;
   let lastError = "";
   let correction: string | undefined;
   let tokenBudget = config.maxOutputTokens;
