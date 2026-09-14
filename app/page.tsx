@@ -3,9 +3,9 @@ import { listBriefs, listRuns } from "@/lib/db";
 import { toRunView } from "@/lib/view";
 import { hasLiveModel, isFreeTierModel } from "@/lib/ai/client";
 import { IntakeForm } from "@/components/workspace/intake-form";
-import { RecentIntakes } from "@/components/workspace/recent-intakes";
+import { RecentIntakesSection } from "@/components/workspace/recent-intakes";
 import { PageHeader } from "@/components/shell";
-import { Badge, Banner, Card, EmptyState, Metric, SectionHeader } from "@/components/ui";
+import { Badge, Banner, Card, Metric } from "@/components/ui";
 
 export const dynamic = "force-dynamic";
 
@@ -40,23 +40,7 @@ export default async function WorkspaceHome() {
           </Banner>
         )}
 
-        <Card className="order-2 md:order-1">
-          <SectionHeader
-            index="01"
-            title="Recent Intakes"
-            meta={`${runs.length} run${runs.length === 1 ? "" : "s"} in this workspace`}
-          />
-          {runs.length === 0 ? (
-            <div className="p-5">
-              <EmptyState
-                title="No intakes yet"
-                body="Enter a keyword above, or start from one of the samples. The Search Desk harvests real Google Suggest data before any model runs."
-              />
-            </div>
-          ) : (
-            <RecentIntakes runs={runs} />
-          )}
-        </Card>
+        <RecentIntakesSection runs={runs} />
 
         <div className="order-1 grid gap-6 md:order-2 lg:grid-cols-[1.35fr_1fr]">
           <IntakeForm freeTierModel={isFreeTierModel()} />
