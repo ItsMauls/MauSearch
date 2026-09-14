@@ -99,16 +99,28 @@ export function Metric({
   value,
   hint,
   tone,
+  tooltip,
 }: {
   label: string;
   value: ReactNode;
   hint?: ReactNode;
   tone?: ReactNode;
+  tooltip?: string;
 }) {
   return (
     <Card className="p-4">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-[11px] font-medium uppercase tracking-wider text-faint">{label}</p>
+        <p className="flex items-center gap-1 text-[11px] font-medium uppercase tracking-wider text-faint">
+          {label}
+          {tooltip && (
+            <span
+              title={tooltip}
+              className="flex h-3.5 w-3.5 shrink-0 cursor-help items-center justify-center rounded-full border border-faint/50 text-[9px] font-bold normal-case text-faint"
+            >
+              ?
+            </span>
+          )}
+        </p>
         {tone}
       </div>
       <p className="tabular mt-2 text-2xl font-semibold tracking-tight text-ink">{value}</p>

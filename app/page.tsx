@@ -88,17 +88,29 @@ export default async function WorkspaceHome() {
 
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <Metric label="Runs analysed" value={runs.length} hint="Keywords through the pipeline" />
+              <Metric
+                label="Runs analysed"
+                value={runs.length}
+                hint="Keywords through the pipeline"
+                tooltip="Total number of keyword intakes that have gone through the pipeline."
+              />
               <Metric
                 label="Opportunities"
                 value={opportunityCount}
                 hint="Scored and prioritized"
+                tooltip="Total content opportunities found and scored across all runs."
               />
-              <Metric label="Briefs generated" value={briefRows.length} hint="Writer-ready" />
+              <Metric
+                label="Briefs generated"
+                value={briefRows.length}
+                hint="Writer-ready"
+                tooltip="Number of writer-ready briefs generated from opportunities."
+              />
               <Metric
                 label="Avg top score"
                 value={avgTopScore ?? "—"}
                 hint="Best opportunity per run"
+                tooltip="Average of each run's highest-scoring opportunity."
               />
             </div>
 
