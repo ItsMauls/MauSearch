@@ -1,25 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { IntakeInput } from "@/lib/schema";
 import { normalize, runHarvest } from "@/lib/pipeline";
-import { runStage, StageError } from "@/lib/ai/run-stage";
-import { intentStage } from "@/lib/ai/stages/intent";
+import { runStage } from "@/lib/ai/run-stage";
 import { expandStage, toHarvestedKeywords } from "@/lib/ai/stages/expand";
 import { findRecentRun, getRunBySlug, insertRun, newId } from "@/lib/db";
 import { RunRow } from "@/lib/db/schema";
-import { applyKeywordIntents, toRunView } from "@/lib/view";
+import { toRunView } from "@/lib/view";
 import { slugify } from "@/lib/slug";
 
-export const maxDuration = 300;
+export const maxDuration = 60;
 
 /**
- * POST /api/runs - stages 0 through 4.
- *
- *   normalize -> Google Suggest harvest -> clean/dedupe -> rule signals -> AI intent
- *
- * Exactly one model call, so the request stays far inside the serverless
- * timeout. If the intent stage fails, the run is still persisted with its real
- * keyword harvest and a recorded error: the board renders what we have and
- * offers a retry rather than throwing the harvest away.
+ * POST /api/runs - stages 0 through 3: normalize, harvest, clean/dedupe, rule
+ * signals. No model call here on purpose: the run row is persisted the moment
+ * harvest finishes, and the client's redirect to /w/[id] hands the AI intent
+ * stage to the board, which drives it through POST /api/runs/[id]/stages like
+ * every other desk. That's what makes a reload mid-intent-call resumable
+ * instead of restarting from zero.
  */
 export async function POST(request: NextRequest) {
   const body = await request.json().catch(() => null);
@@ -51,16 +48,6 @@ export async function POST(request: NextRequest) {
     keywords = toHarvestedKeywords(expanded, intake);
   }
 
-  // Stage 4: the first model call.
-  let intent: RunRow["intent"] = null;
-  let stageErrors: RunRow["stageErrors"] = {};
-  try {
-    intent = await runStage(intentStage, { intake, keywords });
-    keywords = applyKeywordIntents(keywords, intent.keywordIntents);
-  } catch (err) {
-    stageErrors = { intent: err instanceof StageError ? err.message : String(err) };
-  }
-
   const id = newId();
   let slug = slugify(intake.keyword);
   if (slug && (await getRunBySlug(slug))) slug = `${slug}-${id.slice(0, 6)}`;
@@ -77,11 +64,11 @@ export async function POST(request: NextRequest) {
     seedsAttempted: harvest.seedsAttempted,
     seedsSucceeded: harvest.seedsSucceeded,
     keywords,
-    intent,
+    intent: null,
     clusters: null,
     audienceFit: null,
     angles: null,
-    stageErrors,
+    stageErrors: {},
     createdAt: new Date(),
   };
 

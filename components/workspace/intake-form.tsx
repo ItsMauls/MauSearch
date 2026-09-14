@@ -215,18 +215,19 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
 
 /**
  * The wait is the product story, so it says what is actually happening rather
- * than spinning. These are the four deterministic stages plus the first desk.
+ * than spinning. These are the three deterministic stages this request runs -
+ * Search Desk's intent classification happens after redirect, on the board,
+ * where it survives a reload instead of restarting.
  */
 const INTAKE_STEPS = [
   "Normalising the intake",
   "Harvesting Google Suggest across 10 seed expansions",
   "Cleaning and de-duplicating the keyword universe",
   "Matching intent rules against every query",
-  "Search Desk is classifying intent",
 ];
 
 /** Roughly how long each step takes relative to the others, so the estimated bar lands close to real timing. */
-const INTAKE_STEP_WEIGHTS = [1, 3, 1, 1, 4];
+const INTAKE_STEP_WEIGHTS = [1, 3, 1, 1];
 
 function useSimulatedStep(weights: number[]): number {
   const [step, setStep] = useState(0);
