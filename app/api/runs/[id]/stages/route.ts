@@ -28,8 +28,29 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ id: st
     return NextResponse.json({ error: "Unknown stage" }, { status: 400 });
   }
 
-  const run = await getRun(id);
+  let run = await getRun(id);
   if (!run) return NextResponse.json({ error: "Run not found" }, { status: 404 });
+
+  // A reload re-issues this same POST while the pre-reload attempt is still
+  // finishing server-side (Fluid Compute keeps it running after the client
+  // disconnects) - racing a second model call for the same stage means
+  // whichever response lands last wins, and a slower duplicate can clobber a
+  // real success with a stray timeout. Wait for the original attempt instead
+  // of piling on a second one.
+  if (run.stageStartedAt) {
+    const settled = await waitForInFlightStage(id);
+    if (settled) {
+      const failed = settled.stageErrors[parsed.data.stage];
+      return NextResponse.json(
+        { run: toRunView(settled), ...(failed ? { error: failed } : {}) },
+        { status: failed ? 502 : 200 }
+      );
+    }
+    // Still not done after the wait budget - the original attempt is either
+    // genuinely slow or was killed without cleanup. Refetch and take over
+    // rather than wait forever.
+    run = (await getRun(id)) ?? run;
+  }
 
   // Recorded once per attempt, not per request: a reload re-issues this same
   // POST for the same stage, and reusing the existing timestamp instead of
@@ -71,6 +92,21 @@ export async function POST(request: NextRequest, ctx: { params: Promise<{ id: st
   }
 }
 
+// Long enough for a normal call, including free-tier queueing, without
+// eating so much of this route's own 300s budget that a genuine take-over
+// below has no time left to run.
+const STAGE_WAIT_BUDGET_MS = 120_000;
+
+async function waitForInFlightStage(id: string): Promise<RunRow | null> {
+  const deadline = Date.now() + STAGE_WAIT_BUDGET_MS;
+  while (Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+    const current = await getRun(id);
+    if (!current?.stageStartedAt) return current;
+  }
+  return null;
+}
+
 class MissingPrerequisite extends Error {}
 
 function need<T>(value: T | null | undefined, name: string): T {
@@ -80,13 +116,7 @@ function need<T>(value: T | null | undefined, name: string): T {
 
 type Intake = Parameters<typeof clustersStage.user>[0]["intake"];
 
-/**
- * Each stage reads only the structured output of the stages before it.
- *
- * `intent` is retryable here too, even though it normally runs inside
- * POST /api/runs - otherwise a first-call intent failure would leave a run with
- * a perfectly good keyword harvest and no way forward.
- */
+/** Each stage reads only the structured output of the stages before it. */
 async function advance(
   stage: StageId,
   run: RunRow,
