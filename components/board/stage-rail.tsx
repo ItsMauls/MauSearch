@@ -18,7 +18,7 @@ export const STAGE_META: Record<
     label: "Intent Classification",
     role: "Search Desk",
     working: "Reading what these searchers actually want, rule matches first",
-    etaSeconds: [10, 25],
+    etaSeconds: [20, 60],
   },
   clusters: {
     label: "Topic Clustering",
@@ -46,7 +46,7 @@ function formatMinSec(totalSeconds: number): string {
   return m > 0 ? `${m}:${s.toString().padStart(2, "0")}` : `${s}s`;
 }
 
-/** "0:07 elapsed - usually 10-25s, up to a couple of minutes on the free tier" */
+/** "0:07 elapsed - usually 20-60s, up to a couple of minutes on the free tier" */
 function WorkingTimer({
   since,
   eta,

@@ -22,11 +22,12 @@ const env = (name: string): string | undefined => {
 const BASE_URL = env("AI_BASE_URL") ?? "https://openrouter.ai/api/v1";
 
 /**
- * Nemotron is the reasoning model for every stage. Default is a free OpenRouter
- * tier by deliberate choice. Lightning is the fast free variant - swap AI_MODEL
- * (and add AI_API_KEY credit) if a paid tier is preferred for reliability.
+ * Nemotron is the model for every stage. Default is a free OpenRouter tier by
+ * deliberate choice; Super 120B measured faster and more consistent than the
+ * Lightning variant it replaced. Swap AI_MODEL (and add AI_API_KEY credit) if
+ * a paid tier is preferred for reliability.
  */
-export const MODEL = env("AI_MODEL") ?? "nvidia/nemotron-3.5-lightning:free";
+export const MODEL = env("AI_MODEL") ?? "nvidia/nemotron-3-super-120b-a12b:free";
 
 /** Optional cheaper route for the low-temperature classification stage. */
 export const FAST_MODEL = env("AI_MODEL_FAST") ?? MODEL;

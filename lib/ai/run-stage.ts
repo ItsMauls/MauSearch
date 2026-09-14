@@ -116,12 +116,14 @@ const TOKEN_CEILING = 32_000;
 // passes a smaller budget of its own.
 //
 // The error text "Request timed out." is this budget running out, not a
-// platform kill - it's this file's own `timeout: timeoutMs` on the model
-// call expiring. A short deadline here doesn't protect anything; it just
-// aborts a free-tier call before a slow queue ever gets to answer it. No
-// per-attempt cap by design: a free-tier call is meant to run to completion
-// in one pass rather than get cut loose mid-response, so each attempt gets
-// whatever is left of the stage's own deadline.
+// platform kill - it's this file's own per-call timeout expiring. Each
+// attempt below gets an equal share of whatever is left (remaining / attempts
+// left), not the whole deadline: a fixed short cap once cut legitimate
+// free-tier calls loose mid-response, but handing attempt one the entire
+// budget has the opposite failure - a single hung call (the free tier's real
+// failure mode) then burns the whole deadline with no retry left at all. The
+// even split gives a slow-but-alive call room to land while still leaving a
+// later attempt something to work with if an earlier one never answers.
 const STAGE_DEADLINE_MS = 280_000;
 
 /**
@@ -146,14 +148,16 @@ export async function runStage<TInput, TOutput>(
   let correction: string | undefined;
   let tokenBudget = config.maxOutputTokens;
 
-  for (let attempt = 0; attempt < 3; attempt++) {
+  const MAX_ATTEMPTS = 3;
+  for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
     const remaining = deadline - Date.now();
     if (remaining < 5_000) {
       lastError = lastError || "timed out before the model responded";
       break;
     }
+    const timeoutMs = remaining / (MAX_ATTEMPTS - attempt);
     try {
-      const { content, truncated } = await complete(cfg, prompt, tokenBudget, remaining, correction);
+      const { content, truncated } = await complete(cfg, prompt, tokenBudget, timeoutMs, correction);
       if (truncated) {
         tokenBudget = Math.min(tokenBudget * 2, TOKEN_CEILING);
         lastError = `response was cut off at the token limit (retried at ${tokenBudget} tokens)`;
