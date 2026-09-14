@@ -29,8 +29,11 @@ export const briefStage: StageConfig<BriefInput, BriefStage> = {
   temperature: 0.4,
   // Up to 9 outline sections with talking points/H3s/assets, plus FAQ,
   // entities, internal links, and a checklist - same truncation risk as
-  // the Creative Desk, sized the same way.
-  maxOutputTokens: 8000,
+  // the Creative Desk, sized the same way. Trimmed from 8000: on the
+  // free-tier model this stage was the slowest to generate, and closer
+  // to Creative's ceiling still comfortably fits the schema while cutting
+  // time spent generating tokens before the route's 280s deadline hits.
+  maxOutputTokens: 6000,
   schema: BriefStage,
   fixture: fixture as BriefStage,
   system: `
