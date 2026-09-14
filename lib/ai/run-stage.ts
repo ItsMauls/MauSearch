@@ -1,5 +1,5 @@
 import { ZodType } from "zod";
-import { aiClient, FAST_MODEL, hasLiveModel, MODEL } from "./client";
+import { aiClient, FAST_MODEL, hasFallbackKey, hasLiveModel, MODEL } from "./client";
 
 /**
  * One runner, every AI stage. Each stage supplies a persona, a temperature, a
@@ -58,7 +58,8 @@ async function complete(
   prompt: string,
   maxTokens: number,
   timeoutMs: number,
-  correction?: string
+  correction?: string,
+  useFallbackKey = false
 ): Promise<{ content: string; truncated: boolean }> {
   const messages = [
     { role: "system" as const, content: config.system },
@@ -73,7 +74,7 @@ async function complete(
     });
   }
 
-  const response = await aiClient().chat.completions.create(
+  const response = await aiClient(useFallbackKey).chat.completions.create(
     {
       model: config.fast ? FAST_MODEL : MODEL,
       temperature: config.temperature,
@@ -147,6 +148,9 @@ export async function runStage<TInput, TOutput>(
   let lastError = "";
   let correction: string | undefined;
   let tokenBudget = config.maxOutputTokens;
+  // Flips once the primary key hits its free-tier daily cap (429) - every
+  // attempt after that uses AI_API_KEY_FALLBACK instead, no user-facing error.
+  let useFallbackKey = false;
 
   const MAX_ATTEMPTS = 3;
   for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
@@ -157,7 +161,14 @@ export async function runStage<TInput, TOutput>(
     }
     const timeoutMs = remaining / (MAX_ATTEMPTS - attempt);
     try {
-      const { content, truncated } = await complete(cfg, prompt, tokenBudget, timeoutMs, correction);
+      const { content, truncated } = await complete(
+        cfg,
+        prompt,
+        tokenBudget,
+        timeoutMs,
+        correction,
+        useFallbackKey
+      );
       if (truncated) {
         tokenBudget = Math.min(tokenBudget * 2, TOKEN_CEILING);
         lastError = `response was cut off at the token limit (retried at ${tokenBudget} tokens)`;
@@ -172,6 +183,14 @@ export async function runStage<TInput, TOutput>(
         .join("; ");
       correction = lastError;
     } catch (err) {
+      const status = (err as { status?: number }).status;
+      if (status === 429 && !useFallbackKey && hasFallbackKey()) {
+        // Same request, different key, right away - doesn't cost the loop an
+        // attempt against a cap that a retry can never clear on its own.
+        useFallbackKey = true;
+        attempt--;
+        continue;
+      }
       // A network/timeout error isn't "your previous response" the model can
       // correct - feeding it back as a schema correction just confuses the
       // next attempt, so retry plain instead.

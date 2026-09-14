@@ -49,24 +49,38 @@ export const hasLiveModel = (): boolean => Boolean(env("AI_API_KEY"));
 /** Free-tier routers queue behind paid traffic - the UI sets honest expectations when this is true. */
 export const isFreeTierModel = (): boolean => MODEL.endsWith(":free") || FAST_MODEL.endsWith(":free");
 
-let cached: OpenAI | null = null;
+/** Second OpenRouter account/key, tried once the primary hits its free-tier
+ *  daily cap (429 "free-models-per-day"). Optional - unset means no fallback. */
+const FALLBACK_API_KEY = env("AI_API_KEY_FALLBACK");
+export const hasFallbackKey = (): boolean => Boolean(FALLBACK_API_KEY);
 
-export function aiClient(): OpenAI {
-  if (!cached) {
-    cached = new OpenAI({
-      apiKey: env("AI_API_KEY") ?? "no-key",
-      baseURL: BASE_URL,
-      // Fallback only - runStage passes a per-call timeout sized to what's
-      // left of its own deadline, since a stage can make several sequential
-      // calls and each needs less than the whole route budget.
-      timeout: 280_000,
-      maxRetries: 0, // retries are handled in runStage, where we can correct the prompt
-      // OpenRouter attributes traffic with these; harmless elsewhere.
-      defaultHeaders: {
-        "HTTP-Referer": env("AI_SITE_URL") ?? "https://mausearch.vercel.app",
-        "X-Title": "MauSearch",
-      },
-    });
+function makeClient(apiKey: string): OpenAI {
+  return new OpenAI({
+    apiKey,
+    baseURL: BASE_URL,
+    // Fallback only - runStage passes a per-call timeout sized to what's
+    // left of its own deadline, since a stage can make several sequential
+    // calls and each needs less than the whole route budget.
+    timeout: 280_000,
+    maxRetries: 0, // retries are handled in runStage, where we can correct the prompt
+    // OpenRouter attributes traffic with these; harmless elsewhere.
+    defaultHeaders: {
+      "HTTP-Referer": env("AI_SITE_URL") ?? "https://mausearch.vercel.app",
+      "X-Title": "MauSearch",
+    },
+  });
+}
+
+let cached: OpenAI | null = null;
+let cachedFallback: OpenAI | null = null;
+
+/** `useFallback` switches to AI_API_KEY_FALLBACK - see runStage, which flips
+ *  to it for the rest of a stage's attempts after a 429 from the primary key. */
+export function aiClient(useFallback = false): OpenAI {
+  if (useFallback) {
+    if (!cachedFallback) cachedFallback = makeClient(FALLBACK_API_KEY ?? "no-key");
+    return cachedFallback;
   }
+  if (!cached) cached = makeClient(env("AI_API_KEY") ?? "no-key");
   return cached;
 }
