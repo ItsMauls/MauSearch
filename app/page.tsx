@@ -3,6 +3,7 @@ import { listBriefs, listRuns } from "@/lib/db";
 import { toRunView } from "@/lib/view";
 import { hasLiveModel, isFreeTierModel } from "@/lib/ai/client";
 import { IntakeForm } from "@/components/workspace/intake-form";
+import { RecentIntakes } from "@/components/workspace/recent-intakes";
 import { PageHeader } from "@/components/shell";
 import { Badge, Banner, Card, EmptyState, Metric, SectionHeader } from "@/components/ui";
 
@@ -53,33 +54,7 @@ export default async function WorkspaceHome() {
               />
             </div>
           ) : (
-            <div className="flex gap-3 overflow-x-auto px-5 py-4">
-              {runs.map((run) => (
-                <Link
-                  key={run.id}
-                  href={`/w/${run.slug ?? run.id}`}
-                  className="flex w-64 shrink-0 flex-col gap-2 rounded-xl border border-line bg-canvas/60 p-3.5 transition-colors hover:border-brand/40 hover:bg-canvas"
-                >
-                  <span className="flex items-start justify-between gap-2">
-                    <span className="truncate text-sm font-medium text-ink">{run.keyword}</span>
-                    <Badge tone={run.complete ? "positive" : "warn"}>
-                      {run.complete ? "Done" : "Running"}
-                    </Badge>
-                  </span>
-                  <span className="text-xs text-muted">
-                    {run.market} · {run.metrics.keywordCount} kw · {run.metrics.clusterCount} clusters
-                  </span>
-                  <span className="flex items-center gap-2">
-                    {run.intent && <Badge tone="accent">{run.intent.primary}</Badge>}
-                    {run.metrics.topScore !== null && (
-                      <span className="tabular ml-auto font-mono text-sm font-semibold text-brand">
-                        {run.metrics.topScore}
-                      </span>
-                    )}
-                  </span>
-                </Link>
-              ))}
-            </div>
+            <RecentIntakes runs={runs} />
           )}
         </Card>
 
