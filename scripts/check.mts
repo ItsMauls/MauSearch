@@ -11,7 +11,10 @@ import { ruleSignals } from "@/lib/pipeline/rules";
 import { dedupeAndSignal } from "@/lib/pipeline/dedupe";
 import { demandSignal, rankOpportunities, scoreOpportunity } from "@/lib/pipeline/score";
 import { runHarvest } from "@/lib/pipeline";
-import { Opportunity, NormalizedIntake } from "@/lib/schema";
+import { claimDesk, driveRun, failurePatch, nextStage } from "@/lib/ai/drive";
+import { claimRun, getRun, insertRun, newId, updateRun } from "@/lib/db";
+import { RunRow } from "@/lib/db/schema";
+import { Opportunity, NormalizedIntake, STAGE_IDS } from "@/lib/schema";
 
 let checks = 0;
 const ok = (label: string) => {
@@ -327,6 +330,124 @@ console.log("\nfixtures");
     );
   }
   ok("no fabricated volume / CPC / difficulty fields in any fixture");
+}
+
+// --- the run lock and the background driver ---------------------------------
+// The desks run in a server worker now, so two things have to hold or a run
+// either doubles up on paid model calls or stalls forever: the lock admits
+// exactly one worker, and one worker walks the run all the way to done.
+console.log("\npipeline driver");
+{
+  const blank = (): RunRow => ({
+    id: newId(),
+    slug: null,
+    keyword: "photobooth jakarta",
+    normalizedKeyword: "photobooth jakarta",
+    market: "ID",
+    language: "id",
+    lens: "general",
+    suggestStatus: "ok",
+    seedsAttempted: 10,
+    seedsSucceeded: 10,
+    keywords: [],
+    intent: null,
+    clusters: null,
+    audienceFit: null,
+    angles: null,
+    stageErrors: {},
+    stageAttempts: {},
+    stageStartedAt: null,
+    workerLockedAt: null,
+    createdAt: new Date(),
+  });
+
+  const locked = await insertRun(blank());
+  assert.ok(await claimRun(locked.id, new Date()), "a free run is claimable");
+  assert.equal(
+    await claimRun(locked.id, new Date(Date.now() - 165_000)),
+    null,
+    "a second worker is turned away while the first holds a fresh lock"
+  );
+  ok("the run lock admits one worker - a reload or a second tab cannot double a desk");
+
+  assert.ok(
+    await claimRun(locked.id, new Date(Date.now() + 1_000)),
+    "a lock older than the staleness window is taken over, not waited on forever"
+  );
+  ok("a lock left behind by a killed worker is taken over");
+
+  const driven = await insertRun(blank());
+  // The relay hands the next desk over by HTTP and there is no server here, so
+  // count the hand-offs instead of making them, and step the chain by hand.
+  const realFetch = globalThis.fetch;
+  let handOffs = 0;
+  globalThis.fetch = (async () => {
+    handOffs++;
+    return new Response("{}", { headers: { "content-type": "application/json" } });
+  }) as typeof fetch;
+  try {
+    for (let i = 0; i < STAGE_IDS.length; i++) await driveRun(driven.id);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+
+  const finished = (await getRun(driven.id))!;
+  assert.deepEqual(finished.stageErrors, {}, "no desk failed");
+  assert.ok(finished.intent, "intent produced no output");
+  assert.ok(finished.clusters, "clusters produced no output");
+  assert.ok(finished.audienceFit, "planning produced no output");
+  assert.ok(finished.angles, "creative produced no output");
+  assert.equal(finished.stageStartedAt, null, "no desk is in progress once the run is done");
+  assert.equal(finished.workerLockedAt, null, "the worker lock is released when the run is done");
+  assert.equal(nextStage(finished), null, "nothing is still owed");
+  ok("the relay walks all four desks to done and releases the lock");
+
+  // One per desk that still has a successor - the last desk hands over to
+  // nobody. A relay that stops early is a run that silently stalls.
+  assert.equal(handOffs, STAGE_IDS.length - 1, "every unfinished desk hands over to a fresh worker");
+  ok(`the relay hands over ${handOffs}x, so a run finishes with nobody watching`);
+
+  // Auto-retry: a desk under MAX_STAGE_ATTEMPTS fails silently (no stageError,
+  // so the next worker still sees it as owed); only the exhausted attempt
+  // actually stops the run.
+  let attemptRun = { stageErrors: {}, stageAttempts: {} };
+  for (let i = 1; i <= 2; i++) {
+    const patch = failurePatch(attemptRun, "clusters", "queue miss");
+    assert.equal(patch.exhausted, false, `attempt ${i} of 3 must not park the run`);
+    assert.equal(patch.stageErrors.clusters, undefined, "a silent retry records no user-facing error");
+    assert.equal(patch.stageAttempts.clusters, i, "the strike count advances with each failure");
+    attemptRun = patch;
+  }
+  const parked = failurePatch(attemptRun, "clusters", "queue miss");
+  assert.equal(parked.exhausted, true, "the 3rd consecutive failure exhausts the desk");
+  assert.equal(parked.stageErrors.clusters, "queue miss", "an exhausted desk records the real error");
+  assert.equal(parked.stageAttempts.clusters, 0, "the count resets so a manual retry gets 3 fresh tries");
+  ok("a desk gets 3 silent auto-retries before it parks the run for the user");
+
+  // The bug this fixes: a silent auto-retry used to reset the run's single
+  // lock timestamp, which the board also reads as "when did this desk start"
+  // - so every retry looked like the elapsed timer jumping back to 0. The
+  // fix splits that into two fields; this reproduces the exact before/after
+  // hand-off sequence and checks the desk's true start survives it.
+  const timed = await insertRun(blank());
+  const firstClaim = await claimDesk(timed);
+  const trueStart = firstClaim?.stageStartedAt;
+  assert.ok(trueStart, "the first claim stamps the desk's true start");
+
+  // What driveRun's catch branch does on a non-exhausted failure: release the
+  // worker lock, but leave stageStartedAt exactly as it was.
+  await updateRun(timed.id, { stageStartedAt: trueStart, workerLockedAt: null });
+
+  // What the next worker's hand-off does: claim, then (per the fix) skip
+  // re-stamping because a desk is already in progress.
+  const afterRetry = (await getRun(timed.id))!;
+  const secondClaim = await claimDesk(afterRetry);
+  assert.equal(
+    secondClaim?.stageStartedAt?.getTime(),
+    trueStart?.getTime(),
+    "a retry hand-off must not move the desk's true start - the elapsed timer must not reset to 0"
+  );
+  ok("a desk's elapsed timer survives a silent auto-retry instead of restarting at 0");
 }
 
 console.log(`\n${checks} checks passed\n`);

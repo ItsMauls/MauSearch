@@ -133,18 +133,20 @@ This is a first-class product feature, not a disclaimer. It is the direct answer
 ```
 Workspace Home
   └─ keyword + market + lens → "Analyze"
-       └─ POST /api/runs          normalize → Suggest harvest → dedupe → rules → AI intent
-            → redirect /w/[runId], Demand Read panel renders with provenance chips   (~12s)
-       └─ POST stage "clusters"   AI clustering            → clusters render          (~10s)
-       └─ POST stage "planning"   AI audience & fit        → Audience panel renders   (~10s)
-       └─ POST stage "creative"   AI opportunities         → Angle Room renders       (~12s)
+       └─ POST /api/runs          normalize → Suggest harvest → dedupe → rules
+            → redirect /w/[runId], then the four desks run server-side as a relay:
+               worker 1  AI intent            → Demand Read panel renders
+               worker 2  AI clustering        → clusters render
+               worker 3  AI audience & fit    → Audience panel renders
+               worker 4  AI opportunities     → Angle Room renders
+            the board only polls; closing the tab does not stop the run
   └─ user picks ONE opportunity → "Generate Brief"
        └─ POST /api/briefs        AI brief for that opportunity only                  (~15s)
             → /brief/[briefId] — full brief, export, permalink
   └─ Briefs library lists everything ever produced
 ```
 
-Reload-safe at every point: each stage persists the moment it returns; the board rehydrates from Postgres.
+Reload-safe and tab-close-safe at every point: each stage persists the moment it returns, and the desks are driven by server-side workers rather than by the page, so a run finishes whether or not anyone is watching it.
 
 ## 13. Information architecture
 
@@ -215,11 +217,13 @@ lib/            schema.ts · markdown.ts · db/{schema,index}.ts
 
 ## 18. Backend / API architecture
 
-Route Handlers, `maxDuration = 300` (Vercel's Fluid Compute budget), **at most one LLM call per request** — deliberately avoids streaming infrastructure while keeping every request far inside the serverless timeout, with room for a free-tier model's queue latency.
+Route Handlers, `maxDuration = 300` (Vercel's Fluid Compute budget), **at most one desk per invocation** — deliberately avoids streaming and queue infrastructure while keeping every invocation far inside the serverless timeout, with room for a free-tier model's queue latency (a single desk can take three minutes there).
+
+The desks do not run inside the request that asks for them. A request claims the run with an atomic compare-and-set on `stage_started_at`, hands the desk to a background worker via `after()`, and answers immediately; the worker runs one desk and hands the rest to a fresh invocation over HTTP. Two consequences, both the point: a reload or a second tab cannot start a duplicate model call (the claim refuses them), and nobody has to stay on the page for the run to finish.
 
 | Route | Method | Does |
 |---|---|---|
-| `/api/runs` | POST | Stages 0–4: normalize, harvest, dedupe, rules, AI intent. Persist. Return run |
+| `/api/runs` | POST | Stages 0–3: normalize, harvest, dedupe, rules. Persist, start the desk relay, return run |
 | `/api/runs/[id]/stages` | POST | Body `{stage: "clusters"\|"planning"\|"creative"}` — execute, persist, return that stage |
 | `/api/briefs` | POST | `{runId, opportunityId}` → brief stage for that one opportunity. Persist. Return brief |
 

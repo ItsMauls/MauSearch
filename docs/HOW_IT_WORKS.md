@@ -249,11 +249,13 @@ gets involved and when it doesn't.
     full Production Brief: outline, metadata, FAQs, entities to cover, internal
     links, writer checklist. (~15s.) Redirects to `/brief/[briefId]`.
 12. **Every stage persisted the moment it returned** (steps 6–11 each write to
-    Postgres immediately), so a page reload at any point rehydrates the board
-    instead of losing progress or re-billing the model.
+    Postgres immediately), and steps 6–9 run in server-side workers rather than
+    in the page — so Bang Maulana can start three keywords, close the tab, and
+    come back to three finished boards. A reload rehydrates instead of losing
+    progress, and cannot start a second call for a desk already in flight.
 
 Total: 5 AI calls across the whole session (steps 6, 7, 8, 9, 11) — never more
-than one per HTTP request, which is also why no stage takes longer than
+than one per invocation, which is also why no stage takes longer than
 Vercel's serverless timeout. Steps 1–5 are pure deterministic code; the model is
 never asked to invent a number it can't back up, because the one number that
 matters most for ranking (demand) never comes from it.
