@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { cx } from "@/components/ui";
 
@@ -173,6 +173,14 @@ function FlowIcon() {
   );
 }
 
+function BackIcon() {
+  return (
+    <svg {...iconProps} aria-hidden>
+      <path d="M10 3 5 8l5 5" />
+    </svg>
+  );
+}
+
 export function PageHeader({
   eyebrow,
   title,
@@ -184,10 +192,24 @@ export function PageHeader({
   subtitle?: React.ReactNode;
   actions?: React.ReactNode;
 }) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const showBack = pathname !== "/";
+
   return (
     <header className="border-b border-line bg-surface px-6 py-6 md:px-8">
       <div className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
+          {showBack && (
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="mb-2 flex items-center gap-1 text-xs font-medium text-muted transition-colors hover:text-brand"
+            >
+              <BackIcon />
+              Back
+            </button>
+          )}
           {eyebrow && <div className="mb-2 flex flex-wrap items-center gap-2">{eyebrow}</div>}
           <h1 className="text-2xl font-semibold tracking-tight text-ink">{title}</h1>
           {subtitle && <div className="mt-1.5 text-sm text-muted">{subtitle}</div>}
