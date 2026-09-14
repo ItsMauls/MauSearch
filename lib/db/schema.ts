@@ -41,6 +41,11 @@ export const runs = pgTable(
     /** Per-stage failures. One failed stage never invalidates the others. */
     stageErrors: jsonb("stage_errors").$type<StageErrors>().notNull().default({}),
 
+    // Set the instant a stage's model call begins, cleared when it lands or
+    // fails. Read back on the next SSR render so a reload's elapsed timer
+    // resumes from the real start instead of the moment the page remounted.
+    stageStartedAt: timestamp("stage_started_at", { withTimezone: true }),
+
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [

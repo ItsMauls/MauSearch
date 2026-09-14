@@ -69,6 +69,7 @@ export async function POST(request: NextRequest) {
     audienceFit: null,
     angles: null,
     stageErrors: {},
+    stageStartedAt: null,
     createdAt: new Date(),
   };
 

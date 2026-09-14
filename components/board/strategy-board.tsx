@@ -42,36 +42,33 @@ export function StrategyBoard({
     if (briefError) briefErrorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [briefError]);
 
-  const advance = useCallback(async (runId: string, stage: StageId): Promise<RunView | null> => {
-    // Persisted so a reload mid-stage resumes the elapsed count from the real
-    // start time instead of restarting at 0 - the stage itself keeps running
-    // server-side regardless of what the client does.
-    const startKey = `mausearch:stage-start:${runId}:${stage}`;
-    const stored = Number(window.localStorage.getItem(startKey));
-    const startedAt = stored || Date.now();
-    if (!stored) window.localStorage.setItem(startKey, String(startedAt));
-
-    setWorking(stage);
-    setWorkingSince(startedAt);
-    try {
-      const response = await fetch(`/api/runs/${runId}/stages`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stage }),
-      });
-      const data = await response.json();
-      // A failed stage still returns the run, carrying its recorded error, so
-      // every completed panel stays on screen.
-      if (data.run) setRun(data.run);
-      return response.ok ? (data.run as RunView) : null;
-    } catch {
-      return null;
-    } finally {
-      window.localStorage.removeItem(startKey);
-      setWorking(null);
-      setWorkingSince(null);
-    }
-  }, []);
+  const advance = useCallback(
+    async (runId: string, stage: StageId, startedAt: number | null): Promise<RunView | null> => {
+      // The server records this stage's real start the moment it first began
+      // (see /api/runs/[id]/stages), so a reload's SSR-fetched run carries the
+      // true startedAt - the elapsed timer resumes instead of restarting at 0.
+      setWorking(stage);
+      setWorkingSince(startedAt ?? Date.now());
+      try {
+        const response = await fetch(`/api/runs/${runId}/stages`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ stage }),
+        });
+        const data = await response.json();
+        // A failed stage still returns the run, carrying its recorded error, so
+        // every completed panel stays on screen.
+        if (data.run) setRun(data.run);
+        return response.ok ? (data.run as RunView) : null;
+      } catch {
+        return null;
+      } finally {
+        setWorking(null);
+        setWorkingSince(null);
+      }
+    },
+    []
+  );
 
   /**
    * Walks the remaining stages in order, stopping at the first failure.
@@ -86,8 +83,8 @@ export function StrategyBoard({
       for (const stage of STAGE_IDS) {
         if (current.stages[stage] === "done") continue;
         if (current.stages[stage] === "failed") return; // wait for an explicit retry
-        let next = await advance(current.id, stage);
-        if (!next) next = await advance(current.id, stage);
+        let next = await advance(current.id, stage, current.stageStartedAt);
+        if (!next) next = await advance(current.id, stage, null);
         if (!next) return;
         current = next;
       }
@@ -105,10 +102,10 @@ export function StrategyBoard({
 
   const retry = useCallback(
     async (stage: StageId) => {
-      const next = await advance(run.id, stage);
+      const next = await advance(run.id, stage, run.stageStartedAt);
       if (next) void drive(next);
     },
-    [advance, drive, run.id]
+    [advance, drive, run.id, run.stageStartedAt]
   );
 
   async function generateBrief(opportunityId: string, attempt = 0) {

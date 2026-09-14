@@ -39,6 +39,8 @@ export type RunView = {
   language: string;
   lens: string;
   createdAt: string;
+  /** Epoch ms the currently in-flight stage began, or null when none is running. */
+  stageStartedAt: number | null;
 
   suggest: {
     status: SuggestStatus;
@@ -107,6 +109,7 @@ export function toRunView(row: RunRow): RunView {
     language: row.language,
     lens: row.lens,
     createdAt: row.createdAt.toISOString(),
+    stageStartedAt: row.stageStartedAt ? row.stageStartedAt.getTime() : null,
 
     suggest: {
       status: row.suggestStatus,
