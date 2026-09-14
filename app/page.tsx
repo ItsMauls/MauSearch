@@ -10,7 +10,7 @@ import { Badge, Banner, Card, Metric } from "@/components/ui";
 export const dynamic = "force-dynamic";
 
 export default async function WorkspaceHome() {
-  const [runRows, briefRows] = await Promise.all([listRuns(8), listBriefs(50)]);
+  const [runRows, briefRows] = await Promise.all([listRuns(50), listBriefs(50)]);
   const runs = runRows.map(toRunView);
 
   const opportunityCount = runs.reduce((sum, run) => sum + run.metrics.opportunityCount, 0);
