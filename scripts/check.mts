@@ -424,6 +424,21 @@ console.log("\npipeline driver");
   assert.equal(parked.stageAttempts.clusters, 0, "the count resets so a manual retry gets 3 fresh tries");
   ok("a desk gets 3 silent auto-retries before it parks the run for the user");
 
+  // The bug this fixes: nextStage used to skip a parked desk and hand the one
+  // after it to a fresh worker - clusters would run with no intent to read,
+  // immediately fail its own need() guard, and get parked too with a
+  // misleading "Retry this desk" of its own on a stage that never really ran.
+  const parkedIntent: RunRow = {
+    ...blank(),
+    stageErrors: { intent: "queue miss" },
+  };
+  assert.equal(
+    nextStage(parkedIntent),
+    null,
+    "a parked desk blocks the relay instead of handing the next desk a missing dependency"
+  );
+  ok("nextStage stops at the first parked desk instead of skipping ahead");
+
   // The bug this fixes: a silent auto-retry used to reset the run's single
   // lock timestamp, which the board also reads as "when did this desk start"
   // - so every retry looked like the elapsed timer jumping back to 0. The
