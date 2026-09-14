@@ -90,26 +90,40 @@ export function StrategyBoard({
   async function generateBrief(opportunityId: string, attempt = 0) {
     setGeneratingId(opportunityId);
     setBriefError(null);
+
+    let response: Response;
     try {
-      const response = await fetch("/api/briefs", {
+      response = await fetch("/api/briefs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ runId: run.id, opportunityId }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? "Brief generation failed");
-      router.push(`/brief/${data.brief.id}`);
     } catch (err) {
-      // /api/briefs is idempotent (a repeat call returns the already-written
-      // brief), so a dropped connection after the server finished is recovered
-      // by retrying instead of shown as a hard failure.
+      // The fetch itself failed - a real dropped connection, not an answer
+      // from the server. /api/briefs is idempotent (a repeat call returns the
+      // already-written brief), so retrying picks the wait back up instead of
+      // losing it.
       if (attempt < 2) {
         setTimeout(() => generateBrief(opportunityId, attempt + 1), 1500);
         return;
       }
       setBriefError((err as Error).message);
       setGeneratingId(null);
+      return;
     }
+
+    const data = await response.json().catch(() => ({}));
+    if (response.ok) {
+      router.push(`/brief/${data.brief.id}`);
+      return;
+    }
+    // The server answered - a genuine failure, not a dropped connection. The
+    // Editorial Desk already retries internally (up to ~280s of its own), so
+    // retrying that silently here is what used to turn one failed generation
+    // into several minutes of "still generating" with no visible reason. Show
+    // it now; the button lets the user retry deliberately instead.
+    setBriefError(data.error ?? "Brief generation failed");
+    setGeneratingId(null);
   }
 
   const failedStage = STAGE_IDS.find((id) => run.stages[id] === "failed") ?? null;
