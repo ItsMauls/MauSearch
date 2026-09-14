@@ -9,9 +9,10 @@ import { HarvestedKeyword, LENSES, MARKETS, NormalizedIntake, Lens, MarketCode }
 export const HOUSE_RULES = `
 MauSearch house rules (non-negotiable):
 - Return ONLY a single JSON object. No prose before or after it, no markdown fences.
-- NEVER state or estimate search volume, CPC, keyword difficulty, traffic, or competitor
-  metrics. You have no source for them and MauSearch does not display them. Reason from
-  the evidence you are given: real Google Suggest queries, their ranking, and rule matches.
+- NEVER state or estimate search volume, CPC, keyword difficulty, traffic, competitor
+  metrics, prices, or any other real-time figure. You have no live source for them and
+  MauSearch does not display them. Reason from the evidence you are given: real Google
+  Suggest queries, their ranking, and rule matches.
 - You are one desk in a pipeline. Work only from the evidence handed to you; do not
   re-litigate an earlier desk's conclusions.
 - Write for practitioners. No filler openings, no "in today's digital landscape",
@@ -35,8 +36,11 @@ export function languageRule(intake: NormalizedIntake): string {
 }
 
 export function intakeHeader(intake: NormalizedIntake): string {
+  const today = new Date().toISOString().slice(0, 10);
   return [
     `INTAKE`,
+    `Today's date: ${today}. Your training data has an older cutoff - do not assume the ` +
+      `current year is your cutoff year. Write as of today's date, not as of training time.`,
     `Keyword: "${intake.normalized}"`,
     `Market: ${MARKETS[intake.market as MarketCode].label} (${intake.market})`,
     `Strategic lens: ${LENSES[intake.lens as Lens]}`,
