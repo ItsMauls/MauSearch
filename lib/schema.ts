@@ -281,11 +281,11 @@ export const BriefStage = z.object({
     .array(
       z.object({
         h2: z.string(),
-        purpose: z.string(),
+        purpose: z.string().catch(""),
         estWords: z.number().int(),
         talkingPoints: z.array(z.string()).max(6),
-        h3s: z.array(z.string()).max(5).default([]),
-        mandatoryAsset: z.string().nullable().default(null),
+        h3s: z.array(z.string()).max(5).catch([]),
+        mandatoryAsset: z.string().nullable().default(null).catch(null),
       })
     )
     .min(4)
