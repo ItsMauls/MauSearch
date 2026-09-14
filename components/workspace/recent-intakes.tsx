@@ -14,7 +14,7 @@ function RunCard({ run, compact }: { run: RunView; compact?: boolean }) {
       className={
         compact
           ? "flex items-center justify-between gap-3 rounded-lg border border-line bg-canvas/60 px-3.5 py-2.5 transition-colors hover:border-brand/40 hover:bg-canvas"
-          : "flex w-44 shrink-0 flex-col gap-1.5 rounded-lg border border-line bg-canvas/60 p-2.5 transition-colors hover:border-brand/40 hover:bg-canvas"
+          : "flex w-36 shrink-0 flex-col gap-1 rounded-lg border border-line bg-canvas/60 p-2 transition-colors hover:border-brand/40 hover:bg-canvas"
       }
     >
       {compact ? (
@@ -37,19 +37,19 @@ function RunCard({ run, compact }: { run: RunView; compact?: boolean }) {
         </>
       ) : (
         <>
-          <span className="flex items-start justify-between gap-1.5">
-            <span className="truncate text-xs font-medium text-ink">{run.keyword}</span>
+          <span className="flex items-start justify-between gap-1">
+            <span className="truncate text-[11px] font-medium text-ink">{run.keyword}</span>
             <Badge tone={run.complete ? "positive" : "warn"}>
               {run.complete ? "Done" : "Running"}
             </Badge>
           </span>
-          <span className="truncate text-[11px] text-muted">
+          <span className="truncate text-[10px] text-muted">
             {run.market} · {run.metrics.keywordCount} keywords
           </span>
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1">
             {run.intent && <Badge tone="accent">{run.intent.primary}</Badge>}
             {run.metrics.topScore !== null && (
-              <span className="tabular ml-auto font-mono text-xs font-semibold text-brand">
+              <span className="tabular ml-auto font-mono text-[11px] font-semibold text-brand">
                 {run.metrics.topScore}
               </span>
             )}
@@ -122,19 +122,19 @@ export function RecentIntakesSection({ runs }: { runs: RunView[] }) {
               />
             </div>
           ) : (
-            <div className="flex items-center gap-2 px-5 py-3">
+            <div className="flex items-center gap-1.5 px-4 py-2.5">
               <button
                 type="button"
                 aria-label="Scroll left"
                 onClick={() => scroll(-1)}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand"
               >
                 ‹
               </button>
 
               <div
                 ref={scrollerRef}
-                className="flex flex-1 gap-2.5 overflow-x-auto scroll-smooth scrollbar-none [&::-webkit-scrollbar]:hidden"
+                className="flex flex-1 gap-2 overflow-x-auto scroll-smooth scrollbar-none [&::-webkit-scrollbar]:hidden"
               >
                 {strip.map((run) => (
                   <RunCard key={run.id} run={run} />
@@ -144,7 +144,7 @@ export function RecentIntakesSection({ runs }: { runs: RunView[] }) {
                   <button
                     type="button"
                     onClick={() => setShowAll(true)}
-                    className="flex w-28 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-line text-xs font-medium text-muted transition-colors hover:border-brand/40 hover:text-brand"
+                    className="flex w-24 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-line text-xs font-medium text-muted transition-colors hover:border-brand/40 hover:text-brand"
                   >
                     <span>View all</span>
                     <span className="text-[11px] text-faint">{runs.length} total</span>
@@ -156,7 +156,7 @@ export function RecentIntakesSection({ runs }: { runs: RunView[] }) {
                 type="button"
                 aria-label="Scroll right"
                 onClick={() => scroll(1)}
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand"
+                className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand"
               >
                 ›
               </button>

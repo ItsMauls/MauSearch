@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LENSES, MARKETS, Lens, MarketCode } from "@/lib/schema";
 import { Card, cx } from "@/components/ui";
 
@@ -44,6 +44,7 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
   const [lens, setLens] = useState<Lens>("general");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   async function submit(intake?: { keyword: string; market: MarketCode; lens: Lens }) {
     const payload = intake ?? { keyword, market, lens };
@@ -51,6 +52,8 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
       setError("Enter a keyword or topic to analyse.");
       return;
     }
+    const controller = new AbortController();
+    abortRef.current = controller;
     setBusy(true);
     setError(null);
     try {
@@ -58,14 +61,23 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
+        signal: controller.signal,
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "Intake failed");
       router.push(`/w/${data.run.slug ?? data.run.id}`);
     } catch (err) {
+      if ((err as Error).name === "AbortError") {
+        setBusy(false);
+        return;
+      }
       setError((err as Error).message);
       setBusy(false);
     }
+  }
+
+  function cancel() {
+    abortRef.current?.abort();
   }
 
   return (
@@ -150,13 +162,24 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
           </p>
         )}
 
-        <button
-          type="submit"
-          disabled={busy}
-          className="w-full rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand/90 disabled:cursor-wait disabled:opacity-80"
-        >
-          {busy ? "Search Desk is working…" : "Analyse keyword"}
-        </button>
+        <div className="flex gap-2">
+          <button
+            type="submit"
+            disabled={busy}
+            className="flex-1 rounded-lg bg-brand px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-brand/90 disabled:cursor-wait disabled:opacity-80"
+          >
+            {busy ? "Search Desk is working…" : "Analyse keyword"}
+          </button>
+          {busy && (
+            <button
+              type="button"
+              onClick={cancel}
+              className="rounded-lg border border-line px-4 py-2.5 text-sm font-medium text-muted transition-colors hover:border-danger/40 hover:text-danger"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
 
         {busy ? (
           <IntakeProgress freeTierModel={freeTierModel} />
