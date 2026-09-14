@@ -47,10 +47,19 @@ export const runs = pgTable(
     // does the failure become a stageError the user has to act on.
     stageAttempts: jsonb("stage_attempts").$type<StageAttempts>().notNull().default({}),
 
-    // Set the instant a stage's model call begins, cleared when it lands or
-    // fails. Read back on the next SSR render so a reload's elapsed timer
-    // resumes from the real start instead of the moment the page remounted.
+    // When the CURRENT desk truly began - the board's elapsed timer reads
+    // this. Set once per desk and left alone across a silent auto-retry (see
+    // workerLockedAt below), so a retried desk keeps counting up instead of
+    // looking like it restarted at 0. Cleared only when the desk finishes or
+    // is genuinely parked for the user.
     stageStartedAt: timestamp("stage_started_at", { withTimezone: true }),
+
+    // The worker mutual-exclusion lock: set the instant a worker claims the
+    // run, cleared the instant it releases - on every hand-off, not just a
+    // finished desk. Deliberately separate from stageStartedAt above: a
+    // desk's true start must survive being handed to a fresh worker, but the
+    // lock itself must not.
+    workerLockedAt: timestamp("worker_locked_at", { withTimezone: true }),
 
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },

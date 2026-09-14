@@ -61,6 +61,25 @@ export function nextStage(run: RunRow): StageId | null {
 }
 
 /**
+ * Claims the run's worker lock and, only if this is genuinely a new desk
+ * (not a retry hand-off, which leaves stageStartedAt set on purpose - see
+ * driveRun's catch branch), stamps its true start.
+ *
+ * Pulled out of startDrive so scripts/check.mts can verify the claim/stamp
+ * behaviour directly - the `after()` call below needs a real request scope
+ * and would crash a plain script.
+ */
+export async function claimDesk(run: RunRow): Promise<RunRow | null> {
+  const claimed = await claimRun(run.id, new Date(Date.now() - STALE_MS));
+  if (!claimed) return null;
+  if (!claimed.stageStartedAt) {
+    claimed.stageStartedAt = new Date();
+    await updateRun(claimed.id, { stageStartedAt: claimed.stageStartedAt });
+  }
+  return claimed;
+}
+
+/**
  * Hands the next desk to a background worker and returns the run as the caller
  * should now report it.
  *
@@ -70,12 +89,9 @@ export function nextStage(run: RunRow): StageId | null {
  */
 export async function startDrive(run: RunRow): Promise<RunRow> {
   if (!nextStage(run)) return run;
-  const claimed = await claimRun(run.id, new Date(Date.now() - STALE_MS));
+  const claimed = await claimDesk(run);
   if (!claimed) return run;
-  // Outlives the response: the desk is not the client's to wait for. The claim
-  // timestamp doubles as the desk's real start, which is what lets the board's
-  // elapsed timer survive a reload.
-  after(() => driveRun(claimed.id));
+  after(() => driveRun(claimed.id)); // outlives the response - not the client's to wait for
   return claimed;
 }
 
@@ -85,7 +101,7 @@ export async function driveRun(id: string): Promise<void> {
   if (!run) return; // deleted mid-run
   const stage = nextStage(run);
   if (!stage) {
-    await updateRun(id, { stageStartedAt: null });
+    await updateRun(id, { stageStartedAt: null, workerLockedAt: null });
     return;
   }
 
@@ -96,14 +112,24 @@ export async function driveRun(id: string): Promise<void> {
     // starts counting from zero again, same as a fresh desk.
     const stageAttempts = { ...run.stageAttempts };
     delete stageAttempts[stage];
-    // Released in the same write that stores the result: a run is never left
-    // looking busy when no worker is on it.
-    await updateRun(id, { ...patch, stageAttempts, stageStartedAt: null });
-    advanced = { ...run, ...patch, stageAttempts };
+    // Both released in the same write that stores the result: the desk is
+    // over (so its timer resets - the *next* desk gets its own fresh start),
+    // and no worker is on this run any more.
+    await updateRun(id, { ...patch, stageAttempts, stageStartedAt: null, workerLockedAt: null });
+    advanced = { ...run, ...patch, stageAttempts, stageStartedAt: null };
   } catch (err) {
     const message = err instanceof StageError ? err.message : `Stage failed: ${String(err)}`;
     const patch = failurePatch(run, stage, message);
-    await updateRun(id, patch);
+    await updateRun(id, {
+      ...patch,
+      // Always release the worker lock so a fresh one can pick this up.
+      // stageStartedAt is a different story: only a genuinely exhausted desk
+      // clears it (nothing is "in progress" to show a timer for any more) -
+      // a silent retry keeps it, so the elapsed time the user sees is how
+      // long they've waited for this desk, not how long this one attempt ran.
+      stageStartedAt: patch.exhausted ? null : run.stageStartedAt,
+      workerLockedAt: null,
+    });
     // Not exhausted yet: hand straight to a fresh worker instead of waiting
     // for the user (or the next poll) to notice and ask again.
     if (!patch.exhausted) await handOver(id);
@@ -126,13 +152,12 @@ export function failurePatch(
   run: Pick<RunRow, "stageErrors" | "stageAttempts">,
   stage: StageId,
   message: string
-): { stageErrors: RunRow["stageErrors"]; stageAttempts: RunRow["stageAttempts"]; stageStartedAt: null; exhausted: boolean } {
+): { stageErrors: RunRow["stageErrors"]; stageAttempts: RunRow["stageAttempts"]; exhausted: boolean } {
   const attempts = (run.stageAttempts[stage] ?? 0) + 1;
   const exhausted = attempts >= MAX_STAGE_ATTEMPTS;
   return {
     stageErrors: exhausted ? { ...run.stageErrors, [stage]: message } : run.stageErrors,
     stageAttempts: { ...run.stageAttempts, [stage]: exhausted ? 0 : attempts },
-    stageStartedAt: null,
     exhausted,
   };
 }

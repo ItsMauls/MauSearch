@@ -52,6 +52,7 @@ await insertRun({
   stageErrors: {},
   stageAttempts: {},
   stageStartedAt: null,
+  workerLockedAt: null,
   createdAt: new Date(),
 });
 

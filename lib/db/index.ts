@@ -81,30 +81,38 @@ export async function updateRun(id: string, patch: Partial<RunRow>): Promise<voi
 }
 
 /**
- * Atomic compare-and-set on the run's worker lock: stamps `stageStartedAt` with
- * now and returns the row only if nobody holds the lock, or the holder's last
- * heartbeat is older than `staleBefore` (a worker the platform killed).
+ * Atomic compare-and-set on the run's worker lock: stamps `workerLockedAt`
+ * with now and returns the row only if nobody holds the lock, or the holder's
+ * last heartbeat is older than `staleBefore` (a worker the platform killed).
  *
  * This is the whole defence against a desk running twice. A reload, a second
  * tab and a retry all issue the same claim; exactly one wins and the rest just
  * watch. It has to be one statement - read-then-write lets two requests both
  * see a free lock.
+ *
+ * Deliberately keyed on `workerLockedAt`, not `stageStartedAt`: the lock is
+ * released on every hand-off (including a silent auto-retry of the same
+ * desk), but stageStartedAt - the board's elapsed timer - has to survive
+ * that hand-off, or a retried desk looks like it restarted at 0.
  */
 export async function claimRun(id: string, staleBefore: Date): Promise<RunRow | null> {
   const now = new Date();
   if (!db) {
     const existing = memory.runs.get(id);
     if (!existing) return null;
-    if (existing.stageStartedAt && existing.stageStartedAt > staleBefore) return null;
-    const claimed = { ...existing, stageStartedAt: now };
+    if (existing.workerLockedAt && existing.workerLockedAt > staleBefore) return null;
+    const claimed = { ...existing, workerLockedAt: now };
     memory.runs.set(id, claimed);
     return claimed;
   }
   const [row] = await db
     .update(runs)
-    .set({ stageStartedAt: now })
+    .set({ workerLockedAt: now })
     .where(
-      and(eq(runs.id, id), or(isNull(runs.stageStartedAt), lt(runs.stageStartedAt, staleBefore)))
+      and(
+        eq(runs.id, id),
+        or(isNull(runs.workerLockedAt), lt(runs.workerLockedAt, staleBefore))
+      )
     )
     .returning();
   return row ?? null;

@@ -86,6 +86,7 @@ export async function POST(request: NextRequest) {
     stageErrors: {},
     stageAttempts: {},
     stageStartedAt: null,
+    workerLockedAt: null,
     createdAt: new Date(),
   };
 

@@ -11,8 +11,8 @@ import { ruleSignals } from "@/lib/pipeline/rules";
 import { dedupeAndSignal } from "@/lib/pipeline/dedupe";
 import { demandSignal, rankOpportunities, scoreOpportunity } from "@/lib/pipeline/score";
 import { runHarvest } from "@/lib/pipeline";
-import { driveRun, failurePatch, nextStage } from "@/lib/ai/drive";
-import { claimRun, getRun, insertRun, newId } from "@/lib/db";
+import { claimDesk, driveRun, failurePatch, nextStage } from "@/lib/ai/drive";
+import { claimRun, getRun, insertRun, newId, updateRun } from "@/lib/db";
 import { RunRow } from "@/lib/db/schema";
 import { Opportunity, NormalizedIntake, STAGE_IDS } from "@/lib/schema";
 
@@ -357,6 +357,7 @@ console.log("\npipeline driver");
     stageErrors: {},
     stageAttempts: {},
     stageStartedAt: null,
+    workerLockedAt: null,
     createdAt: new Date(),
   });
 
@@ -396,7 +397,8 @@ console.log("\npipeline driver");
   assert.ok(finished.clusters, "clusters produced no output");
   assert.ok(finished.audienceFit, "planning produced no output");
   assert.ok(finished.angles, "creative produced no output");
-  assert.equal(finished.stageStartedAt, null, "the lock is released when the run is done");
+  assert.equal(finished.stageStartedAt, null, "no desk is in progress once the run is done");
+  assert.equal(finished.workerLockedAt, null, "the worker lock is released when the run is done");
   assert.equal(nextStage(finished), null, "nothing is still owed");
   ok("the relay walks all four desks to done and releases the lock");
 
@@ -421,6 +423,31 @@ console.log("\npipeline driver");
   assert.equal(parked.stageErrors.clusters, "queue miss", "an exhausted desk records the real error");
   assert.equal(parked.stageAttempts.clusters, 0, "the count resets so a manual retry gets 3 fresh tries");
   ok("a desk gets 3 silent auto-retries before it parks the run for the user");
+
+  // The bug this fixes: a silent auto-retry used to reset the run's single
+  // lock timestamp, which the board also reads as "when did this desk start"
+  // - so every retry looked like the elapsed timer jumping back to 0. The
+  // fix splits that into two fields; this reproduces the exact before/after
+  // hand-off sequence and checks the desk's true start survives it.
+  const timed = await insertRun(blank());
+  const firstClaim = await claimDesk(timed);
+  const trueStart = firstClaim?.stageStartedAt;
+  assert.ok(trueStart, "the first claim stamps the desk's true start");
+
+  // What driveRun's catch branch does on a non-exhausted failure: release the
+  // worker lock, but leave stageStartedAt exactly as it was.
+  await updateRun(timed.id, { stageStartedAt: trueStart, workerLockedAt: null });
+
+  // What the next worker's hand-off does: claim, then (per the fix) skip
+  // re-stamping because a desk is already in progress.
+  const afterRetry = (await getRun(timed.id))!;
+  const secondClaim = await claimDesk(afterRetry);
+  assert.equal(
+    secondClaim?.stageStartedAt?.getTime(),
+    trueStart?.getTime(),
+    "a retry hand-off must not move the desk's true start - the elapsed timer must not reset to 0"
+  );
+  ok("a desk's elapsed timer survives a silent auto-retry instead of restarting at 0");
 }
 
 console.log(`\n${checks} checks passed\n`);
