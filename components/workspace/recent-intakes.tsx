@@ -91,7 +91,7 @@ export function RecentIntakesSection({ runs }: { runs: RunView[] }) {
   const strip = runs.slice(0, STRIP_LIMIT);
 
   return (
-    <Card className="order-2 md:order-1">
+    <Card>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}

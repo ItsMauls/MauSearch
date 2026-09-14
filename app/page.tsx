@@ -40,9 +40,7 @@ export default async function WorkspaceHome() {
           </Banner>
         )}
 
-        <RecentIntakesSection runs={runs} />
-
-        <div className="order-1 grid gap-6 md:order-2 lg:grid-cols-[1.35fr_1fr]">
+        <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
           <IntakeForm freeTierModel={isFreeTierModel()} />
 
           <div className="space-y-4">
@@ -99,6 +97,8 @@ export default async function WorkspaceHome() {
             </Card>
           </div>
         </div>
+
+        <RecentIntakesSection runs={runs} />
       </div>
     </>
   );
