@@ -118,7 +118,9 @@ export function DemandReadPanel({ run }: { run: RunView }) {
                   <span className="font-medium text-ink">
                     {m.type} <span className="tabular font-mono">{m.share}%</span>
                   </span>
-                  <span className="block text-muted">{m.evidence}</span>
+                  <span className="block text-muted">
+                    {m.evidence.replace(/\s*\(rank \d+,\s*\d+ seeds?\)/gi, "")}
+                  </span>
                 </span>
               </li>
             ))}

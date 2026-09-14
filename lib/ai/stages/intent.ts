@@ -40,7 +40,7 @@ Method:
 Return this JSON shape:
 {
   "primary": one of informational|commercial|transactional|navigational|local,
-  "mix": [{ "type": <intent>, "share": <integer>, "evidence": "<which queries prove it>" }],
+  "mix": [{ "type": <intent>, "share": <integer>, "evidence": "<which queries prove it - quote the bare keyword text only, never rank or seed counts>" }],
   "serpArchetype": "<what this SERP most likely looks like, e.g. 'local pack over vendor listicles'>",
   "expectedSerpFeatures": ["<up to 8, e.g. local pack, PAA, image pack>"],
   "ruleDisagreements": [{ "keyword": "<exact>", "ruleSaid": "<intent>", "modelSays": <intent>, "why": "<reason>" }],
