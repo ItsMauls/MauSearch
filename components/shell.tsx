@@ -96,16 +96,20 @@ export function MobileTopbar() {
       </div>
 
       {open && (
-        <>
+        <div
+          className="fixed inset-0 z-30 flex items-center justify-center bg-black/40 p-6"
+          onClick={() => setOpen(false)}
+          aria-hidden
+        >
           <div
-            className="fixed inset-0 z-30 bg-black/30"
-            onClick={() => setOpen(false)}
-            aria-hidden
-          />
-          <div className="fixed inset-y-0 left-0 z-40 flex w-[260px] flex-col border-r border-line bg-surface py-2 shadow-xl">
+            role="dialog"
+            aria-modal="true"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-xs rounded-2xl border border-line bg-surface py-2 shadow-xl"
+          >
             <NavLinks pathname={pathname} onNavigate={() => setOpen(false)} />
           </div>
-        </>
+        </div>
       )}
     </div>
   );

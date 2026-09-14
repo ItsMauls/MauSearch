@@ -31,7 +31,7 @@ export default async function WorkspaceHome() {
         subtitle="A keyword goes in as an intake brief. A strategy comes out — evidenced, prioritized, and ready to hand to a writer."
       />
 
-      <div className="mx-auto max-w-6xl space-y-6 px-6 py-6 md:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-6 md:px-8">
         {!hasLiveModel() && (
           <Banner title="Running on sample data">
             No <code className="font-mono text-xs">AI_API_KEY</code> is configured, so the
@@ -39,7 +39,51 @@ export default async function WorkspaceHome() {
           </Banner>
         )}
 
-        <div className="grid gap-6 lg:grid-cols-[1.35fr_1fr]">
+        <Card className="order-2 md:order-1">
+          <SectionHeader
+            index="01"
+            title="Recent Intakes"
+            meta={`${runs.length} run${runs.length === 1 ? "" : "s"} in this workspace`}
+          />
+          {runs.length === 0 ? (
+            <div className="p-5">
+              <EmptyState
+                title="No intakes yet"
+                body="Enter a keyword above, or start from one of the samples. The Search Desk harvests real Google Suggest data before any model runs."
+              />
+            </div>
+          ) : (
+            <div className="flex gap-3 overflow-x-auto px-5 py-4">
+              {runs.map((run) => (
+                <Link
+                  key={run.id}
+                  href={`/w/${run.slug ?? run.id}`}
+                  className="flex w-64 shrink-0 flex-col gap-2 rounded-xl border border-line bg-canvas/60 p-3.5 transition-colors hover:border-brand/40 hover:bg-canvas"
+                >
+                  <span className="flex items-start justify-between gap-2">
+                    <span className="truncate text-sm font-medium text-ink">{run.keyword}</span>
+                    <Badge tone={run.complete ? "positive" : "warn"}>
+                      {run.complete ? "Done" : "Running"}
+                    </Badge>
+                  </span>
+                  <span className="text-xs text-muted">
+                    {run.market} · {run.metrics.keywordCount} kw · {run.metrics.clusterCount} clusters
+                  </span>
+                  <span className="flex items-center gap-2">
+                    {run.intent && <Badge tone="accent">{run.intent.primary}</Badge>}
+                    {run.metrics.topScore !== null && (
+                      <span className="tabular ml-auto font-mono text-sm font-semibold text-brand">
+                        {run.metrics.topScore}
+                      </span>
+                    )}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          )}
+        </Card>
+
+        <div className="order-1 grid gap-6 md:order-2 lg:grid-cols-[1.35fr_1fr]">
           <IntakeForm freeTierModel={isFreeTierModel()} />
 
           <div className="space-y-4">
@@ -84,52 +128,6 @@ export default async function WorkspaceHome() {
             </Card>
           </div>
         </div>
-
-        <Card>
-          <SectionHeader
-            index="01"
-            title="Recent Intakes"
-            meta={`${runs.length} run${runs.length === 1 ? "" : "s"} in this workspace`}
-          />
-          {runs.length === 0 ? (
-            <div className="p-5">
-              <EmptyState
-                title="No intakes yet"
-                body="Enter a keyword above, or start from one of the samples. The Search Desk harvests real Google Suggest data before any model runs."
-              />
-            </div>
-          ) : (
-            <ul className="divide-y divide-line">
-              {runs.map((run) => (
-                <li key={run.id}>
-                  <Link
-                    href={`/w/${run.slug ?? run.id}`}
-                    className="flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5 transition-colors hover:bg-canvas"
-                  >
-                    <span className="min-w-0 flex-1">
-                      <span className="block truncate text-sm font-medium text-ink">
-                        {run.keyword}
-                      </span>
-                      <span className="block text-xs text-muted">
-                        {run.market} · {run.metrics.keywordCount} keywords ·{" "}
-                        {run.metrics.clusterCount} clusters
-                      </span>
-                    </span>
-                    {run.intent && <Badge tone="accent">{run.intent.primary}</Badge>}
-                    {run.metrics.topScore !== null && (
-                      <span className="tabular font-mono text-sm font-semibold text-brand">
-                        {run.metrics.topScore}
-                      </span>
-                    )}
-                    <Badge tone={run.complete ? "positive" : "warn"}>
-                      {run.complete ? "Complete" : "In progress"}
-                    </Badge>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          )}
-        </Card>
       </div>
     </>
   );
