@@ -42,13 +42,19 @@ export function buildSeeds(intake: NormalizedIntake): { seed: string; isBase: bo
   ];
 }
 
-async function fetchSeed(seed: string, language: string, country: string): Promise<string[]> {
+async function fetchSeed(
+  seed: string,
+  language: string,
+  country: string,
+  signal?: AbortSignal
+): Promise<string[]> {
   const url =
     "https://suggestqueries.google.com/complete/search?client=firefox" +
     `&q=${encodeURIComponent(seed)}&hl=${language}&gl=${country}`;
 
+  const timeout = AbortSignal.timeout(SUGGEST_TIMEOUT_MS);
   const res = await fetch(url, {
-    signal: AbortSignal.timeout(SUGGEST_TIMEOUT_MS),
+    signal: signal ? AbortSignal.any([signal, timeout]) : timeout,
     headers: { "User-Agent": "Mozilla/5.0 (compatible; MauSearch/1.0)" },
     cache: "no-store",
   });
@@ -65,14 +71,17 @@ async function fetchSeed(seed: string, language: string, country: string): Promi
  * seed simply contributes nothing. Only a total wipeout is escalated to the
  * caller, which then falls back to AI expansion with downgraded provenance.
  */
-export async function harvestSuggestions(intake: NormalizedIntake): Promise<{
+export async function harvestSuggestions(
+  intake: NormalizedIntake,
+  signal?: AbortSignal
+): Promise<{
   results: SeedResult[];
   seedsAttempted: number;
   seedsSucceeded: number;
 }> {
   const seeds = buildSeeds(intake);
   const settled = await Promise.allSettled(
-    seeds.map((s) => fetchSeed(s.seed, intake.language, intake.country))
+    seeds.map((s) => fetchSeed(s.seed, intake.language, intake.country, signal))
   );
 
   const results: SeedResult[] = [];

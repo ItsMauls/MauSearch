@@ -13,8 +13,11 @@ export * from "./score";
  * or an honest `unavailable` status; the caller decides whether to fall back to
  * AI expansion, and the UI relabels provenance accordingly.
  */
-export async function runHarvest(intake: NormalizedIntake): Promise<HarvestResult> {
-  const { results, seedsAttempted, seedsSucceeded } = await harvestSuggestions(intake);
+export async function runHarvest(
+  intake: NormalizedIntake,
+  signal?: AbortSignal
+): Promise<HarvestResult> {
+  const { results, seedsAttempted, seedsSucceeded } = await harvestSuggestions(intake, signal);
 
   const status: SuggestStatus =
     seedsSucceeded === 0 ? "unavailable" : seedsSucceeded < seedsAttempted ? "partial" : "ok";

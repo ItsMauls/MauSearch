@@ -80,6 +80,14 @@ export async function updateRun(id: string, patch: Partial<RunRow>): Promise<voi
   await db.update(runs).set(patch).where(eq(runs.id, id));
 }
 
+export async function deleteRun(id: string): Promise<void> {
+  if (!db) {
+    memory.runs.delete(id);
+    return;
+  }
+  await db.delete(runs).where(eq(runs.id, id));
+}
+
 export async function listRuns(limit = 12): Promise<RunRow[]> {
   if (!db) return byNewest([...memory.runs.values()]).slice(0, limit);
   return db.select().from(runs).orderBy(desc(runs.createdAt)).limit(limit);

@@ -38,7 +38,13 @@ export async function POST(request: NextRequest) {
   }
 
   // Stages 1-3: real data, entirely deterministic.
-  const harvest = await runHarvest(intake);
+  const harvest = await runHarvest(intake, request.signal);
+
+  // The client cancelled mid-harvest - no point finishing the fallback call or
+  // persisting a run nobody is waiting on.
+  if (request.signal.aborted) {
+    return NextResponse.json({ error: "Cancelled" }, { status: 499 });
+  }
 
   // Total Suggest outage is the only case that falls back to AI expansion, and
   // everything derived from it is relabelled `ai` for the user.
@@ -46,6 +52,10 @@ export async function POST(request: NextRequest) {
   if (harvest.status === "unavailable") {
     const expanded = await runStage(expandStage, { intake });
     keywords = toHarvestedKeywords(expanded, intake);
+  }
+
+  if (request.signal.aborted) {
+    return NextResponse.json({ error: "Cancelled" }, { status: 499 });
   }
 
   const id = newId();
