@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
-import { Badge, Card, EmptyState, SectionHeader } from "@/components/ui";
+import { Badge, Card, cx, EmptyState, SectionHeader } from "@/components/ui";
 import type { RunView } from "@/lib/view";
 
 const STRIP_LIMIT = 10;
@@ -107,55 +107,63 @@ export function RecentIntakesSection({ runs }: { runs: RunView[] }) {
         </span>
       </button>
 
-      {open &&
-        (runs.length === 0 ? (
-          <div className="p-5">
-            <EmptyState
-              title="No intakes yet"
-              body="Enter a keyword above, or start from one of the samples. The Search Desk harvests real Google Suggest data before any model runs."
-            />
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 px-5 py-3">
-            <button
-              type="button"
-              aria-label="Scroll left"
-              onClick={() => scroll(-1)}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand"
-            >
-              ‹
-            </button>
-
-            <div
-              ref={scrollerRef}
-              className="flex flex-1 gap-2.5 overflow-x-auto scroll-smooth scrollbar-none [&::-webkit-scrollbar]:hidden"
-            >
-              {strip.map((run) => (
-                <RunCard key={run.id} run={run} />
-              ))}
-
-              {runs.length > STRIP_LIMIT && (
-                <button
-                  type="button"
-                  onClick={() => setShowAll(true)}
-                  className="flex w-28 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-line text-xs font-medium text-muted transition-colors hover:border-brand/40 hover:text-brand"
-                >
-                  <span>View all</span>
-                  <span className="text-[11px] text-faint">{runs.length} total</span>
-                </button>
-              )}
+      <div
+        className={cx(
+          "grid transition-[grid-template-rows] duration-300 ease-in-out",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+        )}
+      >
+        <div className="overflow-hidden">
+          {runs.length === 0 ? (
+            <div className="p-5">
+              <EmptyState
+                title="No intakes yet"
+                body="Enter a keyword above, or start from one of the samples. The Search Desk harvests real Google Suggest data before any model runs."
+              />
             </div>
+          ) : (
+            <div className="flex items-center gap-2 px-5 py-3">
+              <button
+                type="button"
+                aria-label="Scroll left"
+                onClick={() => scroll(-1)}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand"
+              >
+                ‹
+              </button>
 
-            <button
-              type="button"
-              aria-label="Scroll right"
-              onClick={() => scroll(1)}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand"
-            >
-              ›
-            </button>
-          </div>
-        ))}
+              <div
+                ref={scrollerRef}
+                className="flex flex-1 gap-2.5 overflow-x-auto scroll-smooth scrollbar-none [&::-webkit-scrollbar]:hidden"
+              >
+                {strip.map((run) => (
+                  <RunCard key={run.id} run={run} />
+                ))}
+
+                {runs.length > STRIP_LIMIT && (
+                  <button
+                    type="button"
+                    onClick={() => setShowAll(true)}
+                    className="flex w-28 shrink-0 flex-col items-center justify-center gap-1 rounded-lg border border-dashed border-line text-xs font-medium text-muted transition-colors hover:border-brand/40 hover:text-brand"
+                  >
+                    <span>View all</span>
+                    <span className="text-[11px] text-faint">{runs.length} total</span>
+                  </button>
+                )}
+              </div>
+
+              <button
+                type="button"
+                aria-label="Scroll right"
+                onClick={() => scroll(1)}
+                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-line text-muted transition-colors hover:border-brand/40 hover:text-brand"
+              >
+                ›
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
 
       {showAll && (
         <div

@@ -14,7 +14,25 @@ const SAMPLES: { keyword: string; market: MarketCode; lens: Lens; note: string }
     lens: "b2b_demand",
     note: "B2B, long consideration",
   },
+  { keyword: "sepatu lari terbaik", market: "ID", lens: "ecommerce", note: "Product comparison" },
+  {
+    keyword: "best project management software",
+    market: "SG",
+    lens: "thought_leadership",
+    note: "Category authority",
+  },
+  { keyword: "wedding photographer kuala lumpur", market: "MY", lens: "local_service", note: "Local service" },
+  { keyword: "how does compound interest work", market: "GB", lens: "general", note: "Broad informational" },
+  { keyword: "skincare rutin remaja", market: "ID", lens: "ecommerce", note: "Consumer, Bahasa" },
 ];
+
+const LENS_DESCRIPTIONS: Record<Lens, string> = {
+  general: "No slant — balanced mix of informational, commercial, and navigational queries.",
+  local_service: "For businesses serving a city or region: bookings, quotes, \"near me\" intent.",
+  b2b_demand: "For longer B2B sales cycles: solution research, comparisons, procurement signals.",
+  ecommerce: "For online stores: product, price, and comparison queries that lead to a purchase.",
+  thought_leadership: "For building category authority: broad, high-level questions your brand can own.",
+};
 
 /**
  * Stage 0 in the UI. Submitting runs the deterministic harvest plus the first
@@ -112,9 +130,10 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
                 key={value}
                 type="button"
                 disabled={busy}
+                title={LENS_DESCRIPTIONS[value as Lens]}
                 onClick={() => setLens(value as Lens)}
                 className={cx(
-                  "rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors disabled:opacity-60",
+                  "cursor-help rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors disabled:opacity-60",
                   lens === value
                     ? "border-brand bg-brand-soft text-brand"
                     : "border-line bg-surface text-muted hover:border-line-strong"
@@ -124,6 +143,7 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
               </button>
             ))}
           </div>
+          <p className="mt-1.5 text-[11px] text-faint">{LENS_DESCRIPTIONS[lens]}</p>
         </div>
 
         {error && (
@@ -147,7 +167,7 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-faint">
               Or start from a sample
             </p>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="grid grid-cols-2 gap-1.5">
               {SAMPLES.map((sample) => (
                 <button
                   key={sample.keyword}
@@ -160,7 +180,7 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
                   }}
                   className="rounded-lg border border-line bg-canvas px-2.5 py-1.5 text-left text-xs transition-colors hover:border-brand hover:bg-brand-soft"
                 >
-                  <span className="block font-medium text-ink">{sample.keyword}</span>
+                  <span className="block truncate font-medium text-ink">{sample.keyword}</span>
                   <span className="block text-[10px] text-faint">{sample.note}</span>
                 </button>
               ))}
