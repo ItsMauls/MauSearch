@@ -146,7 +146,7 @@ export const ClustersStage = z.object({
         note: z.string(),
       })
     )
-    .min(2)
+    .min(1)
     .max(6),
   entities: z.array(z.string()).max(20),
   coverageGaps: z.array(z.string()).max(6),
@@ -309,6 +309,12 @@ export type BriefStage = z.infer<typeof BriefStage>;
 export const STAGE_IDS = ["intent", "clusters", "planning", "creative"] as const;
 export type StageId = (typeof STAGE_IDS)[number];
 
-export const StageRequest = z.object({ stage: z.enum(STAGE_IDS) });
+/** `stage` only when the caller is retrying one failed desk; otherwise the
+ *  request just means "keep this run moving". */
+export const StageRequest = z.object({ stage: z.enum(STAGE_IDS).optional() });
 
 export type StageErrors = Partial<Record<StageId | "brief", string>>;
+
+/** How many times each desk has failed in a row since it last succeeded (or
+ *  since the run started). Drives the auto-retry in lib/ai/drive.ts. */
+export type StageAttempts = Partial<Record<StageId, number>>;

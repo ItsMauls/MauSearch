@@ -32,6 +32,8 @@ Method:
   "biaya X" belong together; "X murah" and "X premium" usually do not.
 - A cluster must be big enough to justify its own page. Two keywords is not a cluster.
 - Keywords that fit nowhere are left out. Forcing them in produces a page about nothing.
+- If the keyword universe is too narrow or too uniform to split into distinct topics,
+  return a single cluster rather than inventing a second one that doesn't hold together.
 
 Return this JSON shape:
 {
@@ -49,7 +51,7 @@ Return this JSON shape:
 }
 
 Hard constraints:
-- 2 to 6 clusters. ids are cluster_1, cluster_2, ... in order.
+- 1 to 6 clusters. ids are cluster_1, cluster_2, ... in order.
 - Every member must be an EXACT string from the keyword universe.
 - A keyword appears in at most one cluster.
 - "entities": at most 20 items. Pick the 20 most important if more come to mind.
