@@ -21,7 +21,7 @@ const SAMPLES: { keyword: string; market: MarketCode; lens: Lens; note: string }
     lens: "thought_leadership",
     note: "Category authority",
   },
-  { keyword: "wedding photographer kuala lumpur", market: "MY", lens: "local_service", note: "Local service" },
+  { keyword: "wedding photographer jakarta", market: "ID", lens: "local_service", note: "Local service" },
   { keyword: "how does compound interest work", market: "GB", lens: "general", note: "Broad informational" },
   { keyword: "skincare rutin remaja", market: "ID", lens: "ecommerce", note: "Consumer, Bahasa" },
 ];
@@ -167,7 +167,7 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
             <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-faint">
               Or start from a sample
             </p>
-            <div className="grid grid-cols-2 gap-1.5">
+            <div className="flex flex-wrap gap-1.5">
               {SAMPLES.map((sample) => (
                 <button
                   key={sample.keyword}
@@ -180,7 +180,7 @@ export function IntakeForm({ freeTierModel }: { freeTierModel: boolean }) {
                   }}
                   className="rounded-lg border border-line bg-canvas px-2.5 py-1.5 text-left text-xs transition-colors hover:border-brand hover:bg-brand-soft"
                 >
-                  <span className="block truncate font-medium text-ink">{sample.keyword}</span>
+                  <span className="block font-medium text-ink">{sample.keyword}</span>
                   <span className="block text-[10px] text-faint">{sample.note}</span>
                 </button>
               ))}
