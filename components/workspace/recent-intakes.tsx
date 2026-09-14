@@ -91,7 +91,7 @@ export function RecentIntakesSection({ runs }: { runs: RunView[] }) {
   const strip = runs.slice(0, STRIP_LIMIT);
 
   return (
-    <Card className="relative order-2 md:order-1">
+    <Card className="order-2 md:order-1">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -109,8 +109,8 @@ export function RecentIntakesSection({ runs }: { runs: RunView[] }) {
 
       <div
         className={cx(
-          "absolute inset-x-0 top-full z-20 origin-top overflow-hidden rounded-b-2xl border border-t-0 border-line bg-surface shadow-lg transition-[grid-template-rows,opacity] duration-200 ease-in-out",
-          open ? "visible opacity-100" : "invisible opacity-0"
+          "grid transition-[grid-template-rows] duration-300 ease-in-out",
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
         )}
       >
         <div className="overflow-hidden">
